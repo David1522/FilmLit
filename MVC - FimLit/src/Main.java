@@ -1,11 +1,13 @@
-import vista.MainVista;
-import controlador.MainControlator;
+import modelo.ModeloRegistro;
+import vista.VistaRegistro;
+import controlador.ControladorRegistro;
 
 public class Main {
     public static void main(String[] args) {
-        MainVista vista = new MainVista();
-        MainControlator controlador = new MainControlator(vista);
+        ModeloRegistro modelo = new ModeloRegistro();
+        VistaRegistro vista = new VistaRegistro();
+        ControladorRegistro controlador = new ControladorRegistro(modelo, vista);
 
-        controlador.iniciarApp();
+        controlador.iniciarAPP();
     }
 }

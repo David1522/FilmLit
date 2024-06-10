@@ -4,10 +4,7 @@ import controlador.ControladorRegistro;
 
 public class Main {
     public static void main(String[] args) {
-        ModeloRegistro modelo = new ModeloRegistro();
-        VistaRegistro vista = new VistaRegistro();
-        ControladorRegistro controlador = new ControladorRegistro(modelo, vista);
-
+        ControladorRegistro controlador = new ControladorRegistro();
         controlador.iniciarAPP();
     }
 }

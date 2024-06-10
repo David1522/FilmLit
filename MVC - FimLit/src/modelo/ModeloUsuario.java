@@ -1,10 +1,12 @@
 package modelo;
+import modelo.ModeloBilbioteca;
 
 public class ModeloUsuario {
     private String nombreusuario;
     private String email;
     private String contraseña;
     private String tipo;
+    private ModeloBilbioteca bilbiotecaUsuario = new ModeloBilbioteca();
 
     public ModeloUsuario(String nombreusuario, String email, String contraseña, String tipo) {
         this.nombreusuario = nombreusuario;
@@ -27,6 +29,10 @@ public class ModeloUsuario {
 
     public String getTipo() {
         return tipo;
+    }
+
+    public ModeloBilbioteca getBilbiotecaUsuario() {
+        return bilbiotecaUsuario;
     }
 
     public void setNombreusuario(String nombreusuario) {

@@ -3,16 +3,14 @@ import modelo.ModeloRegistro;
 import modelo.ModeloUsuario;
 import vista.VistaRegistro;
 import vista.VistaConfiguracion;
+import vista.VistaBiblioteca;
 
 public class ControladorRegistro {
-    private ModeloRegistro modelo;
-    private VistaRegistro vista;
+    private ModeloRegistro modelo = new ModeloRegistro();
+    private VistaRegistro vista = new VistaRegistro();
     private ModeloUsuario usuario;
 
-    public ControladorRegistro(ModeloRegistro modelo, VistaRegistro vista) {
-        this.modelo = modelo;
-        this.vista = vista;
-    }
+    public ControladorRegistro() {}
 
     public void iniciarAPP() {
         vista.saludar();
@@ -23,12 +21,12 @@ public class ControladorRegistro {
 
             if ("BASE".equals(usuario.getTipo()) || "PREMIUM".equals(usuario.getTipo())) {
                 while (true) {
-                    byte eleccion =  vista.mostrarBaseHomePage();
+                    byte eleccion = vista.mostrarBaseHomePage();
 
                     if (eleccion == 1) {
                         System.out.println("Publicaciones");
                     } else if (eleccion == 2) {
-                        System.out.println("Biblioteca");
+                        iniciarModuloBiblioteca();
                     } else if (eleccion == 3) {
                         System.out.println("Perfil");
                     } else {
@@ -100,5 +98,11 @@ public class ControladorRegistro {
         ControladorConfiguracion controlador = new ControladorConfiguracion(modelo, vista, usuario);
 
         return controlador.iniciarModulo();
+    }
+
+    public void iniciarModuloBiblioteca() {
+        VistaBiblioteca vista = new VistaBiblioteca();
+        ControladorBiblioteca controlador = new ControladorBiblioteca(vista, usuario.getBilbiotecaUsuario());
+        controlador.iniciarModulo();
     }
 }

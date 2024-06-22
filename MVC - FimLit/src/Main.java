@@ -1,10 +1,8 @@
-import modelo.ModeloRegistro;
-import vista.VistaRegistro;
-import controlador.ControladorRegistro;
+import controller.LibraryController;
 
 public class Main {
     public static void main(String[] args) {
-        ControladorRegistro controlador = new ControladorRegistro();
-        controlador.iniciarAPP();
+        LibraryController controller = new LibraryController();
+        controller.initModule();
     }
 }

@@ -1,0 +1,82 @@
+{
+  "2": {
+    "name": "Sapiens",
+    "year": "2011",
+    "author": "Yuval Harari",
+    "category": "History",
+    "rating": [
+      5.0,
+      4.2,
+      3.9
+    ],
+    "comments": [],
+    "meanRate": 4.46
+  },
+  "3": {
+    "name": "The Last Kingdom",
+    "year": "2004",
+    "author": "Bernard Cornwell",
+    "category": "Historical Fiction",
+    "rating": [
+      4.5,
+      4.0,
+      4.8,
+      4.2
+    ],
+    "comments": [
+      "Great storytelling!",
+      "Rich historical detail.",
+      "Engaging characters.",
+      "Well-paced narrative."
+    ],
+    "meanRate": 4.38
+  },
+  "4": {
+    "name": "The Silent Patient",
+    "year": "2019",
+    "author": "Alex Michaelides",
+    "category": "Thriller",
+    "rating": [
+      4.7,
+      4.3,
+      4.9,
+      5.0
+    ],
+    "comments": [
+      "Unputdownable!",
+      "A thrilling page-turner.",
+      "Unexpected twists.",
+      "Masterful plot."
+    ],
+    "meanRate": 4.73
+  },
+  "5": {
+    "name": "Educated",
+    "year": "2018",
+    "author": "Tara Westover",
+    "category": "Memoir",
+    "rating": [
+      4.8,
+      5.0,
+      4.6,
+      4.9,
+      4.7
+    ],
+    "comments": [
+      "Inspiring story.",
+      "Beautifully written.",
+      "A testament to resilience.",
+      "Highly recommend."
+    ],
+    "meanRate": 4.8
+  },
+  "7": {
+    "name": "100 años de soledad",
+    "year": "2000",
+    "author": "Gabriel García Marquez",
+    "category": "Terror",
+    "rating": [],
+    "comments": [],
+    "meanRate": 0.0
+  }
+}

@@ -1,8 +1,9 @@
-import controller.LibraryController;
+import controller.authController.AuthController;
 
 public class Main {
     public static void main(String[] args) {
-        LibraryController controller = new LibraryController();
-        controller.initModule();
+        AuthController controller = new AuthController();
+
+        controller.initAuth();
     }
 }

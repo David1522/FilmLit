@@ -1,27 +1,30 @@
 package controller;
 
-import model.Book;
-import model.LibraryModel;
+import model.libraryModel.Book;
+import model.libraryModel.LibraryModel;
 import view.LibraryView;
 
+import java.util.HashMap;
+
 public class LibraryController {
-    private final LibraryModel model = new LibraryModel();
+    private final LibraryModel model;
     private final LibraryView view = new LibraryView();
 
-    public LibraryController() {}
+    public LibraryController(HashMap<String, Book> userLibrary, String username) {
+        this.model = new LibraryModel(userLibrary, username);
+    }
 
     public void initModule() {
         view.displayMessage("Welcome to the Library Module!");
 
         while (true) {
-            int choice = view.mainMenu();
+            int choice = view.displayMenu("Library Menu", "Where you want to go?", new String[] {"Books DataBase", "User Library", "Exit"});
 
             if (choice == 1) {
                 dbController();
             } else if (choice == 2) {
                 userLibraryController();
             } else {
-                view.displayMessage("Thanks for using our services!");
                 break;
             }
         }
@@ -29,7 +32,7 @@ public class LibraryController {
 
     public void dbController() {
         while (true) {
-            int choice = view.dbMenu();
+            int choice = view.displayMenu("Data Base Menu", "What do you want to do?", new String[] {"Add Book", "Edit Book", "Remove Book", "Exit"});
 
             if (choice == 1) {
                 String ID = view.queryString("Enter new book ID: ");
@@ -47,7 +50,7 @@ public class LibraryController {
                 String ID = view.queryString("Enter the book ID: ");
                 if (model.IDExist(ID)) {
                     while (true) {
-                        int editChoice = view.editBookMenu();
+                        int editChoice = view.displayMenu("Edit Book Menu", "What do you want to edit?", new String[] {"Name", "Author", "Year", "Category", "Exit"});
 
                         if (editChoice == 1) {
                             String updated_name = view.queryString("Enter updated book name: ");
@@ -85,7 +88,7 @@ public class LibraryController {
 
     public void userLibraryController() {
         while (true) {
-            int choice = view.libraryMenu();
+            int choice = view.displayMenu("Library Menu", "What do you want to do?", new String[] {"Add Book", "Rate Book", "Remove Book", "Search Book", "Display Library", "Exit"});
 
             if (choice == 1) {
                 String name = view.queryString("Enter book name: ");
@@ -117,7 +120,7 @@ public class LibraryController {
                 }
             } else if (choice == 4) {
                 while (true) {
-                    int searchChoice = view.searchMenu();
+                    int searchChoice = view.displayMenu("Search Menu", "What do you want to search?", new String[] {"All Books", "Search by Author", "Search by Category", "Exit"});
 
                     if (searchChoice == 1) {
                         view.displayMessage(model.toString());

@@ -1,4 +1,4 @@
-package model;
+package model.libraryModel;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,9 +14,12 @@ import java.util.HashMap;
 public class LibraryModel {
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private HashMap<String, Book> booksDb = new HashMap<>();
-    private HashMap<String, Book> userLibrary = new HashMap<>();
+    private HashMap<String, Book> userLibrary;
+    private final String userLibraryFile;
 
-    public LibraryModel() {
+    public LibraryModel(HashMap<String, Book> userLibrary, String username) {
+        this.userLibrary = userLibrary;
+        this.userLibraryFile = "src/db/libraryDB/usersLibraries/" + username + ".json";
         readBooksDB();
         readUserLibrary();
     }
@@ -77,10 +80,12 @@ public class LibraryModel {
     }
 
     public void removeBookLibrary(String name) {
+        String bookKey = "";
         for (String key : userLibrary.keySet()) {
             if (name.equalsIgnoreCase(userLibrary.get(key).getName()))
-                userLibrary.remove(key);
+                bookKey = key;
         }
+        userLibrary.remove(bookKey);
         writeUserLibrary();
         writeBooksDB();
     }
@@ -160,7 +165,7 @@ public class LibraryModel {
     }
 
     private void readBooksDB() {
-        try (FileReader reader = new FileReader("src/db/books.json")) {
+        try (FileReader reader = new FileReader("src/db/libraryDB/books.json")) {
             Type type = new TypeToken<HashMap<String, Book>> () {}.getType();
             booksDb = gson.fromJson(reader, type);
         } catch (IOException e) {
@@ -169,7 +174,7 @@ public class LibraryModel {
     }
 
     private void writeBooksDB() {
-        try (FileWriter writer = new FileWriter("src/db/books.json")) {
+        try (FileWriter writer = new FileWriter("src/db/libraryDB/books.json")) {
             gson.toJson(booksDb, writer);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -177,7 +182,7 @@ public class LibraryModel {
     }
 
     private void readUserLibrary() {
-        try (FileReader reader = new FileReader("src/db/library.json")) {
+        try (FileReader reader = new FileReader(userLibraryFile)) {
             Type type = new TypeToken<HashMap<String, Book>> () {}.getType();
             userLibrary = gson.fromJson(reader, type);
         } catch (IOException e) {
@@ -186,7 +191,7 @@ public class LibraryModel {
     }
 
     private void writeUserLibrary() {
-        try (FileWriter writer = new FileWriter("src/db/library.json")) {
+        try (FileWriter writer = new FileWriter(userLibraryFile)) {
             gson.toJson(userLibrary, writer);
         } catch (IOException e) {
             throw new RuntimeException(e);

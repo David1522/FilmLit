@@ -1,0 +1,23 @@
+{
+  "3": {
+    "name": "The Last Kingdom",
+    "year": "2004",
+    "author": "Bernard Cornwell",
+    "category": "Historical Fiction",
+    "rating": [
+      4.5,
+      4.0,
+      4.8,
+      4.2,
+      1.0
+    ],
+    "comments": [
+      "Great storytelling!",
+      "Rich historical detail.",
+      "Engaging characters.",
+      "Well-paced narrative.",
+      "\nNot that good :("
+    ],
+    "meanRate": 3.7
+  }
+}

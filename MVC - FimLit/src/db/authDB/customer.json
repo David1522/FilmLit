@@ -1,0 +1,23 @@
+{
+  "1": {
+    "userLibrary": {},
+    "username": "Juan",
+    "email": "juanito@gmail.com",
+    "password": "juan15",
+    "type": "AUTHOR"
+  },
+  "2": {
+    "userLibrary": {},
+    "username": "Unum",
+    "email": "unum@gmail.com",
+    "password": "1235",
+    "type": "BASE"
+  },
+  "3": {
+    "userLibrary": {},
+    "username": "Carolina",
+    "email": "carito@gmail.com",
+    "password": "1903",
+    "type": "BASE"
+  }
+}

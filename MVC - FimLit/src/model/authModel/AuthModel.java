@@ -166,7 +166,7 @@ public class AuthModel {
     }
 
     private void createLibraryUserFile(String username) {
-        File file = new File("src/db/libraryDB/usersLibraries/" + username.toLowerCase(Locale.ROOT) + ".json");
+        File file = new File("src/db/libraryDB/usersLibraries/" + username.toLowerCase(Locale.ROOT) + "_library.json");
         try {
             if (file.createNewFile()) {
                 try (FileWriter writer = new FileWriter(file)) {

@@ -13,91 +13,91 @@ import java.util.HashMap;
 
 public class LibraryModel {
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private HashMap<String, Book> booksDb = new HashMap<>();
-    private HashMap<String, Book> userLibrary;
+    private HashMap<String, Work> worksDb = new HashMap<>();
+    private HashMap<String, Work> userLibrary;
     private final String userLibraryFile;
 
-    public LibraryModel(HashMap<String, Book> userLibrary, String username) {
+    public LibraryModel(HashMap<String, Work> userLibrary, String username) {
         this.userLibrary = userLibrary;
-        this.userLibraryFile = "src/db/libraryDB/usersLibraries/" + username + ".json";
-        readBooksDB();
+        this.userLibraryFile = "src/db/libraryDB/usersLibraries/" + username + "_library.json";
+        readWorksDB();
         readUserLibrary();
     }
 
-    public void addBook(String ID, Book newBook) {
-        booksDb.put(ID, newBook);
-        writeBooksDB();
+    public void addWork(String ID, Work newWork) {
+        worksDb.put(ID, newWork);
+        writeWorksDB();
         writeUserLibrary();
     }
 
-    public void updateBookName(String ID, String updated_name) {
-        booksDb.get(ID).setName(updated_name);
-        writeBooksDB();
+    public void updateWorkName(String ID, String updated_name) {
+        worksDb.get(ID).setName(updated_name);
+        writeWorksDB();
         writeUserLibrary();
     }
 
-    public void updateBookAuthor(String ID, String updated_author) {
-        booksDb.get(ID).setAuthor(updated_author);
-        writeBooksDB();
+    public void updateWorkAuthor(String ID, String updated_author) {
+        worksDb.get(ID).setAuthor(updated_author);
+        writeWorksDB();
         writeUserLibrary();
     }
 
-    public void updateBookYear(String ID, String updated_year) {
-        booksDb.get(ID).setYear(updated_year);
-        writeBooksDB();
+    public void updateWorkYear(String ID, String updated_year) {
+        worksDb.get(ID).setYear(updated_year);
+        writeWorksDB();
         writeUserLibrary();
     }
 
-    public void updateBookCategory(String ID, String updated_category) {
-        booksDb.get(ID).setCategory(updated_category);
-        writeBooksDB();
+    public void updateWorkCategory(String ID, String updated_category) {
+        worksDb.get(ID).setCategory(updated_category);
+        writeWorksDB();
         writeUserLibrary();
     }
 
-    public void removeBook(String ID) {
-        booksDb.remove(ID);
-        writeBooksDB();
+    public void removeWork(String ID) {
+        worksDb.remove(ID);
+        writeWorksDB();
         writeUserLibrary();
     }
 
-    public void addBookLibrary(String name) {
-        for (String key : booksDb.keySet()) {
-            if (name.equalsIgnoreCase(booksDb.get(key).getName())) {
-                userLibrary.put(key, booksDb.get(key));
+    public void addWorkLibrary(String name) {
+        for (String key : worksDb.keySet()) {
+            if (name.equalsIgnoreCase(worksDb.get(key).getName())) {
+                userLibrary.put(key, worksDb.get(key));
             }
         }
         writeUserLibrary();
-        writeBooksDB();
+        writeWorksDB();
     }
 
-    public void rateBook(String name, double rate, String comment) {
-        for (Book book : userLibrary.values()) {
-            if (name.equalsIgnoreCase(book.getName()))
-                book.addRating(rate, comment);
+    public void rateWork(String name, double rate, String comment) {
+        for (Work work : userLibrary.values()) {
+            if (name.equalsIgnoreCase(work.getName()))
+                work.addRating(rate, comment);
         }
         writeUserLibrary();
-        writeBooksDB();
+        writeWorksDB();
     }
 
-    public void removeBookLibrary(String name) {
-        String bookKey = "";
+    public void removeWorkLibrary(String name) {
+        String workKey = "";
         for (String key : userLibrary.keySet()) {
             if (name.equalsIgnoreCase(userLibrary.get(key).getName()))
-                bookKey = key;
+                workKey = key;
         }
-        userLibrary.remove(bookKey);
+        userLibrary.remove(workKey);
         writeUserLibrary();
-        writeBooksDB();
+        writeWorksDB();
     }
 
     public boolean IDExist(String ID) {
-        return booksDb.containsKey(ID);
+        return worksDb.containsKey(ID);
     }
 
-    public boolean bookInLibrary(String name) {
+    public boolean workInLibrary(String name) {
         boolean exist = false;
-        for (Book book : userLibrary.values()) {
-            if (name.equalsIgnoreCase(book.getName())) {
+        for (Work work : userLibrary.values()) {
+            if (name.equalsIgnoreCase(work.getName())) {
                 exist = true;
                 break;
             }
@@ -105,10 +105,10 @@ public class LibraryModel {
         return exist;
     }
 
-    public boolean bookExist(String name) {
+    public boolean workExist(String name) {
         boolean exist = false;
-        for (Book book : booksDb.values()) {
-            if (name.equalsIgnoreCase(book.getName())) {
+        for (Work work : worksDb.values()) {
+            if (name.equalsIgnoreCase(work.getName())) {
                 exist = true;
                 break;
             }
@@ -116,66 +116,66 @@ public class LibraryModel {
         return exist;
     }
 
-    public ArrayList<String> gatherBooksAuthor() {
+    public ArrayList<String> gatherWorksAuthor() {
         ArrayList<String> authors = new ArrayList<>();
 
-        for (Book book : booksDb.values()) {
-            if (!authors.contains(book.getAuthor()))
-                authors.add(book.getAuthor());
+        for (Work work : worksDb.values()) {
+            if (!authors.contains(work.getAuthor()))
+                authors.add(work.getAuthor());
         }
 
         return authors;
     }
 
-    public ArrayList<String> gatherBooksCategory() {
+    public ArrayList<String> gatherWorksCategory() {
         ArrayList<String> categories = new ArrayList<>();
 
-        for (Book book : booksDb.values()) {
-            if (!categories.contains(book.getCategory()))
-                categories.add(book.getCategory());
+        for (Work work : worksDb.values()) {
+            if (!categories.contains(work.getCategory()))
+                categories.add(work.getCategory());
         }
 
         return categories;
     }
 
-    public String filterBooksByAuthor(String author) {
-        ArrayList<Book> filteredBooks = new ArrayList<>();
+    public String filterWorksByAuthor(String author) {
+        ArrayList<Work> filteredWorks = new ArrayList<>();
 
-        for (Book book : booksDb.values()) {
-            if (author.equalsIgnoreCase(book.getAuthor()))
-                filteredBooks.add(book);
+        for (Work work : worksDb.values()) {
+            if (author.equalsIgnoreCase(work.getAuthor()))
+                filteredWorks.add(work);
         }
 
-        return filteredBooks.toString();
+        return filteredWorks.toString();
     }
 
-    public String filterBooksByCategory(String category) {
-        ArrayList<Book> filteredBooks = new ArrayList<>();
+    public String filterWorksByCategory(String category) {
+        ArrayList<Work> filteredWorks = new ArrayList<>();
 
-        for (Book book : booksDb.values()) {
-            if (category.equalsIgnoreCase(book.getCategory()))
-                filteredBooks.add(book);
+        for (Work work : worksDb.values()) {
+            if (category.equalsIgnoreCase(work.getCategory()))
+                filteredWorks.add(work);
         }
 
-        return filteredBooks.toString();
+        return filteredWorks.toString();
     }
 
-    public String getBookNameByID(String ID) {
-        return booksDb.get(ID).getName();
+    public String getWorkNameByID(String ID) {
+        return worksDb.get(ID).getName();
     }
 
-    private void readBooksDB() {
-        try (FileReader reader = new FileReader("src/db/libraryDB/books.json")) {
-            Type type = new TypeToken<HashMap<String, Book>> () {}.getType();
-            booksDb = gson.fromJson(reader, type);
+    private void readWorksDB() {
+        try (FileReader reader = new FileReader("src/db/libraryDB/works.json")) {
+            Type type = new TypeToken<HashMap<String, Work>> () {}.getType();
+            worksDb = gson.fromJson(reader, type);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void writeBooksDB() {
-        try (FileWriter writer = new FileWriter("src/db/libraryDB/books.json")) {
-            gson.toJson(booksDb, writer);
+    private void writeWorksDB() {
+        try (FileWriter writer = new FileWriter("src/db/libraryDB/works.json")) {
+            gson.toJson(worksDb, writer);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -183,7 +183,7 @@ public class LibraryModel {
 
     private void readUserLibrary() {
         try (FileReader reader = new FileReader(userLibraryFile)) {
-            Type type = new TypeToken<HashMap<String, Book>> () {}.getType();
+            Type type = new TypeToken<HashMap<String, Work>> () {}.getType();
             userLibrary = gson.fromJson(reader, type);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -200,7 +200,7 @@ public class LibraryModel {
 
     @Override
     public String toString() {
-        return booksDb.toString();
+        return worksDb.toString();
     }
 
     public String getUserLibrary() {

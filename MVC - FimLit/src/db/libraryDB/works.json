@@ -8,12 +8,14 @@
       5.0,
       4.2,
       3.9,
+      5.0,
       5.0
     ],
     "comments": [
-      "\nWhat a book, my gyat"
+      "\nWhat a book, my gyat",
+      "\nWhat a great book!"
     ],
-    "meanRate": 4.525
+    "meanRate": 4.62
   },
   "3": {
     "name": "The Last Kingdom",

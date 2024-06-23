@@ -5,7 +5,7 @@ import javax.swing.*;
 public class LibraryView extends View {
     public LibraryView() {}
 
-    public double queryBookRating(String text) {
+    public double queryWorkRating(String text) {
         while (true) {
             double rate = Double.parseDouble(JOptionPane.showInputDialog(null, text, "Input", JOptionPane.QUESTION_MESSAGE));
             if (rate >= 1 && rate <= 5)

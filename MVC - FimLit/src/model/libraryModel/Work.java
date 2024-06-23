@@ -2,7 +2,7 @@ package model.libraryModel;
 
 import java.util.ArrayList;
 
-public class Book {
+public class Work {
     private String name;
     private String year;
     private String author;
@@ -11,7 +11,7 @@ public class Book {
     private final ArrayList<String> comments = new ArrayList<>();
     private double meanRate = 0;
 
-    public Book (String name, String year, String author, String category) {
+    public Work (String name, String year, String author, String category) {
         this.name = name;
         this.year = year;
         this.author = author;

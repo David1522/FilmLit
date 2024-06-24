@@ -28,8 +28,8 @@ public class View {
         JOptionPane.showMessageDialog(null, text);
     }
 
-    public String displayDropDownMenu(String[] options) {
-        return (String) JOptionPane.showInputDialog(null, "Choose an option", "Author Choice:", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+    public String displayDropDownMenu(String title, String message, String[] options) {
+        return (String) JOptionPane.showInputDialog(null, message, title, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
     }
 
     public String queryString(String text) {

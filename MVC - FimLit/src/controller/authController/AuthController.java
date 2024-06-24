@@ -61,7 +61,7 @@ public class AuthController {
                 view.displayMessage("Email already registered.");
             } else {
                 if (userType == 0) {
-                    String type = view.displayDropDownMenu(new String[] {"BASE", "PREMIUM", "AUTHOR"});
+                    String type = view.displayDropDownMenu("User Type", "Choose a user type for your account: ", new String[] {"BASE", "PREMIUM", "AUTHOR"});
                     model.singInCustomer(ID, username, email, password, type);
                     view.displayMessage("User successfully created!");
                 } else {

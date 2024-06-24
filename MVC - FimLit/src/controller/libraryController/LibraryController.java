@@ -1,4 +1,4 @@
-package controller;
+package controller.libraryController;
 
 import model.libraryModel.LibraryModel;
 import model.libraryModel.Work;
@@ -127,12 +127,12 @@ public class LibraryController {
                     } else if (searchChoice == 2) {
                         String[] authors = new String[model.gatherWorksAuthor().size()];
                         authors = model.gatherWorksAuthor().toArray(authors);
-                        String author = view.displayDropDownMenu(authors);
+                        String author = view.displayDropDownMenu("Author Filter", "Choose an author to filter works: ", authors);
                         view.displayMessage(model.filterWorksByAuthor(author));
                     } else if (searchChoice == 3) {
                         String[] categories = new String[model.gatherWorksCategory().size()];
                         categories = model.gatherWorksCategory().toArray(categories);
-                        String category = view.displayDropDownMenu(categories);
+                        String category = view.displayDropDownMenu("Category Filter", "Choose a category to filter works: ", categories);
                         view.displayMessage(model.filterWorksByCategory(category));
                     } else {
                         break;

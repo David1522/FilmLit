@@ -44,6 +44,6 @@ public class Room {
     public String toString() {
         return "Host: " + host +
                 ", Name: " + name +
-                ", CreationDate: " + creationDate + ", ";
+                ", CreationDate: " + creationDate + ".\n";
     }
 }

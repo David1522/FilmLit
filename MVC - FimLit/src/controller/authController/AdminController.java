@@ -1,5 +1,6 @@
 package controller.authController;
 
+import controller.adminPanelController.AdminPanelController;
 import model.authModel.Admin;
 import view.View;
 
@@ -13,17 +14,20 @@ public class AdminController {
 
     public void initAPP() {
         while (true) {
-            int choice = view.displayMenu("HOME", "Where you want to go?", new String[] {"Settings"});
+            int choice = view.displayMenu("HOME", "Where you want to go?", new String[] {"Admin Panel", "Settings"});
 
             if (choice == 1) {
+                adminPanelModule();
+            } else {
                 if (settingsModule())
                     break;
             }
         }
     }
 
-    private void profileModule() {
-
+    private void adminPanelModule() {
+        AdminPanelController controller = new AdminPanelController();
+        controller.initModule();
     }
 
     private boolean settingsModule() {

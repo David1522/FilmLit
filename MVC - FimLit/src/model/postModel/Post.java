@@ -24,28 +24,12 @@ public class Post {
         return category;
     }
 
-    public String getPublishedDate() {
-        return publishedDate;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
     public void setCategory(String category) {
         this.category = category;
-    }
-
-    public void setPublishedDate(String publishedDate) {
-        this.publishedDate = publishedDate;
     }
 
     public void setAuthor(String author) {
@@ -62,6 +46,6 @@ public class Post {
                 ", Category: " + category +
                 ", Published Date: " + publishedDate +
                 ", Author: " + author +
-                ", Content: " + content + '.';
+                ", Content: " + content + ".\n";
     }
 }

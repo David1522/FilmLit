@@ -1,2 +1,3 @@
 # FilmLit
-proyecto
+
+An app to share and debate about your films, series and books taste!

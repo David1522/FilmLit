@@ -8,6 +8,13 @@ from database import SessionLocal, engine
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https:/localhost:5173"], # Aquí se añaden los origenes que acceden a la api
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # Crea una conexión con la base de datos para hacer procesos y la cierra

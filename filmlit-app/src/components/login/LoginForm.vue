@@ -1,27 +1,84 @@
 <template>
     <div class="form-container">
-        <h2>Registro de Usuario</h2>
-        <form @submit.prevent="">
-        <label for="nombre_usuario">Nombre de Usuario:</label>
-        <input type="text" id="nombre_usuario" name="nombre_usuario" maxlength="150" required>
+        <h2>{{ formLoginView ? "Iniciar Sesion" : "Registrarse" }}</h2>
 
-        <label for="contrasena">Contraseña:</label>
-        <input type="password" id="contrasena" name="contrasena" maxlength="150" required>
+        <form @submit.prevent="authUsuario">
+          <label for="nombre_usuario">Nombre de Usuario:</label>
+          <input type="text" id="nombre_usuario" name="nombre_usuario" maxlength="150" v-model="nombre_usuario" required>
 
-        <label for="email">Correo Electrónico:</label>
-        <input type="email" id="email" name="email" maxlength="255" required>
+          <label for="contrasena">Contraseña:</label>
+          <input type="password" id="contrasena" name="contrasena" maxlength="150" v-model="contrasena" required>
 
-        <button type="submit">Enviar</button>
+          <label for="email" v-if="!formLoginView">Correo Electrónico:</label>
+          <input type="email" id="email" name="email" maxlength="255" v-model="email"required v-if="!formLoginView">
+
+          <button type="submit">{{ formLoginView ? "Ingresar" : "Registrarse" }}</button>
         </form>
 
         <div class="form-footer">
-            <a href="#">¿Ya tienes una cuenta? Inicia sesión</a>
+            <a @click="cambiarForm()">{{ formLoginView ? "¿No tienes una cuenta? Registrate aquí" : "¿Ya tienes una cuenta? Inicia sesión" }}</a>
         </div>
   </div>
 </template>
 
 <script setup>
-  import { ref,  }
+  import { ref,  onMounted } from 'vue';
+  import axios, { Axios } from 'axios';
+  import Swal from 'sweetalert2';
+
+  const nombre_usuario = ref('');
+  const contrasena = ref('');
+  const email = ref('');
+
+
+  const formLoginView = ref(true);
+
+  const cambiarForm = async () => {
+    formLoginView.value = !formLoginView.value;
+    console.log(formLoginView.value)
+  }
+
+  const authUsuario = async () => {
+    console.log('authUsuario function called');
+    try {
+      if (formLoginView.value) {
+        const response = await axios.post('http://127.0.0.1:8000/login', {
+          nombre_usuario: nombre_usuario.value,
+          contrasena: contrasena.value
+        });
+        console.log('Ingreso Exitoso: ', response.data);
+        Swal.fire({
+          icon: 'success',
+          title: 'Ingreso Exitoso',
+          text: 'Bienvenido',
+        })
+      } else {
+        console.log('Sending Axios request...');
+        const response = await axios.post('http://127.0.0.1:8000/registro', {
+          nombre_usuario: nombre_usuario.value,
+          contrasena: contrasena.value,
+          email: email.value
+        });
+        console.log('Registro Exitoso: ', response.data)
+        Swal.fire({
+          icon:'success',
+          title: 'Registro Exitoso',
+          text: '¡Bienvenido a nuestra plataforma!',
+        })
+      }
+    } catch (error) {
+        console.log('Error al iniciar sesion o resgistrarse usuario: ', error)
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al iniciar sesión o registrarse',
+          text: 'Por favor, intenta de nuevo',
+        })
+    }
+  }
+
+  onMounted(async () => {
+    
+  })
 </script>
 
 <style lang="scss" scoped>
@@ -106,5 +163,6 @@
     
     .form-footer a:hover {
       text-decoration: underline;
+      cursor: pointer;
     }
 </style>

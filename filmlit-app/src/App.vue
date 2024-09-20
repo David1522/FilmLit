@@ -1,10 +1,15 @@
 <script setup>
   import { RouterLink, RouterView } from 'vue-router'
-  import LoginForm from './components/login/LoginForm.vue';
+  import Header from './components/UI/Header.vue';
+  import Footer from './components/UI/Footer.vue';
 </script>
 
 <template>
-  <LoginForm/>
+  <Header/>
+  <main>
+    <router-view/>
+  </main>
+  <Footer/>
 </template>
 
 <style scoped>

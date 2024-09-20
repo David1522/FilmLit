@@ -11,6 +11,11 @@ class UsuarioCreate(UsuarioBase):
     contrasena: str
     
 
+class UsuarioAuth(BaseModel):
+    nombre_usuario: str
+    contrasena: str
+    
+
 class Usuario(UsuarioBase):
     id_usuario: int
     tipo_usuario: str = "BASE"

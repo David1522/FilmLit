@@ -23,22 +23,5 @@ class Usuario(UsuarioBase):
     
     class Config:
         from_attributes = True
-    
-    
-class PublicacionBase(BaseModel):
-    descripcion: str
-    multimedia: str | None = None
-    fecha: datetime = datetime.utcnow
-    likes: int
-    id_usuario: int
-    
-    
-class PublicacionCreate(PublicacionBase):
-    pass
-
-
-class Publicacion(PublicacionBase):
-    id_publicacion: int
-    
-    class Config:
-        from_attributes = True
+        
+        

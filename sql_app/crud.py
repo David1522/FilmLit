@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
-import models, schemas
-import bcrypt
+import models, schemas, utils
 
 
 def get_usuarios(db: Session):
@@ -20,10 +19,9 @@ def get_usuario_by_nombre_usuario(db: Session, nombre_usuario: str):
 
 
 def crear_usuario(db: Session, usuario: schemas.UsuarioCreate):
-    encriptacion_contrasena = bcrypt.hashpw(usuario.contrasena.encode('utf-8'), bcrypt.gensalt())
     db_usuario = models.Usuario(
         nombre_usuario = usuario.nombre_usuario,
-        contrasena = encriptacion_contrasena.decode('utf-8'),
+        contrasena = utils.get_contrasena_encriptada(usuario.contrasena),
         email = usuario.email
     )
     db.add(db_usuario)
@@ -32,5 +30,8 @@ def crear_usuario(db: Session, usuario: schemas.UsuarioCreate):
     return db_usuario
 
 
-# def eliminar_usuario(db: Session, id_usuario: str):
-    # db_usuario = db.
+def eliminar_usuario(db: Session, usuario: models.Usuario):
+    db.delete(usuario)
+    db.commit()
+    return {"message": "Usuario eliminado con éxito"}
+    

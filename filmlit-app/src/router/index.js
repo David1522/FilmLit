@@ -1,19 +1,19 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import LoginForm from '@/components/login/LoginForm.vue'
-import EditarPerfilForm from '@/components/perfil/EditarPerfilForm.vue'
+import Login from '@/views/Login.vue'
+import Perfil from '@/views/Perfil.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/login',
+      path: '/',
       name: 'login',
-      component: LoginForm
+      component: Login
     },
     {
-      path: '/editar-perfil',
-      name: 'EditarPerfil',
-      component: EditarPerfilForm
+      path: '/perfil',
+      name: 'Perfil',
+      component: Perfil
     }
   ]
 })

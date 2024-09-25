@@ -67,6 +67,7 @@
 				contrasena: contrasena.value
 			})
 
+			// Toma el token de acceso y lo guarda en el localstorage para utilizarlo despues
 			const token = response.data.access_token
 			localStorage.setItem('token', token)
 

@@ -36,12 +36,12 @@ def crear_token_acceso(data: dict, expires_delta: timedelta = None):
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
-    data_codificada.update({"exp": expire})
+    data_codificada.update({"exp": expire}) # Añade el tiempo de expiracion a la data del token
     encoded_jwt = jwt.encode(data_codificada, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 async def get_usuario_actual(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     error_credenciales = HTTPException(

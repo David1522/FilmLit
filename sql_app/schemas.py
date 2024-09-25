@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 
-
+# Modelos para la validacion de informacion que el usuario ingresa
 class UsuarioBase(BaseModel):
     nombre_usuario: str
     email: str

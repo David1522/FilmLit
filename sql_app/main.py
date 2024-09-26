@@ -80,6 +80,8 @@ async def registro_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends
         raise HTTPException(status_code=409, detail="Email ya esta registrado en otra cuenta")
     if (crud.get_usuario_by_nombre_usuario(db, usuario.nombre_usuario)):
         raise HTTPException(status_code=409, detail="Nombre de usuario ya existe")
+    if not (utils.validar_contrasena(usuario.contrasena)):
+        raise HTTPException(status_code=422, detail="La contraseña debe ser de minimo 8 caracteres y conetener al menos una mayuscula, minuscula, numeros y simbolos.")
     return crud.crear_usuario(db, usuario)
 
 

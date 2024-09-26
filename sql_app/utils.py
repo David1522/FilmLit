@@ -1,5 +1,20 @@
 from passlib.context import CryptContext
+simbolos = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~']
 
+
+def validar_contrasena(contrasena: str):
+    if len(contrasena) < 8:
+        return False
+    if not any(caracter.isdigit() for caracter in contrasena):
+        return False
+    if not any(caracter.isalpha() for caracter in contrasena):
+        return False
+    if not any(caracter in simbolos for caracter in contrasena):
+        return False
+    return True
+    
+
+# Encriptacion de contraseñas
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 

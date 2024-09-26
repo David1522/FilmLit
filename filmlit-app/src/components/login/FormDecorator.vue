@@ -14,11 +14,12 @@
         height: 100%;
         background-image: url(../icons/Login_Art_Background.jpg);
         background-size: cover;
+        padding: 15px;
     }
 
     .app-logo {
-        width: 100px;
-        height: 100px;
+        width: 50px;
+        height: 50px;
     }
 
     @media (max-width: 650px) {

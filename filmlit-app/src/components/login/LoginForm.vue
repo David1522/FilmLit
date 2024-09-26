@@ -71,10 +71,10 @@
 			const token = response.data.access_token
 			localStorage.setItem('token', token)
 
-			router.push('/perfil')
+			router.push('/inicio')
 		} catch (error) {
 			console.log('Error al iniciar sesion: ', error);
-			mensajeError.value = "Error al iniciar sesion o resgistrarse usuario";
+			mensajeError.value = error.response.data.detail;
 		}
 	}
 
@@ -95,11 +95,11 @@
 			cambiarForm();
 			limpiarForm();
 		} catch (error) {
-			console.log('Error al iniciar sesion: ', error);
+			console.log('Error al registrarse sesion: ', error);
 			Swal.fire({
 				icon: 'error',
-				title: 'Error al iniciar sesión o registrarse',
-				text: 'Por favor, intenta de nuevo',
+				title: 'Error al Registrarse',
+				text: error.response.data.detail,
 			})
 		}
 	}
@@ -110,7 +110,6 @@
 		width: 70px;
 		height: 70px;
 		margin-bottom: 15px;
-		border-radius: 50px;
 	}
   
 	.form-wrapper {

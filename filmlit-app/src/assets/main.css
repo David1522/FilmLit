@@ -1,10 +1,25 @@
-@import './base.css';
+:root.light {
+    --background-color-primary: #fff;
+    --background-color-secondary: #dbdbdb;
+    --color-accent: #2196f3;
+    --color-border: #e0e0e0;
+    --color-text-primary: #212121;
+    transform: background-color ease 300ms;
+}
 
-main {
-    width: 100%;
-    height: 600px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+:root.dark {
+    --background-color-primary: #121219;
+    --background-color-secondary: #2c3139;
+    --color-accent: #2196f3;
+    --color-border: #fff;
+    --color-text-primary: #fff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+    list-style: none;
+    font-family: Arial, Helvetica, sans-serif;
 }

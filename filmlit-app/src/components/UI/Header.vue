@@ -1,138 +1,91 @@
 <template>
     <header>
-        <nav>
-            <ul>
-                <li><a href="#">Inicio</a></li>
-                <li><a href="/login">Iniciar Sesion</a></li>
-                <li><a href="/editar-perfil">Editar Perfil</a></li>
-                <li><a href="#">Noticias</a></li>
-            </ul>
+        <nav class="nav-bar">
+            <div class="app-modules">
+                <AppLogo/>
+
+                <ul>
+                    <li> <a href="/inicio"> <span class="icon"> <fa icon="home"/> </span> Inicio </a> </li>
+                    <li> <a href="/publicaciones"> <span class="icon"> <fa icon="heart"/> </span> Publicaciones </a> </li>
+                    <li> <a href="/biblioteca"> <span class="icon"> <fa icon="bookmark"/> </span> Biblioteca </a> </li>
+                    <li> <a href="/habitaciones"> <span class="icon"> <fa icon="people-group"/> </span> Habitaciones </a> </li>
+                    <li> <a href="/chats"> <span class="icon"> <fa icon="comment"/> </span> Chats </a> </li>
+                    <li> <a href="/perfil" > <span class="icon"> <fa icon="user"/> </span> Perfil </a> </li>
+                </ul>
+            </div>
+
+            <div class="settings-wrapper">
+                <ThemeSwitch/>
+                <Settings/>
+            </div>
         </nav>
-        <div class="brand">
-            <img class="logo" src="../icons//Blue 3D Abstract Letter S Logo.png" alt="Logo de la librería">
-        </div>
-        <div class="search">
-            <input type="search" placeholder="Buscar publicaciones...">
-            <button>Buscar</button>
-        </div>
     </header>
 </template>
 
 <script setup>
-
+    import AppLogo from './AppLogo.vue';
+    import ThemeSwitch from './ThemeSwitch.vue';
+    import Settings from './Settings.vue';
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
     header {
-        background-color: #3a2064;
-        color: white;
-        padding: 10px 20px;
+        width: 100%;
+        height: 100vh;
+        background-color: var(--background-color-primary);
+    }
+
+    .nav-bar {
+        width: 100%;
+        height:100%;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: space-between;
     }
 
-    nav ul {
-        list-style: none;
-        display: flex;
+    .app-modules {
+        width: 100%;
+        padding: 15px;
     }
 
-    nav ul li {
-        margin: 0 15px;
+    li {
+        width: 100%;
+        height: 40px;
+        border-radius: 10px;
     }
 
-    nav ul li a {
-        color: white;
-        text-decoration: none;
+    li:hover {
+        background-color: var(--background-color-secondary);
     }
 
-    .brand .logo {
-        height: 100px; 
-    }
-    #titulo{
-        margin-top:20 px;
-        margin-right:20px;
-    }
-    .search {
+    a {
+        width: 100%;
+        height: 40px;
+        color: var(--color-text-primary);
+        padding: 15px;
+        font-size: 16px;
         display: flex;
         align-items: center;
+        gap: 15px;
     }
 
-    .search input[type="search"] {
-        padding: 5px;
-        border: 1px solid #ddd;
-        border-radius: 3px;
-        margin-right: 10px;
+    .icon {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: font-size ease 300ms;
     }
 
-    .search button {
-        padding: 5px 10px;
-        border: none;
-        background-color: #fff;
-        color: #3a2064;
-        border-radius: 3px;
-        cursor: pointer;
+    a:hover .icon {
+        font-size: 25px;
+        transition: font-size ease 300ms;
     }
 
-    header {
-        line-height: 1.5;
-        max-height: 100vh;
-    }
-
-    .logo {
-        display: block;
-        margin: 0 auto 2rem;
-    }
-
-    nav {
+    .settings-wrapper {
         width: 100%;
-        font-size: 12px;
-        text-align: center;
-        margin-top: 2rem;
-    }
-
-    nav a.router-link-exact-active {
-        color: var(--color-text);
-    }
-
-    nav a.router-link-exact-active:hover {
-        background-color: transparent;
-    }
-
-    nav a {
-        display: inline-block;
-        padding: 0 1rem;
-        border-left: 1px solid var(--color-border);
-    }
-
-    nav a:first-of-type {
-        border: 0;
-    }
-
-    @media (min-width: 1024px) {
-    header {
-        display: flex;
-        place-items: center;
-        padding-right: calc(var(--section-gap) / 2);
-    }
-
-    .logo {
-        margin: 0 2rem 0 0;
-    }
-
-    header .wrapper {
-        display: flex;
-        place-items: flex-start;
-        flex-wrap: wrap;
-    }
-
-    nav {
-        text-align: left;
-        margin-left: -1rem;
-        font-size: 1rem;
-
-        padding: 1rem 0;
-        margin-top: 1rem;
-    }
+        padding: 15px;
     }
 </style>

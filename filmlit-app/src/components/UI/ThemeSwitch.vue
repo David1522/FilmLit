@@ -4,7 +4,7 @@
             <fa icon="sun" class="icon" v-if="isDark"/>
             <fa icon="moon" class="icon" v-else/>
         </div>
-        Theme
+        <span class="btn-text">Theme</span>
     </button>
 </template>
 
@@ -19,14 +19,13 @@
         root.value.className = newTheme;
         isDark.value = newTheme === 'dark';
         localStorage.setItem('theme', newTheme)
-        console.log(localStorage.getItem('theme'))
     }
 </script>
 
 <style scoped>
     .theme-switcher-btn {
         width: 100%;
-        height: 40px;
+        height: 100%;
         background-color: var(--background-color-primary);
         color: var(--color-text-primary);
         border: none;
@@ -59,5 +58,17 @@
     .theme-switcher-btn:hover .icon {
         font-size: 25px;
         transition: font-size ease 300ms;
+    }
+
+    @media (max-width: 770px) {
+        .theme-switcher-btn {
+            padding: 0;
+            height: 65%;
+            justify-content: center;
+        }
+
+        .btn-text {
+            display: none;
+        }
     }
 </style>

@@ -15,10 +15,14 @@
         width: 100%;
         height: 100vh;
         display: grid;
-        grid-template:  100px 1fr / 1fr 4fr 2fr;
+        grid-template:  100px 1fr / 250px 1fr;
         grid-template-areas: 
             "header cuenta cuenta"
             "header contenido contenido";
+    }
+
+    .header {
+        grid-area: header;
     }
 
     .cuenta {
@@ -29,5 +33,15 @@
     .contenido {
         background-color: yellow;
         grid-area: contenido;
+    }
+
+    @media (max-width: 770px) {
+        .main-container {
+            grid-template: 100px 1fr 90px / 1fr;
+            grid-template-areas: 
+                "cuenta"
+                "contenido"
+                "header";
+        }
     }
 </style>

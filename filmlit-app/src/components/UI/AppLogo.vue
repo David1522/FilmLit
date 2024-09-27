@@ -6,12 +6,12 @@
 </template>
 
 <script setup>
-    import { ref, onMounted } from 'vue'
+    import { ref } from 'vue'
 
-    const isDark = ref(localStorage.getItem('theme') === 'dark')
+    const isDark = ref(document.documentElement.className === 'dark');
 
     function updateTheme() {
-        isDark.value = document.documentElement.className.includes('dark')
+        isDark.value = document.documentElement.className === 'dark';
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -37,5 +37,15 @@
     .app-logo {
         width: 40px;
         height: 40px;
+    }
+
+    @media (max-width: 770px) {
+        .logo-container {
+            display: none;
+        }
+
+        .app-logo {
+            display: none;
+        }
     }
 </style>

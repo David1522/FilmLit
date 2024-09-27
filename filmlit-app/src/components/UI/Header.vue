@@ -1,23 +1,19 @@
 <template>
     <header>
+        <AppLogo/>
+
         <nav class="nav-bar">
-            <div class="app-modules">
-                <AppLogo/>
+            <a href="/inicio"> <span class="icon"> <fa icon="home"/> </span> <span class="icon-text"> Inicio </span> </a>
+            <a href="/publicaciones"> <span class="icon"> <fa icon="heart"/> </span> <span class="icon-text"> Publicaciones </span> </a>
+            <a href="/biblioteca"> <span class="icon"> <fa icon="bookmark"/> </span> <span class="icon-text"> Biblioteca </span> </a>
+            <a href="/habitaciones"> <span class="icon"> <fa icon="people-group"/> </span> <span class="icon-text"> Habitaciones </span> </a>
+            <a href="/chats"> <span class="icon"> <fa icon="comment"/> </span> <span class="icon-text"> Chats </span> </a>
+            <a href="/perfil" > <span class="icon"> <fa icon="user"/> </span> <span class="icon-text"> Perfil </span> </a>
+            <a href="/planes"> <span class="icon"> <fa icon="star"/> </span> <span class="icon-text"> Planes </span> </a>
 
-                <ul>
-                    <li> <a href="/inicio"> <span class="icon"> <fa icon="home"/> </span> Inicio </a> </li>
-                    <li> <a href="/publicaciones"> <span class="icon"> <fa icon="heart"/> </span> Publicaciones </a> </li>
-                    <li> <a href="/biblioteca"> <span class="icon"> <fa icon="bookmark"/> </span> Biblioteca </a> </li>
-                    <li> <a href="/habitaciones"> <span class="icon"> <fa icon="people-group"/> </span> Habitaciones </a> </li>
-                    <li> <a href="/chats"> <span class="icon"> <fa icon="comment"/> </span> Chats </a> </li>
-                    <li> <a href="/perfil" > <span class="icon"> <fa icon="user"/> </span> Perfil </a> </li>
-                </ul>
-            </div>
-
-            <div class="settings-wrapper">
-                <ThemeSwitch/>
-                <Settings/>
-            </div>
+            <!-- Botones especiales -->
+            <ThemeSwitch class="setting"/>
+            <Settings class="setting"/>
         </nav>
     </header>
 </template>
@@ -30,62 +26,69 @@
 
 <style scoped>
     header {
-        width: 100%;
-        height: 100vh;
         background-color: var(--background-color-primary);
     }
 
     .nav-bar {
         width: 100%;
-        height:100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
+        height: 100%;
+        display: grid;
+        grid-template: repeat(9, 40px) / 1fr;
+        gap: 5px;
+        padding: 10px
     }
 
-    .app-modules {
-        width: 100%;
-        padding: 15px;
-    }
-
-    li {
-        width: 100%;
-        height: 40px;
-        border-radius: 10px;
-    }
-
-    li:hover {
-        background-color: var(--background-color-secondary);
-    }
-
-    a {
-        width: 100%;
-        height: 40px;
+    .nav-bar > a {
         color: var(--color-text-primary);
-        padding: 15px;
-        font-size: 16px;
+        border-radius: 15px;
+        padding-left: 15px;
         display: flex;
+        justify-content: start;
         align-items: center;
         gap: 15px;
+    }
+
+    .nav-bar > a:hover {
+        background-color: var(--background-color-secondary);
+        
     }
 
     .icon {
         width: 30px;
         height: 30px;
+        font-size: 20px;
         display: flex;
-        align-items: center;
         justify-content: center;
+        align-items: center;
         transition: font-size ease 300ms;
     }
 
     a:hover .icon {
-        font-size: 25px;
+        font-size: 23px;
         transition: font-size ease 300ms;
     }
 
-    .settings-wrapper {
-        width: 100%;
-        padding: 15px;
+    @media (max-width: 770px) {
+        .nav-bar {
+            grid-template: 1fr / repeat(9, 1fr)
+        }
+
+        .nav-bar > a {
+            padding: 0;
+            height: 65%;
+            align-self: center;
+        }
+
+        .setting {
+            align-self: center;
+        }
+
+        .icon {
+            width: 100%;
+        }
+
+        .icon-text {
+            display: none;
+        }
     }
 </style>

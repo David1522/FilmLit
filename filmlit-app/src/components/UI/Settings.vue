@@ -3,7 +3,7 @@
         <div class="icon-container">
             <fa icon="gear" class="icon"/>
         </div>
-        Settings
+        <span class="btn-text">Settings</span>
     </button>
 </template>
 
@@ -14,7 +14,7 @@
 <style lang="scss" scoped>
     .settings-btn {
         width: 100%;
-        height: 40px;
+        height: 100%;
         background-color: var(--background-color-primary);
         color: var(--color-text-primary);
         border: none;
@@ -47,5 +47,17 @@
     .settings-btn:hover .icon {
         font-size: 25px;
         transition: font-size ease 300ms;
+    }
+
+    @media (max-width: 770px) {
+        .settings-btn {
+            padding: 0;
+            height: 65%;
+            justify-content: center;
+        }
+
+        .btn-text {
+            display: none;
+        }
     }
 </style>

@@ -1,11 +1,7 @@
 <template>
-    <Form/>
+    <LoginPage/>
 </template>
 
 <script setup>
-    import Form from '@/sections/login/Form.vue';
+    import LoginPage from '@/pages/LoginPage.vue';
 </script>
-
-<style lang="scss" scoped>
-
-</style>

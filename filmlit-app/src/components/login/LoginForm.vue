@@ -50,6 +50,7 @@
 		nombre_usuario.value = '';
 		contrasena.value = '';
 		email.value = '';
+		mensajeError.value = ''
 	}
 
 	const formSubmmit = async () => {
@@ -62,16 +63,18 @@
 
 	async function authLogin () {
 		try {
-			const response = await axios.post('http://127.0.0.1:8000/login', {
-				nombre_usuario: nombre_usuario.value,
-				contrasena: contrasena.value
-			})
+			const params = new URLSearchParams();
+			params.append('username', nombre_usuario.value);
+			params.append('password', contrasena.value);
+
+			const response = await axios.post('http://127.0.0.1:8000/token', params)
 
 			// Toma el token de acceso y lo guarda en el localstorage para utilizarlo despues
 			const token = response.data.access_token
 			localStorage.setItem('token', token)
+			console.log('Token agregado: ', localStorage.getItem('token'));
 
-			router.push('/inicio')
+			router.push('/perfil')
 		} catch (error) {
 			console.log('Error al iniciar sesion: ', error);
 			mensajeError.value = error.response.data.detail;
@@ -89,7 +92,8 @@
 			Swal.fire({
 					icon:'success',
 					title: 'Registro Exitoso',
-					text: '¡Bienvenido a nuestra plataforma!',
+					text: response.data.mensaje,
+					timer: 4000,
 			});
 
 			cambiarForm();
@@ -198,5 +202,6 @@
 	.mensaje-error {
 		color: red;
 		margin-top: 5px;
+		text-align: center
 	}
 </style>

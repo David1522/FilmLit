@@ -24,5 +24,4 @@ def get_contrasena_encriptada(constrasena: str):
 
 def auth_contrasena(encript_contrasena, input_contrasena):
     return not pwd_context.verify(input_contrasena, encript_contrasena)
-    # Añadir caracteres especiales
 

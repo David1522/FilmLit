@@ -1,19 +1,27 @@
-from fastapi import Depends, FastAPI, HTTPException
+from datetime import datetime, timedelta, timezone
+from typing import Annotated
+
+from jose import jwt, JWTError
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-#Importamos session para pasarlo como el tipo de clase que es la sesion local creada en database.py en el path
+# Importa session para pasarlo como type hint en paths functions
 from sqlalchemy.orm import Session
-
-import models, schemas, crud, utils
 from database import SessionLocal, engine
 
-from jose import JWTError, jwt
-from datetime import datetime, timedelta
+import models, schemas, crud, utils
+
+
+# Configuracion para JWT
+SECRET_KEY = "FILMLIT"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 #Crea todas las tablas en la base de datos
 models.Base.metadata.create_all(bind=engine)
+
 
 # Crea una conexión con la base de datos para hacer procesos y la cierra
 def get_db():
@@ -24,109 +32,100 @@ def get_db():
         db.close()
 
 
-# Claves y Configuracion para el JWT
-SECRET_KEY = "FILMLIT"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-
-def crear_token_acceso(data: dict, expires_delta: timedelta = None):
-    data_codificada = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    data_codificada.update({"exp": expire}) # Añade el tiempo de expiracion a la data del token
-    encoded_jwt = jwt.encode(data_codificada, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
-async def get_usuario_actual(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    error_credenciales = HTTPException(
-        status_code=401,
-        detail="No se pudo validar el token",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        id_usuario: str = payload.get("nombre_usuario")
-        if id_usuario is None:
-            raise error_credenciales
-    except JWTError:
-        raise error_credenciales
-    
-    usuario = crud.get_usuario(db, id_usuario)
-    if user is None:
-        raise error_credenciales
-    return usuario
-    
-
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['http://localhost:5173'], # Añadir más direcciones si es necesario
+    allow_origins=['http://localhost:5173', 'http://localhost:5173/perfil'], # Añadir más direcciones si es necesario
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-@app.post("/registro", response_model=schemas.Usuario)
-async def registro_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+def auth_user(db: Session, nombre_usuario: str, contrasena: str):
+    user = crud.get_usuario_by_nombre_usuario(db, nombre_usuario)
+    if not user:
+        return False
+    if utils.auth_contrasena(user.contrasena, contrasena):
+        return False
+    return schemas.Usuario.from_orm(user)
+
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+async def get_current_user(token: Annotated[dict, Depends(oauth2_scheme)], db: Annotated[Session, Depends(get_db)]):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        nombre_usuario: str = payload.get("sub")
+        if nombre_usuario is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    user = crud.get_usuario_by_nombre_usuario(db, nombre_usuario)
+    if user is None:
+        raise credentials_exception
+    return schemas.Usuario.from_orm(user)
+
+
+async def get_current_active_user(current_user: Annotated[schemas.Usuario, Depends(get_current_user)]):
+    if not current_user.activo:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user 
+
+
+@app.post("/token")
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[Session, Depends(get_db)]):
+    usuario = auth_user(db, form_data.username, form_data.password)
+    if not usuario:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": usuario.nombre_usuario}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "toke_type": "bearer"}
+
+
+@app.post("/registro")
+async def registro_usuario(usuario: schemas.UsuarioCreate, db: Annotated[Session, Depends(get_db)]):
     if (crud.get_usuario_by_email(db, usuario.email)):
         raise HTTPException(status_code=409, detail="Email ya esta registrado en otra cuenta")
     if (crud.get_usuario_by_nombre_usuario(db, usuario.nombre_usuario)):
         raise HTTPException(status_code=409, detail="Nombre de usuario ya existe")
     if not (utils.validar_contrasena(usuario.contrasena)):
         raise HTTPException(status_code=422, detail="La contraseña debe ser de minimo 8 caracteres y conetener al menos una mayuscula, minuscula, numeros y simbolos.")
-    return crud.crear_usuario(db, usuario)
+    crud.crear_usuario(db, usuario)
+    return {"mensaje": "¡Bienvenido a nuestra plataforma!\nInicia Sesion para continuar"}
 
 
-@app.post("/login", response_model=dict)
-async def ingreso_usuario_token(usuario: schemas.UsuarioAuth, db: Session = Depends(get_db)):
-    db_usuario = crud.get_usuario_by_nombre_usuario(db, usuario.nombre_usuario)
-    if db_usuario is None:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    if utils.auth_contrasena(db_usuario.contrasena, usuario.contrasena):
-        raise HTTPException(status_code=401, detail="Contraseña incorrecta.")
-    token_acceso_expiracion = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    token_acesso = crear_token_acceso(
-        data={
-                "id_usuario": db_usuario.id_usuario,
-                "nombre_usuario" : usuario.nombre_usuario
-            },
-        expires_delta=token_acceso_expiracion
-    )
-    return {"access_token": token_acesso, "token_type": "bearer"}
-    
-
-@app.get("/usuarios", response_model=list[schemas.Usuario])
-async def consultar_usuarios(db: Session = Depends(get_db)):
-    db_usuarios = crud.get_usuarios(db)
-    if db_usuarios is None:
-        raise HTTPException(status_code=404, detail="No hay usuarios registrados")
-    return db_usuarios
+@app.get("/usuarios/me", response_model=schemas.Usuario)
+async def get_usuario_me(current_user: Annotated[schemas.Usuario, Depends(get_current_active_user)]):
+    return current_user
 
 
-@app.get("/usuarios/{id_usuario}", response_model=schemas.Usuario)
-async def consultar_usuario(id_usuario: str, db: Session = Depends(get_db)):
-    db_usuario = crud.get_usuario(db, id_usuario)
-    if db_usuario is None:
-        raise HTTPException(status_code=404, detail="Usuario no existe")
-    return db_usuario
-
-
-@app.delete("/usuarios/{id_usuario}")
-async def eliminar_usuario(id_usuario: str, db: Session = Depends(get_db)):
-    db_usuario = crud.get_usuario(db, id_usuario)
-    if db_usuario is None:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado.")
-    return crud.eliminar_usuario(db, db_usuario)
-
-
-@app.get("/usuarios/me")
-async def consultar_usuarios_me(usuario: schemas.Usuario = Depends(get_usuario_actual)):
-    return usuario
+@app.get("/perfil/me", response_model=schemas.Perfil)
+async def get_perfil_me(current_user: Annotated[schemas.Usuario, Depends(get_current_active_user)], db: Annotated[Session, Depends(get_db)]):
+    perfil_db = crud.get_perfil(db, current_user.id_usuario)
+    # Atomaticamente transforma el modelo orm al schema designado en el modelo de respuesta
+    return perfil_db

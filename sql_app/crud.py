@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 import models, schemas, utils
 
 
+# CRUD Usuario
 def get_usuarios(db: Session):
     return db.query(models.Usuario).all()
 
@@ -27,11 +28,31 @@ def crear_usuario(db: Session, usuario: schemas.UsuarioCreate):
     db.add(db_usuario)
     db.commit()
     db.refresh(db_usuario)
-    return db_usuario
+    nuevo_usuario = get_usuario_by_nombre_usuario(db, usuario.nombre_usuario)
+    crear_perfil(db, nuevo_usuario.id_usuario)
+
+
+# Metodo para actualziar usuario iría aquí
 
 
 def eliminar_usuario(db: Session, usuario: models.Usuario):
     db.delete(usuario)
     db.commit()
     return {"message": "Usuario eliminado con éxito"}
+    
+    
+#CRUD Perfil
+def get_perfil(db: Session, id_usuario: str):
+    perfil_db = db.query(models.Perfil).filter(models.Perfil.id_usuario == id_usuario).first()
+    return schemas.Perfil.from_orm(perfil_db)
+
+
+def crear_perfil(db: Session, id_usuario: str):
+    db_perfil = models.Perfil(
+        id_usuario = id_usuario
+    )
+    db.add(db_perfil)
+    db.commit()
+    db.refresh(db_perfil)
+    
     

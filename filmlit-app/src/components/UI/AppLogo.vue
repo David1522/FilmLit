@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-    import { ref } from 'vue'
+    import { ref, onMounted } from 'vue'
 
     const isDark = ref(document.documentElement.className === 'dark');
 
@@ -21,6 +21,10 @@
             }
         })
     })
+
+    onMounted(() => {
+        isDark.value = document.documentElement.className === 'dark';
+    })
 </script>
 
 <style scoped>
@@ -30,7 +34,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-top: 15px;
+        margin-top: 30px;
         margin-bottom: 15px;
     }
 

@@ -27,6 +27,7 @@
 <style scoped>
     header {
         background-color: var(--background-color-primary);
+        border-right: 1px solid var(--color-border);
     }
 
     .nav-bar {

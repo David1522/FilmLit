@@ -2,16 +2,15 @@
     --background-color-primary: #fff;
     --background-color-secondary: #dbdbdb;
     --color-accent: #2196f3;
-    --color-border: #e0e0e0;
+    --color-border: #262626;
     --color-text-primary: #212121;
-    transform: background-color ease 300ms;
 }
 
 :root.dark {
-    --background-color-primary: #121219;
-    --background-color-secondary: #2c3139;
+    --background-color-primary: black;
+    --background-color-secondary: rgb(54, 54, 54);
     --color-accent: #2196f3;
-    --color-border: #fff;
+    --color-border: #595959;
     --color-text-primary: #fff;
 }
 
@@ -22,4 +21,7 @@
     text-decoration: none;
     list-style: none;
     font-family: Arial, Helvetica, sans-serif;
+    body {
+        background-color: var(--background-color-primary);
+    }
 }

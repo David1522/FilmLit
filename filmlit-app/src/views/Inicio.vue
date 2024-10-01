@@ -1,13 +1,14 @@
 <template>
     <div class="main-container">
         <Header class="header"/>
-        <div class="cuenta"></div>
+        <AccountBar class="cuenta"/>
         <div class="contenido"></div>
     </div>
 </template>
 
 <script setup>
     import Header from '@/components/UI/Header.vue';
+    import AccountBar from '@/components/UI/AccountBar.vue';
 
     import { ref, onMounted } from 'vue';
     import { useRouter } from 'vue-router';
@@ -48,7 +49,7 @@
         width: 100%;
         height: 100vh;
         display: grid;
-        grid-template:  100px 1fr / 250px 1fr;
+        grid-template:  80px 1fr / 250px 1fr;
         grid-template-areas: 
             "header cuenta cuenta"
             "header contenido contenido";
@@ -59,12 +60,10 @@
     }
 
     .cuenta {
-        background-color: purple;
         grid-area: cuenta;
     }
 
     .contenido {
-        background-color: yellow;
         grid-area: contenido;
     }
 

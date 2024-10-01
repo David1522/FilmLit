@@ -10,6 +10,7 @@
             <a href="/chats"> <span class="icon"> <fa icon="comment"/> </span> <span class="icon-text"> Chats </span> </a>
             <a href="/perfil" > <span class="icon"> <fa icon="user"/> </span> <span class="icon-text"> Perfil </span> </a>
             <a href="/planes"> <span class="icon"> <fa icon="star"/> </span> <span class="icon-text"> Planes </span> </a>
+            <a href="/noticias"> <span class="icon"> <fa icon="newspaper"/> </span> <span class="icon-text"> Noticias </span> </a>
 
             <!-- Botones especiales -->
             <ThemeSwitch class="setting" :isDark="isDark" @toggle-theme="setTheme"/>
@@ -53,9 +54,9 @@
 
     .nav-bar {
         width: 100%;
-        height: 100%;
+        height: auto;
         display: grid;
-        grid-template: repeat(9, 40px) / 1fr;
+        grid-template: repeat(10, 40px) / 1fr;
         gap: 5px;
         padding: 10px
     }

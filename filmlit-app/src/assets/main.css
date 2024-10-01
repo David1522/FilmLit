@@ -5,6 +5,7 @@
     --color-accent: #6a43a9;
     --color-border: #262626;
     --color-text-primary: #212121;
+    --color-text-secundary: #262626;
 }
 
 :root.dark {
@@ -14,6 +15,7 @@
     --color-accent: #6a43a9;
     --color-border: #595959;
     --color-text-primary: #fff;
+    --color-text-secundary: #757575;
 }
 
 * {

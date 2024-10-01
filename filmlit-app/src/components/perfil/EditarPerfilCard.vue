@@ -1,6 +1,6 @@
 <template>
     <div class="modal-perfil">
-        <div class="editar-perfil-container">
+        <div class="editar-perfil-container" v-if="perfil">
             <legend>Editar Perfil</legend>
             <form @submit.prevent="updatePerfilUsuario">
                 <div class="pfp-container">
@@ -31,6 +31,9 @@
                     <button type="button" class="btn-action btn-descartar" @click="router.push('/perfil')">Descartar</button>
                 </div>
             </form>
+        </div>
+        <div class="cargando" v-else>
+            <p>Cargando Perfil...</p>
         </div>
     </div> 
 </template>
@@ -232,10 +235,14 @@
         background-color: red;
     }
 
+    .cargando {
+        text-align: center;
+        padding: 20px;
+    }
+
     @media (max-width: 800px) {
         .editar-perfil-container {
             width: 80%;
         }
     }
-
 </style>

@@ -74,7 +74,7 @@
 			localStorage.setItem('token', token)
 			console.log('Token agregado: ', localStorage.getItem('token'));
 
-			router.push('/perfil')
+			router.push('/')
 		} catch (error) {
 			console.log('Error al iniciar sesion: ', error);
 			mensajeError.value = error.response.data.detail;

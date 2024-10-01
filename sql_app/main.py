@@ -87,17 +87,23 @@ async def get_current_user(token: Annotated[dict, Depends(oauth2_scheme)], db: A
 
 async def get_current_active_user(current_user: Annotated[schemas.Usuario, Depends(get_current_user)]):
     if not current_user.activo:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=400, detail="Usuario inactivo")
     return current_user 
 
 
+async def get_current_user_perfil(current_user: Annotated[schemas.Usuario, Depends(get_current_active_user)], db: Annotated[Session, Depends(get_db)]):
+    perfil_db = crud.get_perfil_id_usuario(db, current_user.id_usuario)
+    return schemas.Perfil.from_orm(perfil_db)
+
+
+# Endpoints Usuario
 @app.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[Session, Depends(get_db)]):
     usuario = auth_user(db, form_data.username, form_data.password)
     if not usuario:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Nombre de usuario o contraseña incorrectos",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -124,8 +130,15 @@ async def get_usuario_me(current_user: Annotated[schemas.Usuario, Depends(get_cu
     return current_user
 
 
+# Endpoints Perfil
 @app.get("/perfil/me", response_model=schemas.Perfil)
-async def get_perfil_me(current_user: Annotated[schemas.Usuario, Depends(get_current_active_user)], db: Annotated[Session, Depends(get_db)]):
-    perfil_db = crud.get_perfil(db, current_user.id_usuario)
-    # Atomaticamente transforma el modelo orm al schema designado en el modelo de respuesta
-    return perfil_db
+async def get_perfil_me(perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
+    return perfil_usuario # Automaticamente transforma el modelo orm al schema designado en el modelo de respuesta
+
+
+@app.put("/perfil/me")
+async def update_perfil(perfil_actualizado: schemas.AtualizarPerfil, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
+    success = crud.actualizar_perfil(db, perfil_usuario.id_perfil, perfil_actualizado)
+    if not success:
+        raise HTTPException(status_code=404, detail="Perfil no encontrado.")
+    return {"mensaje": "¡Tu perfil ha sido actualizado correctamente!"}

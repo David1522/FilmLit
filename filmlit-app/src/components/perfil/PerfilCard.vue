@@ -6,7 +6,7 @@
             <div class="detalles-perfil">
                 <div class="ajustes-perfil">
                     <p class="nombre-usuario">{{ perfil.usuario.nombre_usuario }}</p>
-                    <a href="#" class="btn-perfil">Editar</a>
+                    <router-link to="/perfil/editar" class="btn-perfil">Editar</router-link>
                     <a href="#" class="btn-perfil"> Mensaje</a>
                     <button class="btn-acc-options"> <fa icon="ellipsis" /> </button>
                 </div>
@@ -16,32 +16,34 @@
                 </div>
 
                 <div class="info-perfil">
-                    <p class="info-nombre"> <span> {{ perfil.nombre }} </span> <span> {{ perfil.apellido }} </span> </p>
-                    <p class="info-desc"> {{ perfil.descripcion }} </p>
+                    <p class="info info-nombre"> <span> {{ perfil.nombre }} </span> </p>
+                    <p class="info info-birthdate"> <span v-if="perfil.fecha_nacimiento"> 🎂 {{ perfil.fecha_nacimiento }}</span> </p>
+                    <p class="info info-desc"> {{ perfil.descripcion }} </p>
                 </div>
             </div>
         </div>
         <div v-else class="cargando">
             Cargando informacion del perfil...
         </div>
+
+        <div class="vc-components">
+            <RouterView @perfil-updated="fetchPerfilUsuario"/>
+        </div>
     </div>
 </template>
 
 <script setup>
     import { ref, onMounted } from 'vue';
-    import { useRouter } from 'vue-router';
+    import { RouterView } from 'vue-router';
     import axios from 'axios';
     import router from '@/router';
-
-    const rooter = useRouter();
+    
     const perfil = ref(null)
 
     async function fetchPerfilUsuario() {
         const token = localStorage.getItem('token');
-
-
         if (!token) {
-            rooter.push('/');
+            router.push('/login');
             return;
         }
 
@@ -54,7 +56,7 @@
             perfil.value = response.data
         } catch (error) {
             localStorage.removeItem('token');
-            router.push('/');
+            router.push('/login');
         }
     }
 
@@ -65,11 +67,12 @@
 
 <style scoped>
     .perfil-main-container {
-        width: 70%;
+        width: 75%;
         height: auto;
         background-color: var(--background-color-primary);
         color: var(--color-text-primary);
         padding-top: 30px;
+        position: relative
     }
 
     .perfil-card {
@@ -97,7 +100,8 @@
         width: 100%;
         height: 100%;
         display: flex;
-        gap: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
     .nombre-usuario {
@@ -117,8 +121,7 @@
     }
 
     .btn-perfil:hover {
-        transform: scale(1.1);
-        transition: transform ease-in-out 300ms;
+        opacity: 0.8;
     }
 
     .btn-acc-options {
@@ -156,13 +159,17 @@
         font-weight: 600;
     }
 
-    .info-nombre {
+    .info {
         font-size: 14px;
+    }
+
+    .info-nombre {
         font-weight: 600;
     }
 
-    .info-desc {
-        font-size: 14px;
+    .info-birthdate {
+        font-size: 12px;
+        padding-bottom: 5px;
     }
 
     .cargando {
@@ -170,7 +177,7 @@
         padding: 20px;
     }
 
-    @media (max-width: 770px) {
+    @media (max-width: 800px) {
         .perfil-main-container {
             width: 100%;
         }

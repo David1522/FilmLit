@@ -3,7 +3,7 @@
         <AppLogo/>
 
         <nav class="nav-bar">
-            <a href="/inicio"> <span class="icon"> <fa icon="home"/> </span> <span class="icon-text"> Inicio </span> </a>
+            <a href="/"> <span class="icon"> <fa icon="home"/> </span> <span class="icon-text"> Inicio </span> </a>
             <a href="/publicaciones"> <span class="icon"> <fa icon="heart"/> </span> <span class="icon-text"> Publicaciones </span> </a>
             <a href="/biblioteca"> <span class="icon"> <fa icon="bookmark"/> </span> <span class="icon-text"> Biblioteca </span> </a>
             <a href="/habitaciones"> <span class="icon"> <fa icon="people-group"/> </span> <span class="icon-text"> Habitaciones </span> </a>

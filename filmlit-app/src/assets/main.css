@@ -1,7 +1,8 @@
 :root.light {
     --background-color-primary: #fff;
     --background-color-secondary: #dbdbdb;
-    --color-accent: #2196f3;
+    --background-color-blur: #ffffff79;
+    --color-accent: #6a43a9;
     --color-border: #262626;
     --color-text-primary: #212121;
 }
@@ -9,7 +10,8 @@
 :root.dark {
     --background-color-primary: black;
     --background-color-secondary: rgb(54, 54, 54);
-    --color-accent: #2196f3;
+    --background-color-blur: rgba(0, 0, 0, 0.443);
+    --color-accent: #6a43a9;
     --color-border: #595959;
     --color-text-primary: #fff;
 }

@@ -30,7 +30,7 @@
         justify-self: center;
     }
 
-    @media (max-width: 770px) {
+    @media (max-width: 800px) {
         .main-container {
             grid-template: 1fr 90px / 1fr;
             grid-template-areas: 

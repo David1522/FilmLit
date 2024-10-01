@@ -8,6 +8,39 @@
 
 <script setup>
     import Header from '@/components/UI/Header.vue';
+
+    import { ref, onMounted } from 'vue';
+    import { useRouter } from 'vue-router';
+    import axios from 'axios';
+
+    const usuario = ref(null)
+
+    const router = useRouter();
+    
+    async function authSession() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            router.push('/login');
+            return;
+        }
+
+        try {
+            const response = await axios.get('http://127.0.0.1:8000/usuarios/me', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            usuario.value = response.data
+        } catch (error) {
+            console.log(error)
+            router.push('/login')
+        }
+    }
+
+    onMounted(() => {
+        authSession();
+    })
 </script>
 
 <style scoped>
@@ -35,7 +68,7 @@
         grid-area: contenido;
     }
 
-    @media (max-width: 770px) {
+    @media (max-width: 800px) {
         .main-container {
             grid-template: 100px 1fr 90px / 1fr;
             grid-template-areas: 

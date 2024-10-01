@@ -1,6 +1,6 @@
 <template>
     <header>
-        <AppLogo/>
+        <AppLogo :isDark="isDark"/>
 
         <nav class="nav-bar">
             <a href="/"> <span class="icon"> <fa icon="home"/> </span> <span class="icon-text"> Inicio </span> </a>
@@ -12,7 +12,7 @@
             <a href="/planes"> <span class="icon"> <fa icon="star"/> </span> <span class="icon-text"> Planes </span> </a>
 
             <!-- Botones especiales -->
-            <ThemeSwitch class="setting"/>
+            <ThemeSwitch class="setting" :isDark="isDark" @toggle-theme="setTheme"/>
             <Settings class="setting"/>
         </nav>
     </header>
@@ -22,6 +22,27 @@
     import AppLogo from './AppLogo.vue';
     import ThemeSwitch from './ThemeSwitch.vue';
     import Settings from './Settings.vue';
+
+    import { ref, onMounted } from 'vue';
+
+    const isDark = ref(localStorage.getItem('theme') === 'dark');
+
+
+    function setTheme() {
+        const newTheme = isDark.value ? 'light' : 'dark';
+        document.documentElement.className = newTheme;
+        isDark.value = newTheme === 'dark';
+        localStorage.setItem('theme', newTheme);
+    }
+
+
+    onMounted(() => {
+        const theme = localStorage.getItem('theme');
+        
+        if (theme) {
+            document.documentElement.className = theme;
+        }
+    })
 </script>
 
 <style scoped>

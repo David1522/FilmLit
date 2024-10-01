@@ -1,5 +1,5 @@
 <template>
-    <button class="theme-switcher-btn" @click="setTheme()">
+    <button class="theme-switcher-btn" @click="toggleTheme">
         <div class="icon-container">
             <fa icon="sun" class="icon" v-if="isDark"/>
             <fa icon="moon" class="icon" v-else/>
@@ -9,16 +9,21 @@
 </template>
 
 <script setup>
-    import { ref } from 'vue';
+    import { defineProps, defineEmits } from 'vue';
 
-    const root = ref(document.documentElement);
-    const isDark = ref(localStorage.getItem('theme') === 'dark')
 
-    function setTheme() {
-        const newTheme = isDark.value ? 'light' : 'dark';
-        root.value.className = newTheme;
-        isDark.value = newTheme === 'dark';
-        localStorage.setItem('theme', newTheme)
+    // Acepta isDark como prop
+    const props = defineProps({
+        isDark: Boolean
+    });
+
+
+    // Emite el evento theme toggle
+    const emit = defineEmits(['toggle-theme']);
+
+
+    function toggleTheme() {
+        emit('toggle-theme');
     }
 </script>
 

@@ -6,24 +6,12 @@
 </template>
 
 <script setup>
-    import { ref, onMounted } from 'vue'
+    import { defineProps } from 'vue';
 
-    const isDark = ref(document.documentElement.className === 'dark');
-
-    function updateTheme() {
-        isDark.value = document.documentElement.className === 'dark';
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        document.body.addEventListener('click', (event) => {
-            if (event.target.classList.contains('theme-switcher-btn')) {
-                updateTheme()
-            }
-        })
-    })
-
-    onMounted(() => {
-        isDark.value = document.documentElement.className === 'dark';
+    
+    // Accepta isDark como prop
+    const props = defineProps({
+        isDark: Boolean
     })
 </script>
 

@@ -1,0 +1,274 @@
+<template>
+    <div class="publicaciones-container" @scroll="handleScroll">
+        <div class="publ-card" v-for="publicacion in publicaciones"  :key="publicacion.id_publicacion">
+            <div class="publ-header">
+                <div class="info-usuario">
+                    <img src="../icons/pfp-icon.jpg" alt="usuario-pfp" class="pfp-usuario">
+                    <p class="nombre-usuario">{{ publicacion.perfil.usuario.nombre_usuario }}</p>
+                </div>
+
+                <button class="publ-config"> <fa icon="ellipsis"/> </button>
+            </div>
+
+            <div class="publ-content">
+                <p>{{ publicacion.descripcion }}</p>
+            </div>
+
+            <div class="publ-footer">
+                <p class="publ-content-date"> {{ new Date(publicacion.fecha).toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'America/Bogota'}) }} </p>
+                
+                <div class="publ-btns" v-if="!interaccionesPublicaciones[publicacion.id_publicacion]?.cargando">
+                    <button class="publ-f-btn"> <span> {{ interaccionesPublicaciones[publicacion.id_publicacion].likes }} </span> <fa icon="heart"/> </button>
+                    <button class="publ-f-btn"> <span> {{ interaccionesPublicaciones[publicacion.id_publicacion].comentarios }} </span> <fa icon="comment"/> </button>
+                </div>
+                <div class="loading-message" v-else>Cargando Interacciones...</div>
+
+                <a class="publ-comentarios-lnk" href="#">Todos los comentarios</a>
+            </div>
+        </div>
+
+        <div v-if="cargandoPublicaciones" class="publ-message">Cargando Más Publicaciones...</div>
+        <div v-else class="publ-message">No hay más publicaciones</div>
+    </div>
+</template>
+
+<script setup>
+    import { ref, onMounted, isShallow } from 'vue';
+    import axios from 'axios';
+    import router from '@/router';
+
+    const token = ref('');
+
+    const publicaciones = ref([]);
+    const interaccionesPublicaciones = ref({});
+
+    // Variables para la paginacion de publicaciones
+    const page = ref(1);
+    const size = ref(10);
+    const total = ref(0);
+    const hasNext = ref(false)
+    const cargandoPublicaciones = ref(false)
+
+    
+    async function validarToken() {
+        token.value = localStorage.getItem('token');
+        if (!token.value) {
+            router.push('login');
+            return;
+        }
+    }
+
+
+    async function getPosts(page = 1) {
+        validarToken();
+
+        try {
+            const response = await axios.get('http://localhost:8000/publicaciones', {
+                headers: {
+                    Authorization: `Bearer ${token.value}`
+                },
+                params: {
+                    page,
+                    size: size.value,
+                },
+            });
+
+            // Decalara que valores vamos a extrar del response
+            const { data, total: totalPost, has_next } = response.data; 
+
+            // Crea un nuevo array con las publicaciones previamente guardadas junto con las nuevas almacenadas en data
+            publicaciones.value = [...publicaciones.value, ...data]; 
+            total.value = totalPost;
+            hasNext.value = has_next;
+
+            publicaciones.value.forEach(publicacion => {
+                getNumInteracionesPublicacion(publicacion.id_publicacion);
+            });
+        } catch (error) {
+            console.log(error);
+            localStorage.removeItem('token');
+            router.push('/login');
+        }
+    }
+
+
+    async function getNumInteracionesPublicacion(idPublicacion) {
+        if (!interaccionesPublicaciones.value[idPublicacion]) {
+            interaccionesPublicaciones.value[idPublicacion] = { "cargando": true }
+            try {
+                const response = await axios.get(`http://localhost:8000/publicaciones/${idPublicacion}/interacciones`, {
+                    headers: {
+                        Authorization: `Bearer ${token.value}`,
+                    },
+                    params: {
+                        idPublicacion,
+                    }
+                });
+                interaccionesPublicaciones.value[idPublicacion] = {
+                    "cargando": false,
+                    "likes": response.data.likes || 0,
+                    "comentarios": response.data.comentarios || 0,
+                    "publicacionLikeada": response.data.publicacionLikeada == {} || false,
+                }
+            } catch (error) {
+                console.log(error);
+                localStorage.removeItem('token');
+                router.push('/login');
+            }
+        }
+    }
+
+
+    async function cargarPublicaciones() {
+        if (!hasNext.value || cargandoPublicaciones.value) return;
+
+        cargandoPublicaciones.value = true;
+        page.value += 1;
+
+        await getPosts(page.value);
+        cargandoPublicaciones.value = false;
+    }
+
+
+    // Detecta cuando el usuario hace scroll en la parte iferior del contenedor
+    function handleScroll() {
+        const container = document.querySelector('.publicaciones-container');
+        const inferiorContainer = container.scrollHeight - container.scrollTop <= container.clientHeight + 200;
+
+        if (inferiorContainer && hasNext.value) {
+            cargarPublicaciones();
+        }
+    }
+
+
+    async function updatePost() {
+        publicaciones.value = [];
+        getPosts();
+    }
+
+
+    defineExpose({
+        updatePost,
+    });
+
+
+    onMounted(() => {
+        page.value = 1;
+        getPosts();
+    })
+</script>
+
+<style scoped>
+    .publicaciones-container {
+        color: var(--color-text-primary);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .publicaciones-container::-webkit-scrollbar {
+        display: none;
+    }
+
+    .publ-card {
+        width: 75%;
+        height: auto;
+        padding: 15px 0;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .publ-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .info-usuario {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .pfp-usuario {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+
+    .nombre-usuario {
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .publ-config {
+        background-color: transparent;
+        color: var(--color-text-primary);
+        font-size: 18px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .publ-content {
+        font-size: 14px;
+        padding: 10px 0;
+    }
+
+    .publ-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .publ-content-date {
+        font-size: 12px;
+        color: var(--color-text-secundary);
+        margin-bottom: 5px;
+    }
+
+    .publ-btns {
+        display: flex;
+        gap: 9px;
+    }
+
+    .publ-f-btn {
+        background-color: transparent;
+        color: var(--color-text-primary);
+        font-size: 18px;
+        border: none;
+        cursor: pointer;
+        transition: color 200ms ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .publ-f-btn > span {
+        color: var(--color-text-primary);
+        font-size: 14px;
+    }
+
+    .publ-f-btn:hover {
+        color: var(--color-text-secundary);
+        transition: color 200ms ease-in-out;
+    }
+
+    .publ-comentarios-lnk {
+        font-size: 14px;
+        color: var(--color-text-secundary);
+    }
+
+    .loading-message {
+        font-size: 14px;
+        color: var(--color-text-primary);
+    }
+
+    .publ-message {
+        color: var(--color-text-secundary);
+        font-size: 14px;
+        padding-top: 15px;
+    }
+</style>

@@ -9,9 +9,6 @@
 </template>
 
 <script setup>
-    import { defineProps, defineEmits } from 'vue';
-
-
     // Acepta isDark como prop
     const props = defineProps({
         isDark: Boolean

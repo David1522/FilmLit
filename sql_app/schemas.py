@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import List, Optional
 from datetime import datetime, date
 
 # Schemas para la validacion de informacion de cualquier modelo
@@ -46,7 +46,53 @@ class Perfil(BaseModel):
         from_attributes = True
         
         
-class AtualizarPerfil(BaseModel):
+class ActualizarPerfil(BaseModel):
     nombre: Optional[str] = None
     fecha_nacimiento: Optional[date] = None
     descripcion: Optional[str] = None
+
+
+# Schemas Publicacion
+class PublicacionBase(BaseModel):
+    descripcion: Optional[str] = None
+    multimedia: Optional[str] = None
+
+
+class Publicacion(PublicacionBase):
+    id_publicacion: int
+    id_perfil: int
+    fecha: datetime
+    perfil: Optional[Perfil] = None
+    
+    class Config:
+        from_attributes = True
+        
+
+class PaginatedPubl(BaseModel):
+    data: List[Publicacion]
+    total: int
+    page: int
+    size: int
+    has_next: bool
+
+
+# Schemas Likes & Comentarios
+class Like(BaseModel):
+    id_like: int
+    id_perfil: int
+    id_publicacion: int
+    fecha: datetime
+    
+    class Config:
+        from_attributes = True
+        
+        
+class Comentario(BaseModel):
+    id_comentario: int
+    id_perfil: int
+    id_publicacion: int
+    descripcion: str
+    fehca: datetime
+    
+    class Config:
+        from_attributes = True

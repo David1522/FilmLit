@@ -1,5 +1,5 @@
 <template>
-    <div class="modal-perfil">
+    <div class="modal-editar-perfil">
         <div class="editar-perfil-container" v-if="perfil">
             <legend>Editar Perfil</legend>
             <form @submit.prevent="updatePerfilUsuario">
@@ -47,24 +47,31 @@
 
     const emits = defineEmits();
 
-    const perfil = ref(null)
+    const token = ref('');
+
+    const perfil = ref(null);
     // const pfpUsuario = ref(perfil.foto_perfil) Añadir despues
-    const nombre = ref('')
-    const fechaNacimiento = ref('')
-    const descripcion = ref('')
+    const nombre = ref('');
+    const fechaNacimiento = ref('');
+    const descripcion = ref('');
 
 
-    async function fetchPerfilUsuario() {
-        const token = localStorage.getItem('token');
+    async function validarToken() {
+        token.value = localStorage.getItem('token')
         if (!token) {
             router.push('/login');
             return;
         }
+    }
+
+
+    async function fetchPerfilUsuario() {
+        validarToken();
 
         try {
             const response = await axios.get('http://localhost:8000/perfil/me', {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token.value}`
                 }
             });
 
@@ -81,11 +88,7 @@
 
 
     async function updatePerfilUsuario() {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            router.push('/login');
-            return
-        }
+        validarToken();
         
         const perfilActualizado = {
             nombre: nombre.value,
@@ -96,9 +99,10 @@
         try {
             const response = await axios.put('http://localhost:8000/perfil/me', perfilActualizado, {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token.value}`
                 }
-            })
+            });
+
             Swal.fire({
                 icon: 'success',
                 title: 'Perfil Actualizado',
@@ -106,16 +110,16 @@
             });
 
             emits('perfil-updated'); // Emite un evento para notidicartle al componente padre acerca del update
-
-            router.push('/perfil')
+            router.push('/perfil');
         } catch (error) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error al Actualizar Perfil',
                 text: error.response.data.detail,
             });
-            console.log(error)
-            router.push('/perfil')
+
+            console.log(error);
+            router.push('/perfil');
         }
     }
     
@@ -126,7 +130,7 @@
 </script>
 
 <style scoped>
-    .modal-perfil {
+    .modal-editar-perfil {
         background-color: var(--background-color-blur);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);

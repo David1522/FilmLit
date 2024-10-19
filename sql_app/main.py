@@ -16,7 +16,7 @@ import models, schemas, crud, utils
 # Configuracion para JWT
 SECRET_KEY = "FILMLIT"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 50
 
 
 #Crea todas las tablas en la base de datos
@@ -137,8 +137,37 @@ async def get_perfil_me(perfil_usuario: Annotated[schemas.Perfil, Depends(get_cu
 
 
 @app.put("/perfil/me")
-async def update_perfil(perfil_actualizado: schemas.AtualizarPerfil, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
+async def update_perfil(perfil_actualizado: schemas.ActualizarPerfil, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
     success = crud.actualizar_perfil(db, perfil_usuario.id_perfil, perfil_actualizado)
     if not success:
         raise HTTPException(status_code=404, detail="Perfil no encontrado.")
     return {"mensaje": "¡Tu perfil ha sido actualizado correctamente!"}
+
+
+# Endpoints Publicaciones
+@app.get("/publicaciones", response_model=schemas.PaginatedPubl)
+async def get_publicaciones(db: Annotated[Session, Depends(get_db)], page: int = 1, size: int = 10):
+    if page < 1 or size < 1:
+        raise HTTPException(status_code=400, detail="Invalid page or size paramenters")
+    
+    publ_totales = crud.get_total_num_post(db)
+    offset = (page - 1) * size # Numero de publicaciones a skipear
+    
+    return schemas.PaginatedPubl(
+        data = crud.get_post_paginados(db, offset, size),
+        total = publ_totales,
+        page = page,
+        size = size,
+        has_next = publ_totales > offset + size
+    )
+
+
+@app.post("/publicaciones")
+async def post_publicacion(nueva_publicacion: schemas.PublicacionBase, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
+    crud.crear_publicacion(db, perfil_usuario.id_perfil, nueva_publicacion)
+    return {"mensaje": "Publicacion creada correctamente"}
+
+
+@app.get("/publicaciones/{id_publicacion}/interacciones")
+async def get_interacciones_publicacion(id_publicacion: int, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
+    return crud.get_interacciones_publicacion(db, id_publicacion, perfil_usuario.id_perfil)

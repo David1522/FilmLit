@@ -1,4 +1,6 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
+
 import models, schemas, utils
 
 
@@ -34,7 +36,7 @@ def eliminar_usuario(db: Session, usuario: models.Usuario):
     return {"message": "Usuario eliminado con éxito"}
     
     
-#CRUD Perfil
+# CRUD Perfil
 def get_perfil(db: Session, id_perfil):
     return db.query(models.Perfil).filter(models.Perfil.id_perfil == id_perfil).first()
 
@@ -52,7 +54,7 @@ def crear_perfil(db: Session, id_usuario: str):
     db.refresh(db_perfil)
     
     
-def actualizar_perfil(db: Session, id_perfil: str, perfil_actualizado: schemas.AtualizarPerfil):
+def actualizar_perfil(db: Session, id_perfil: str, perfil_actualizado: schemas.ActualizarPerfil):
     perfil_db = get_perfil(db, id_perfil)
     if not perfil_db:
         return False
@@ -62,4 +64,33 @@ def actualizar_perfil(db: Session, id_perfil: str, perfil_actualizado: schemas.A
     db.commit()
     db.refresh(perfil_db)
     return True
+
+
+# CRUD Publicaciones
+def get_total_num_post(db: Session):
+    return db.query(models.Publicacion).count()
+
+
+def get_post_paginados(db: Session, offset: int, size: int):
+    return db.query(models.Publicacion).order_by(models.Publicacion.fecha.desc()).offset(offset).limit(size).all()
+
+
+def crear_publicacion(db: Session, id_perfil: str, nueva_publicacion: schemas.PublicacionBase):
+    db_publicacion = models.Publicacion(
+        id_perfil = id_perfil,
+        descripcion = nueva_publicacion.descripcion,
+        multimedia = nueva_publicacion.multimedia
+    )
+    db.add(db_publicacion)
+    db.commit()
+    db.refresh(db_publicacion)
+    
+    
+def get_interacciones_publicacion(db: Session, id_publicacion: int, id_perfil: int):
+    interacciones = {
+        "likes": db.query(func.count(models.Like.id_like)).filter(models.Like.id_publicacion == id_publicacion).scalar(),
+        "comentarios": db.query(func.count(models.Comentario.id_comentario)).filter(models.Comentario.id_publicacion == id_publicacion).scalar(),
+        "publicacionLikeada": db.query(models.Like).filter(models.Like.id_publicacion == id_publicacion, models.Like.id_perfil == id_perfil)
+    }
+    return interacciones
     

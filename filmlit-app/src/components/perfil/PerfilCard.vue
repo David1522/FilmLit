@@ -1,40 +1,32 @@
 <template>
-    <div class="perfil-main-container">
-        <div class="perfil-card" v-if="perfil">
-            <img src="../icons/pfp-icon.jpg" alt="pfp" class="usuario-pfp">
+    <div class="perfil-card" v-if="perfil">
+        <img src="../icons/pfp-icon.jpg" alt="pfp" class="usuario-pfp">
 
-            <div class="detalles-perfil">
-                <div class="ajustes-perfil">
-                    <p class="nombre-usuario">{{ perfil.usuario.nombre_usuario }}</p>
-                    <router-link to="/perfil/editar" class="btn-perfil">Editar</router-link>
-                    <a href="#" class="btn-perfil"> Mensaje</a>
-                    <button class="btn-acc-options"> <fa icon="ellipsis" /> </button>
-                </div>
-                <div class="stats-perfil">
-                    <p class="stat"><span class="num-seguidos"> {{ perfil.seguidos }} </span> segidos</p>
-                    <p class="stat"><span class="num-seguidores"> {{ perfil.seguidores }} </span> siguiendo</p>
-                </div>
+        <div class="detalles-perfil">
+            <div class="ajustes-perfil">
+                <p class="nombre-usuario">{{ perfil.usuario.nombre_usuario }}</p>
+                <router-link to="/perfil/editar" class="btn-perfil">Editar</router-link>
+                <button class="btn-acc-options"> <fa icon="ellipsis" /> </button>
+            </div>
+            <div class="stats-perfil">
+                <p class="stat"><span class="num-seguidos"> {{ perfil.seguidos }} </span> segidos</p>
+                <p class="stat"><span class="num-seguidores"> {{ perfil.seguidores }} </span> siguiendo</p>
+            </div>
 
-                <div class="info-perfil">
-                    <p class="info info-nombre"> <span> {{ perfil.nombre }} </span> </p>
-                    <p class="info info-birthdate"> <span v-if="perfil.fecha_nacimiento"> 🎂 {{ perfil.fecha_nacimiento }}</span> </p>
-                    <p class="info info-desc"> {{ perfil.descripcion }} </p>
-                </div>
+            <div class="info-perfil">
+                <p class="info info-nombre"> <span> {{ perfil.nombre }} </span> </p>
+                <p class="info info-birthdate"> <span v-if="perfil.fecha_nacimiento"> 🎂 {{ perfil.fecha_nacimiento }}</span> </p>
+                <p class="info info-desc"> {{ perfil.descripcion }} </p>
             </div>
         </div>
-        <div v-else class="cargando">
-            Cargando informacion del perfil...
-        </div>
-
-        <div class="vc-components">
-            <RouterView @perfil-updated="fetchPerfilUsuario"/>
-        </div>
+    </div>
+    <div v-else class="cargando">
+        Cargando informacion del perfil...
     </div>
 </template>
 
 <script setup>
     import { ref, onMounted } from 'vue';
-    import { RouterView } from 'vue-router';
     import axios from 'axios';
     import router from '@/router';
     
@@ -60,21 +52,19 @@
         }
     }
 
+
+    // Expone la funcion para que el componente padre la pueda llamar
+    defineExpose({
+        fetchPerfilUsuario,
+    });
+
+
     onMounted(() => {
         fetchPerfilUsuario();
     })
 </script>
 
 <style scoped>
-    .perfil-main-container {
-        width: 75%;
-        height: auto;
-        background-color: var(--background-color-primary);
-        color: var(--color-text-primary);
-        padding-top: 30px;
-        position: relative
-    }
-
     .perfil-card {
         height: auto;
         display: grid;
@@ -100,7 +90,6 @@
         width: 100%;
         height: 100%;
         display: flex;
-        flex-wrap: wrap;
         gap: 10px;
     }
 
@@ -175,11 +164,5 @@
     .cargando {
         text-align: center;
         padding: 20px;
-    }
-
-    @media (max-width: 800px) {
-        .perfil-main-container {
-            width: 100%;
-        }
     }
 </style>

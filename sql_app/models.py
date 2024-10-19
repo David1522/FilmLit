@@ -35,11 +35,34 @@ class Publicacion(Base):
     __tablename__ = "PUBLICACION"
     
     id_publicacion = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    id_usuario = Column(Integer, ForeignKey("USUARIO.id_usuario"))
+    id_perfil = Column(Integer, ForeignKey("PERFIL.id_perfil"))
     descripcion = Column(String(255), nullable=False)
     multimedia = Column(String(255), nullable=True)
     fecha = Column(DateTime, default=datetime.utcnow,nullable=False)
-    likes = Column(Integer, default=0, nullable=False)
     
-    usuario = relationship("Usuario")
+    perfil = relationship("Perfil")
     
+
+class Like(Base):
+    __tablename__ = "LIKE"
+    
+    id_like = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    id_perfil = Column(Integer, ForeignKey("PERFIL.id_perfil"))
+    id_publicacion = Column(Integer, ForeignKey("PUBLICACION.id_publicacion"))
+    fecha = Column(DateTime, default=datetime.utcnow, nullable=False)
+    
+    perfil = relationship("Perfil")
+    publicacion = relationship("Publicacion")
+    
+    
+class Comentario(Base):
+    __tablename__ = "COMENTARIO"
+    
+    id_comentario = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    id_perfil = Column(Integer, ForeignKey("PERFIL.id_perfil"))
+    id_publicacion = Column(Integer, ForeignKey("PUBLICACION.id_publicacion"))
+    descripcion = Column(String(280), nullable=False)
+    fecha = Column(DateTime, default=datetime.utcnow, nullable=False)
+    
+    perfil = relationship("Perfil")
+    publicacion = relationship("Publicacion")

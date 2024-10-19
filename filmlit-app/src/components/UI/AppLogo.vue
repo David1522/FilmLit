@@ -6,9 +6,6 @@
 </template>
 
 <script setup>
-    import { defineProps } from 'vue';
-
-    
     // Accepta isDark como prop
     const props = defineProps({
         isDark: Boolean

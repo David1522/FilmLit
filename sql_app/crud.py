@@ -75,7 +75,16 @@ def get_post_paginados(db: Session, offset: int, size: int):
     return db.query(models.Publicacion).order_by(models.Publicacion.fecha.desc()).offset(offset).limit(size).all()
 
 
-def crear_publicacion(db: Session, id_perfil: str, nueva_publicacion: schemas.PublicacionBase):
+def get_interacciones_publicacion(db: Session, id_publicacion: int, id_perfil: int):
+    interacciones = {
+        "likes": db.query(func.count(models.Like.id_like)).filter(models.Like.id_publicacion == id_publicacion).scalar(),
+        "comentarios": db.query(func.count(models.Comentario.id_comentario)).filter(models.Comentario.id_publicacion == id_publicacion).scalar(),
+        "publicacionLikeada": bool(get_like(db, id_publicacion, id_perfil))
+    }
+    return interacciones
+
+
+def crear_publicacion(db: Session, id_perfil: int, nueva_publicacion: schemas.PublicacionBase):
     db_publicacion = models.Publicacion(
         id_perfil = id_perfil,
         descripcion = nueva_publicacion.descripcion,
@@ -85,12 +94,23 @@ def crear_publicacion(db: Session, id_perfil: str, nueva_publicacion: schemas.Pu
     db.commit()
     db.refresh(db_publicacion)
     
-    
-def get_interacciones_publicacion(db: Session, id_publicacion: int, id_perfil: int):
-    interacciones = {
-        "likes": db.query(func.count(models.Like.id_like)).filter(models.Like.id_publicacion == id_publicacion).scalar(),
-        "comentarios": db.query(func.count(models.Comentario.id_comentario)).filter(models.Comentario.id_publicacion == id_publicacion).scalar(),
-        "publicacionLikeada": db.query(models.Like).filter(models.Like.id_publicacion == id_publicacion, models.Like.id_perfil == id_perfil)
-    }
-    return interacciones
-    
+
+# CRUD Lieks
+def get_like(db: Session, id_publicacion: int, id_perfil: int) :
+    return db.query(models.Like).filter(models.Like.id_publicacion == id_publicacion, models.Like.id_perfil == id_perfil).first()
+
+
+def crear_like(db: Session, id_publicacion: int, id_perfil: int):
+    db_like = models.Like(
+        id_perfil = id_perfil,
+        id_publicacion = id_publicacion
+    )
+    db.add(db_like)
+    db.commit()
+    db.refresh(db_like)
+
+
+def eliminar_like(db: Session, id_publicacion: int, id_perfil: int):
+    like = get_like(db, id_publicacion, id_perfil)
+    db.delete(like)
+    db.commit()

@@ -171,3 +171,14 @@ async def post_publicacion(nueva_publicacion: schemas.PublicacionBase, perfil_us
 @app.get("/publicaciones/{id_publicacion}/interacciones")
 async def get_interacciones_publicacion(id_publicacion: int, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
     return crud.get_interacciones_publicacion(db, id_publicacion, perfil_usuario.id_perfil)
+
+
+# Endpoints Like
+@app.post("/publicaciones/{id_publicacion}/like")
+async def post_like_publ(id_publicacion: int, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
+    crud.crear_like(db, id_publicacion, perfil_usuario.id_perfil)
+
+
+@app.delete("/publicaciones/{id_publicacion}/like")
+async def delele_like_publ(id_publicacion: int, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
+    crud.eliminar_like(db, id_publicacion, perfil_usuario.id_perfil)

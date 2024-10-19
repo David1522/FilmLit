@@ -18,8 +18,18 @@
                 <p class="publ-content-date"> {{ new Date(publicacion.fecha).toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'America/Bogota'}) }} </p>
                 
                 <div class="publ-btns" v-if="!interaccionesPublicaciones[publicacion.id_publicacion]?.cargando">
-                    <button class="publ-f-btn"> <span> {{ interaccionesPublicaciones[publicacion.id_publicacion].likes }} </span> <fa icon="heart"/> </button>
-                    <button class="publ-f-btn"> <span> {{ interaccionesPublicaciones[publicacion.id_publicacion].comentarios }} </span> <fa icon="comment"/> </button>
+                    <button 
+                        class="publ-f-btn"
+                        :class="{ liked: interaccionesPublicaciones[publicacion.id_publicacion]?.publicacionLikeada }"
+                        @click="likeFunc(publicacion.id_publicacion, interaccionesPublicaciones[publicacion.id_publicacion].publicacionLikeada)">
+                        <span> {{ interaccionesPublicaciones[publicacion.id_publicacion].likes }} </span>
+                        <fa icon="heart"/>
+                    </button>
+
+                    <button class="publ-f-btn">
+                        <span> {{ interaccionesPublicaciones[publicacion.id_publicacion].comentarios }} </span>
+                        <fa icon="comment"/>
+                    </button>
                 </div>
                 <div class="loading-message" v-else>Cargando Interacciones...</div>
 
@@ -33,7 +43,7 @@
 </template>
 
 <script setup>
-    import { ref, onMounted, isShallow } from 'vue';
+    import { ref, onMounted } from 'vue';
     import axios from 'axios';
     import router from '@/router';
 
@@ -93,28 +103,23 @@
 
 
     async function getNumInteracionesPublicacion(idPublicacion) {
-        if (!interaccionesPublicaciones.value[idPublicacion]) {
-            interaccionesPublicaciones.value[idPublicacion] = { "cargando": true }
-            try {
-                const response = await axios.get(`http://localhost:8000/publicaciones/${idPublicacion}/interacciones`, {
-                    headers: {
-                        Authorization: `Bearer ${token.value}`,
-                    },
-                    params: {
-                        idPublicacion,
-                    }
-                });
-                interaccionesPublicaciones.value[idPublicacion] = {
-                    "cargando": false,
-                    "likes": response.data.likes || 0,
-                    "comentarios": response.data.comentarios || 0,
-                    "publicacionLikeada": response.data.publicacionLikeada == {} || false,
-                }
-            } catch (error) {
-                console.log(error);
-                localStorage.removeItem('token');
-                router.push('/login');
+        interaccionesPublicaciones.value[idPublicacion] = { "cargando": true }
+        try {
+            const response = await axios.get(`http://localhost:8000/publicaciones/${idPublicacion}/interacciones`, {
+                headers: {
+                    Authorization: `Bearer ${token.value}`,
+                },
+            });
+            interaccionesPublicaciones.value[idPublicacion] = {
+                "cargando": false,
+                "likes": response.data.likes || 0,
+                "comentarios": response.data.comentarios || 0,
+                "publicacionLikeada": response.data.publicacionLikeada || false,
             }
+        } catch (error) {
+            console.log(error);
+            localStorage.removeItem('token');
+            router.push('/login');
         }
     }
 
@@ -127,6 +132,36 @@
 
         await getPosts(page.value);
         cargandoPublicaciones.value = false;
+    }
+
+    async function likeFunc(idPublicacion, publicacionLikeada) {
+        const statusLikePrevio = publicacionLikeada;
+
+        // Actualziacion visual de likes
+        const interaccionActual = interaccionesPublicaciones.value[idPublicacion];
+        interaccionActual.publicacionLikeada = !statusLikePrevio;
+        interaccionActual.likes += statusLikePrevio ? -1 : 1;
+
+        try {
+            if (statusLikePrevio) {
+                await axios.delete(`http://localhost:8000/publicaciones/${idPublicacion}/like`, {
+                    headers: {
+                        Authorization: `Bearer ${token.value}`,
+                    }
+                })
+            } else {
+                await axios.post(`http://localhost:8000/publicaciones/${idPublicacion}/like`, {}, {
+                    headers: {
+                        Authorization: `Bearer ${token.value}`,
+                    }
+                });
+            }
+        } catch (error) {
+            // Revierte la actualizacion visual
+            interaccionActual.publicacionLikeada = statusLikePrevio;
+            interaccionActual.likes -= statusLikePrevio ? -1 : 1;
+            console.log(error);
+        }
     }
 
 
@@ -244,6 +279,14 @@
         align-items: center;
         justify-content: center;
         gap: 5px;
+    }
+
+    .publ-f-btn.liked {
+        color: red;
+    }
+
+    .publ-f-btn.liked:hover {
+        color: rgb(183, 0, 0);
     }
 
     .publ-f-btn > span {

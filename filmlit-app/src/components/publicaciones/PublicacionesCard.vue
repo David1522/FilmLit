@@ -1,16 +1,22 @@
 <template>
     <div class="publicaciones-container" @scroll="handleScroll">
-        <div class="publ-card" v-for="publicacion in publicaciones"  :key="publicacion.id_publicacion">
+        <div class="publ-card" v-for="publicacion in publicaciones" :key="publicacion.id_publicacion">
             <div class="publ-header">
                 <div class="info-usuario">
                     <img src="../icons/pfp-icon.jpg" alt="usuario-pfp" class="pfp-usuario">
                     <p class="nombre-usuario">{{ publicacion.perfil.usuario.nombre_usuario }}</p>
                 </div>
 
-                <button class="publ-config"> <fa icon="ellipsis"/> </button>
+
+                <div class="publ-actions">
+                    <button class="follow-btn">Follow</button>
+                    <div class="icon-container">
+                        <fa icon="ellipsis"/>
+                    </div>
+                </div>
             </div>
 
-            <div class="publ-content">
+            <div class="publ-content" @click="accederDetallesPublicacion(publicacion.id_publicacion)">
                 <p>{{ publicacion.descripcion }}</p>
             </div>
 
@@ -26,7 +32,7 @@
                         <fa icon="heart"/>
                     </button>
 
-                    <button class="publ-f-btn">
+                    <button class="publ-f-btn" @click="accederDetallesPublicacion(publicacion.id_publicacion)">
                         <span> {{ interaccionesPublicaciones[publicacion.id_publicacion].comentarios }} </span>
                         <fa icon="comment"/>
                     </button>
@@ -134,6 +140,24 @@
         cargandoPublicaciones.value = false;
     }
 
+
+    // Detecta cuando el usuario hace scroll en la parte iferior del contenedor
+    function handleScroll() {
+        const container = document.querySelector('.publicaciones-container');
+        const inferiorContainer = container.scrollHeight - container.scrollTop <= container.clientHeight + 200;
+
+        if (inferiorContainer && hasNext.value) {
+            cargarPublicaciones();
+        }
+    }
+
+
+    async function updatePost() {
+        publicaciones.value = [];
+        getPosts();
+    }
+
+
     async function likeFunc(idPublicacion, publicacionLikeada) {
         const statusLikePrevio = publicacionLikeada;
 
@@ -165,20 +189,8 @@
     }
 
 
-    // Detecta cuando el usuario hace scroll en la parte iferior del contenedor
-    function handleScroll() {
-        const container = document.querySelector('.publicaciones-container');
-        const inferiorContainer = container.scrollHeight - container.scrollTop <= container.clientHeight + 200;
-
-        if (inferiorContainer && hasNext.value) {
-            cargarPublicaciones();
-        }
-    }
-
-
-    async function updatePost() {
-        publicaciones.value = [];
-        getPosts();
+    async function accederDetallesPublicacion(idPublicacion) {
+        router.push(`/publicaciones/detalles/${idPublicacion}`);
     }
 
 
@@ -234,21 +246,47 @@
     }
 
     .nombre-usuario {
-        font-size: 12px;
-        font-weight: 800;
+        font-size: 16px;
+        font-weight: 600;
     }
 
-    .publ-config {
-        background-color: transparent;
+    .publ-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .follow-btn {
+        width: 75px;
+        height: 30px;
+        background-color: var(--background-color-contrast);
+        color: var(--color-text-contrast);
+        font-weight: 600;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+    }
+
+    .icon-container {
+        width: 30px;
+        height: 30px;
         color: var(--color-text-primary);
         font-size: 18px;
         border: none;
-        cursor: pointer;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .publ-content {
         font-size: 14px;
         padding: 10px 0;
+    }
+
+    .publ-content:hover {
+        cursor: pointer;
     }
 
     .publ-footer {
@@ -281,14 +319,6 @@
         gap: 5px;
     }
 
-    .publ-f-btn.liked {
-        color: red;
-    }
-
-    .publ-f-btn.liked:hover {
-        color: rgb(183, 0, 0);
-    }
-
     .publ-f-btn > span {
         color: var(--color-text-primary);
         font-size: 14px;
@@ -297,6 +327,14 @@
     .publ-f-btn:hover {
         color: var(--color-text-secundary);
         transition: color 200ms ease-in-out;
+    }
+
+    .publ-f-btn.liked {
+        color: red;
+    }
+
+    .publ-f-btn.liked:hover {
+        color: rgb(183, 0, 0);
     }
 
     .publ-comentarios-lnk {

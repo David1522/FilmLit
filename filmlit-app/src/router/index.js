@@ -7,6 +7,7 @@ import EditarPerfilCard from '@/components/perfil/EditarPerfilCard.vue'
 
 import Publicaciones from '@/views/Publicaciones.vue';
 import CrearPublicacion from '@/components/publicaciones/CrearPublicacion.vue';
+import DetallesPublicacion from '@/components/publicaciones/DetallesPublicacion.vue'
 
 
 const router = createRouter({
@@ -43,6 +44,11 @@ const router = createRouter({
           path: 'crear',
           name: 'CrearPublicacion',
           component: CrearPublicacion,
+        },
+        {
+          path: 'detalles/:id',
+          name: 'DetallesPublicacion',
+          component: DetallesPublicacion,
         }
       ],
     }

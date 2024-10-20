@@ -3,7 +3,7 @@
         <div class="icon-container">
             <fa icon="gear" class="icon"/>
         </div>
-        <span class="btn-text">Settings</span>
+        <span class="btn-text">Ajustes</span>
     </button>
 </template>
 

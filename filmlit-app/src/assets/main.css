@@ -1,21 +1,25 @@
 :root.light {
     --background-color-primary: #fff;
     --background-color-secondary: #dbdbdb;
+    --background-color-contrast: black;
     --background-color-blur: #ffffff79;
     --color-accent: #6a43a9;
     --color-border: #262626;
     --color-text-primary: #212121;
     --color-text-secundary: #262626;
+    --color-text-contrast: #fff;
 }
 
 :root.dark {
     --background-color-primary: black;
     --background-color-secondary: rgb(54, 54, 54);
+    --background-color-contrast: #fff;
     --background-color-blur: rgba(0, 0, 0, 0.443);
     --color-accent: #6a43a9;
     --color-border: #595959;
     --color-text-primary: #fff;
     --color-text-secundary: #757575;
+    --color-text-contrast: #212121;
 }
 
 * {

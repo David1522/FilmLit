@@ -4,7 +4,7 @@
             <fa icon="sun" class="icon" v-if="isDark"/>
             <fa icon="moon" class="icon" v-else/>
         </div>
-        <span class="btn-text">Theme</span>
+        <span class="btn-text">Tema</span>
     </button>
 </template>
 

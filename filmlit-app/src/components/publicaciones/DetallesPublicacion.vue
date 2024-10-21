@@ -1,7 +1,7 @@
 <template>
     <div class="modal-detalles-publicacion">
-        <div class="publicacion-contenedor">
-            <div class="publ-controls">
+            <div class="publicacion-contenedor" v-if="publicacion.perfil && publicacion.perfil.usuario">
+                <div class="publ-controls">
                 <div class="publ-nav">
                     <div class="icon-container" @click="router.push('/publicaciones')">
                         <fa icon="arrow-left" class="go-back-btn"/>
@@ -16,48 +16,146 @@
             <div class="publ-header">
                 <div class="info-usuario">
                     <img src="../icons/pfp-icon.jpg" alt="user-pfp" class="pfp-usuario">
-                    <p class="nombre-usuario">Juan</p>
+                    <p class="nombre-usuario"> {{ publicacion.perfil.usuario.nombre_usuario }} </p>
                 </div>
                 
                 <button class="follow-btn">Follow</button>
             </div>
 
             <div class="publ-contenido">
-                <p class="publ-descripcion">Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut optio quis, explicabo tempora repellendus, minima quam numquam fugit minus molestias incidunt tempore porro nemo unde omnis reprehenderit beatae nam iste.</p>
+                <p class="publ-descripcion"> {{ publicacion.descripcion }} </p>
                 <img src="../icons/img-post-example.jpg" alt="publ-img" class="publ-img">
             </div>
 
             <div class="publ-footer">
-                <p class="publ-fecha">19/10/2024, 02:27 p. m.</p>
+                <p class="publ-fecha"> {{ formattedDate(publicacion.fecha) }} </p>
 
-                <div class="publ-stats">
-                    <button 
-                        class="publ-f-btn">
-                        <span> 0 </span>
+                <div class="publ-stats" v-if="!interacciones.cargando">
+                    <button class="publ-f-btn" :class="{ liked: interacciones.publicacionLikeada }" @click="likeFunc()">
+                        <span> {{ interacciones.likes }} </span>
                         <fa icon="heart"/>
                     </button>
 
                     <button class="publ-f-btn">
-                        <span> 0 </span>
+                        <span> {{ interacciones.comentarios }} </span>
                         <fa icon="comment"/>
                     </button>
                 </div>
+                <div v-else>Cargando Interacciones...</div>
             </div>
 
             <div class="comentario-form">
-                <p>Holaa</p>
+                <p>Modulo Comentarios</p>
             </div>
         </div>
+        <div v-else>Cargando Publicacion...</div>
     </div>
 </template>
 
 <script setup>
     import router from '@/router';
-import { ref } from 'vue';
+    import axios from 'axios';
+    import { ref, onMounted } from 'vue';
     import { useRoute } from 'vue-router';
+    import { format } from 'date-fns';
 
     const route = useRoute();
-    const idPublicacion = ref(route.params.id)
+    const token = ref('');
+
+    const idPublicacion = ref(route.params.id);
+    const publicacion = ref({})
+    const interacciones = ref({})
+
+
+    async function validarToken() {
+        token.value = localStorage.getItem('token');
+        if (!token.value) {
+            router.push('/login');
+            return;
+        }
+    }
+
+
+    const formattedDate = (date) => {
+        return format(new Date(date), "h:mm aaa · MMM d, yyyy");
+    };
+
+
+    async function fetchPublicacion() {
+        validarToken();
+
+        try {
+            const response = await axios.get(`http://localhost:8000/publicaciones/${idPublicacion.value}`, {
+                headers: {
+                    Authorization: `Bearer ${token.value}`,
+                }
+            });
+            publicacion.value = response.data;
+            getNumInteracionesPublicacion();
+        } catch (error) {
+            console.log(error);
+            localStorage.removeItem('token');
+            router.push('/login');
+        }
+    }
+
+
+    async function getNumInteracionesPublicacion() {
+        interacciones.value = { "cargando": true }
+        try {
+            const response = await axios.get(`http://localhost:8000/publicaciones/${idPublicacion.value}/interacciones`, {
+                headers: {
+                    Authorization: `Bearer ${token.value}`,
+                },
+            });
+            interacciones.value = {
+                "cargando": false,
+                "likes": response.data.likes || 0,
+                "comentarios": response.data.comentarios || 0,
+                "publicacionLikeada": response.data.publicacionLikeada || false,
+            }
+        } catch (error) {
+            console.log(error);
+            localStorage.removeItem('token');
+            router.push('/login');
+        }
+    }
+
+
+    async function likeFunc() {
+        const statusLikePrevio = interacciones.value.publicacionLikeada;
+
+        // Actualziacion visual de likes
+        const interaccionActual = interacciones.value;
+        interaccionActual.publicacionLikeada = !statusLikePrevio;
+        interaccionActual.likes += statusLikePrevio ? -1 : 1;
+
+        try {
+            if (statusLikePrevio) {
+                await axios.delete(`http://localhost:8000/publicaciones/${idPublicacion.value}/like`, {
+                    headers: {
+                        Authorization: `Bearer ${token.value}`,
+                    }
+                })
+            } else {
+                await axios.post(`http://localhost:8000/publicaciones/${idPublicacion.value}/like`, {}, {
+                    headers: {
+                        Authorization: `Bearer ${token.value}`,
+                    }
+                });
+            }
+        } catch (error) {
+            // Revierte la actualizacion visual
+            interaccionActual.publicacionLikeada = statusLikePrevio;
+            interaccionActual.likes -= statusLikePrevio ? -1 : 1;
+            console.log(error);
+        }
+    }
+
+
+    onMounted(() => {
+        fetchPublicacion();
+    })
 </script>
 
 <style scoped>
@@ -70,7 +168,6 @@ import { ref } from 'vue';
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
         color: white;
     }
 
@@ -137,7 +234,8 @@ import { ref } from 'vue';
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 10px
+        margin-bottom: 10px;
+        padding: 0 10px;
     }
 
     .pfp-usuario {
@@ -171,9 +269,9 @@ import { ref } from 'vue';
     .publ-contenido {
         display: flex;
         flex-direction: column;
-        align-items: center;
         justify-content: center;
         gap: 10px;
+        padding: 0 10px;
     }
 
     .publ-descripcion {
@@ -190,6 +288,7 @@ import { ref } from 'vue';
         display: flex;
         justify-content: space-between;
         align-items: center;
+        padding: 10px;
     }
 
     .publ-fecha {
@@ -243,6 +342,6 @@ import { ref } from 'vue';
         height: 150px;
         border-top: 1px solid var(--color-border);
         border-bottom: 1px solid var(--color-border);
-        padding: 50px;
+        padding: 20px;
     }
 </style>

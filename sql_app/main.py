@@ -145,6 +145,11 @@ async def update_perfil(perfil_actualizado: schemas.ActualizarPerfil, perfil_usu
 
 
 # Endpoints Publicaciones
+@app.get("/publicaciones/{id_publicacion}", response_model=schemas.Publicacion)
+async def get_publicacion(id_publicacion: int, db: Annotated[Session, Depends(get_db)]):
+    return crud.get_post(db, id_publicacion)
+
+
 @app.get("/publicaciones", response_model=schemas.PaginatedPubl)
 async def get_publicaciones(db: Annotated[Session, Depends(get_db)], page: int = 1, size: int = 10):
     if page < 1 or size < 1:

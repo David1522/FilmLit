@@ -21,7 +21,7 @@
             </div>
 
             <div class="publ-footer">
-                <p class="publ-content-date"> {{ new Date(publicacion.fecha).toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'America/Bogota'}) }} </p>
+                <p class="publ-content-date"> {{ formattedDate(publicacion.fecha) }} </p>
                 
                 <div class="publ-btns" v-if="!interaccionesPublicaciones[publicacion.id_publicacion]?.cargando">
                     <button 
@@ -52,6 +52,7 @@
     import { ref, onMounted } from 'vue';
     import axios from 'axios';
     import router from '@/router';
+    import { format } from 'date-fns';
 
     const token = ref('');
 
@@ -73,6 +74,10 @@
             return;
         }
     }
+
+    const formattedDate = (date) => {
+        return format(new Date(date), "dd/MM/yyyy · h:mm aaa").toUpperCase();
+    };
 
 
     async function getPosts(page = 1) {

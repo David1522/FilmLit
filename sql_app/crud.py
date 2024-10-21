@@ -67,6 +67,10 @@ def actualizar_perfil(db: Session, id_perfil: str, perfil_actualizado: schemas.A
 
 
 # CRUD Publicaciones
+def get_post(db: Session, id_publicacion: int):
+    return db.query(models.Publicacion).filter(models.Publicacion.id_publicacion == id_publicacion).first();
+
+
 def get_total_num_post(db: Session):
     return db.query(models.Publicacion).count()
 
@@ -95,7 +99,7 @@ def crear_publicacion(db: Session, id_perfil: int, nueva_publicacion: schemas.Pu
     db.refresh(db_publicacion)
     
 
-# CRUD Lieks
+# CRUD Likes
 def get_like(db: Session, id_publicacion: int, id_perfil: int) :
     return db.query(models.Like).filter(models.Like.id_publicacion == id_publicacion, models.Like.id_perfil == id_perfil).first()
 

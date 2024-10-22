@@ -90,7 +90,7 @@
     }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
     .modal-crear-publicacion {
         position: absolute;
         width: 100%;
@@ -167,6 +167,7 @@
         padding: 8px 15px;
         border: 1px solid var(--color-border);
         border-radius: 5px;
+        resize: none;
     }
 
     .acciones-btn {

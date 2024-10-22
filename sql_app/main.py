@@ -178,7 +178,7 @@ async def get_interacciones_publicacion(id_publicacion: int, perfil_usuario: Ann
     return crud.get_interacciones_publicacion(db, id_publicacion, perfil_usuario.id_perfil)
 
 
-# Endpoints Like
+# Endpoints Likes
 @app.post("/publicaciones/{id_publicacion}/like")
 async def post_like_publ(id_publicacion: int, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
     crud.crear_like(db, id_publicacion, perfil_usuario.id_perfil)
@@ -187,3 +187,27 @@ async def post_like_publ(id_publicacion: int, perfil_usuario: Annotated[schemas.
 @app.delete("/publicaciones/{id_publicacion}/like")
 async def delele_like_publ(id_publicacion: int, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
     crud.eliminar_like(db, id_publicacion, perfil_usuario.id_perfil)
+    
+
+# Endpoints Comentarios
+@app.get("/publicaciones/{id_publicacion}/comentarios", response_model=schemas.PaginatedComentarios)
+async def get_comentarios_publ(perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)], id_publicacion: int, page: int = 1, size: int = 1):
+    if page < 1 or size < 1:
+        raise HTTPException(status_code=400, detail="Invalid page or size parameters")
+    
+    comentarios_publ_totales = crud.get_total_num_comentarios_publ(db, id_publicacion)
+    offset = (page - 1) * size
+    
+    return schemas.PaginatedComentarios(
+        data = crud.get_comentarios_paginados(db, id_publicacion, offset, size),
+        total = comentarios_publ_totales,
+        page = page,
+        size = size,
+        has_next = comentarios_publ_totales > offset + size
+    )
+
+
+@app.post("/publicaciones/{id_publicacion}/comentario")
+async def post_comentario_publ(descripcion: str, id_publicacion: int, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
+    crud.crear_comentario(db, id_publicacion, perfil_usuario.id_perfil, descripcion)
+    

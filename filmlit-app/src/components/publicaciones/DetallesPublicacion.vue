@@ -1,6 +1,6 @@
 <template>
     <div class="modal-detalles-publicacion">
-            <div class="publicacion-contenedor" v-if="publicacion.perfil && publicacion.perfil.usuario">
+            <div class="publicacion-contenedor" v-if="publicacion.perfil && publicacion.perfil.usuario" @scroll="handleScroll">
                 <div class="publ-controls">
                 <div class="publ-nav">
                     <div class="icon-container" @click="router.push('/publicaciones')">
@@ -45,7 +45,10 @@
             </div>
 
             <div class="comentario-form">
-                <p>Modulo Comentarios</p>
+                <CrearComentario @comentario-creado="actualizarPublicacion"/>
+            </div>
+            <div class="seccion-comentarios">
+                <ComentariosPublicacion ref="comentariosPublicacion"/>
             </div>
         </div>
         <div v-else>Cargando Publicacion...</div>
@@ -53,14 +56,19 @@
 </template>
 
 <script setup>
+    import CrearComentario from './CrearComentario.vue';
+    import ComentariosPublicacion from './ComentariosPublicacion.vue';
+
     import router from '@/router';
     import axios from 'axios';
     import { ref, onMounted } from 'vue';
     import { useRoute } from 'vue-router';
     import { format } from 'date-fns';
 
+
     const route = useRoute();
     const token = ref('');
+    const comentariosPublicacion = ref(null)
 
     const idPublicacion = ref(route.params.id);
     const publicacion = ref({})
@@ -149,6 +157,29 @@
             interaccionActual.publicacionLikeada = statusLikePrevio;
             interaccionActual.likes -= statusLikePrevio ? -1 : 1;
             console.log(error);
+        }
+    }
+
+    async function actualizarPublicacion() {
+        getNumInteracionesPublicacion();
+        if (comentariosPublicacion.value) {
+            await comentariosPublicacion.value.actualizarComentarios();
+        }
+    }
+
+    async function cargarComentarios() {
+        if (comentariosPublicacion.value) {
+            await comentariosPublicacion.value.cargarComentarios();
+        }
+    }
+
+
+    function handleScroll() {
+        const container = document.querySelector('.publicacion-contenedor');
+        const inferiorContainer = container.scrollHeight - container.scrollTop <= container.clientHeight + 200;
+
+        if (inferiorContainer) {
+            cargarComentarios();
         }
     }
 
@@ -339,9 +370,12 @@
     /* Aquí va el componente del form de comentario */
     .comentario-form {
         width: 100%;
-        height: 150px;
         border-top: 1px solid var(--color-border);
         border-bottom: 1px solid var(--color-border);
-        padding: 20px;
+        padding: 10px;
+    }
+
+    .seccion-comentarios {
+        border-bottom: 1px solid var(--color-border);
     }
 </style>

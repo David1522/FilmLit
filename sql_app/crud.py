@@ -118,3 +118,23 @@ def eliminar_like(db: Session, id_publicacion: int, id_perfil: int):
     like = get_like(db, id_publicacion, id_perfil)
     db.delete(like)
     db.commit()
+    
+    
+# CRUD Comentarios
+def get_total_num_comentarios_publ(db: Session, id_publicacion: int):
+    return db.query(models.Comentario).filter(models.Comentario.id_publicacion == id_publicacion).count()
+
+
+def get_comentarios_paginados(db: Session, id_publicacion: int, offset: int, size: int):
+    return db.query(models.Comentario).filter(models.Comentario.id_publicacion == id_publicacion).order_by(models.Comentario.fecha.desc()).offset(offset).limit(size).all()
+
+
+def crear_comentario(db: Session, id_publicacion: int, id_perfil: int, descripcion: str):
+    db_comentario = models.Comentario(
+        id_perfil = id_perfil,
+        id_publicacion = id_publicacion,
+        descripcion = descripcion
+    )
+    db.add(db_comentario)
+    db.commit()
+    db.refresh(db_comentario)

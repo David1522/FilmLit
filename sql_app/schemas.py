@@ -92,7 +92,16 @@ class Comentario(BaseModel):
     id_perfil: int
     id_publicacion: int
     descripcion: str
-    fehca: datetime
+    fecha: datetime
+    perfil: Optional[Perfil] = None
     
     class Config:
         from_attributes = True
+        
+        
+class PaginatedComentarios(BaseModel):
+    data: List[Comentario]
+    total: int
+    page: int
+    size: int
+    has_next: bool

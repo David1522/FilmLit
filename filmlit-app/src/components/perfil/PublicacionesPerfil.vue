@@ -1,8 +1,5 @@
 <template>
-<<<<<<< HEAD
-=======
     <div class="publicaciones-container" @scroll="handleScroll" v-if="publicaciones.length > 0">
->>>>>>> profile_publ
         <div class="publ-card" v-for="publicacion in publicaciones" :key="publicacion.id_publicacion">
             <div class="publ-header">
                 <div class="info-usuario">
@@ -12,10 +9,6 @@
 
 
                 <div class="publ-actions">
-<<<<<<< HEAD
-                    <button class="follow-btn">Follow</button>
-=======
->>>>>>> profile_publ
                     <div class="icon-container">
                         <fa icon="ellipsis"/>
                     </div>

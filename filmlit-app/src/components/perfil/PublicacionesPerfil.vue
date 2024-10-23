@@ -46,7 +46,6 @@
         <div v-else class="publ-message">No hay más publicaciones</div>
     </div>
     <div v-else class="no-publ-message">No tienes publicaciones creadas</div>
->>>>>>> profile_publ
 </template>
 
 <script setup>
@@ -96,7 +95,6 @@
             });
 
             // Crea un nuevo array con las publicaciones previamente guardadas junto con las nuevas almacenadas en data
-            publicaciones.value = [...publicaciones.value, ...data]; 
             const { data, total: totalPost, has_next } = response.data;
 
             console.log(response.data)
@@ -226,11 +224,11 @@
         overflow: auto;
         scrollbar-width: none;
         -ms-overflow-style: none;
+        padding-bottom: 100px
     }
 
     .publicaciones-container::-webkit-scrollbar {
         display: none;
-        padding-bottom: 100px
     }
 
     .publ-card {
@@ -365,8 +363,6 @@
         font-size: 14px;
         padding-top: 15px;
     }
-<<<<<<< HEAD
-=======
 
     .no-publ-message {
         width: 100%;
@@ -376,5 +372,4 @@
         align-items: center;
         justify-content: center;
     }
->>>>>>> profile_publ
 </style>

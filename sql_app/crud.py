@@ -79,6 +79,14 @@ def get_post_paginados(db: Session, offset: int, size: int):
     return db.query(models.Publicacion).order_by(models.Publicacion.fecha.desc()).offset(offset).limit(size).all()
 
 
+def get_total_num_post_perfil(db: Session, id_perfil = int):
+    return db.query(models.Publicacion).filter(models.Publicacion.id_perfil == id_perfil).count()
+
+
+def get_post_perfil(db: Session, id_perfil: int, offset: int, size: int):
+    return db.query(models.Publicacion).filter(models.Publicacion.id_perfil == id_perfil).order_by(models.Publicacion.fecha.desc()).offset(offset).limit(size).all()
+
+
 def get_interacciones_publicacion(db: Session, id_publicacion: int, id_perfil: int):
     interacciones = {
         "likes": db.query(func.count(models.Like.id_like)).filter(models.Like.id_publicacion == id_publicacion).scalar(),

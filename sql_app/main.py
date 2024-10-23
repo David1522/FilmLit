@@ -165,6 +165,23 @@ async def get_publicaciones(db: Annotated[Session, Depends(get_db)], page: int =
         size = size,
         has_next = publ_totales > offset + size
     )
+    
+    
+@app.get("/perfil/me/publicaciones")
+async def get_publ_perfil(perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)],  page: int = 1, size: int = 10):
+    if page < 1 or size < 1:
+        raise HTTPException(status_code=400, detail="Invalid page or size parameters")
+    
+    publ_totales = crud.get_total_num_post_perfil(db, perfil_usuario.id_perfil)
+    offset = (page - 1) * size
+    
+    return schemas.PaginatedPubl(
+        data = crud.get_post_perfil(db, perfil_usuario.id_perfil, offset, size),
+        total = publ_totales,
+        page = page,
+        size = size,
+        has_next = publ_totales > offset + size
+    )
 
 
 @app.post("/publicaciones")

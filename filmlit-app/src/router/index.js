@@ -9,6 +9,7 @@ import Publicaciones from '@/views/Publicaciones.vue';
 import CrearPublicacion from '@/components/publicaciones/CrearPublicacion.vue';
 import DetallesPublicacion from '@/components/publicaciones/DetallesPublicacion.vue'
 
+import Noticias from '@/views/Noticias.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,6 +52,11 @@ const router = createRouter({
           component: DetallesPublicacion,
         }
       ],
+    },
+    {
+      path: '/noticias',
+      name: 'Noticias',
+      component: Noticias,
     }
   ]
 })

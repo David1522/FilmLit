@@ -93,7 +93,9 @@
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
-    
+    overflow: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
   
   .noticias-grid {

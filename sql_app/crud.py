@@ -79,7 +79,15 @@ def get_post_paginados(db: Session, offset: int, size: int):
     return db.query(models.Publicacion).order_by(models.Publicacion.fecha.desc()).offset(offset).limit(size).all()
 
 
+<<<<<<< HEAD
 def get_post_usuario_paginados(db: Session, id_perfil: int, offset: int, size: int):
+=======
+def get_total_num_post_perfil(db: Session, id_perfil = int):
+    return db.query(models.Publicacion).filter(models.Publicacion.id_perfil == id_perfil).count()
+
+
+def get_post_perfil(db: Session, id_perfil: int, offset: int, size: int):
+>>>>>>> profile_publ
     return db.query(models.Publicacion).filter(models.Publicacion.id_perfil == id_perfil).order_by(models.Publicacion.fecha.desc()).offset(offset).limit(size).all()
 
 

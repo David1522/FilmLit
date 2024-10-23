@@ -1,12 +1,14 @@
 <template>
     <div class="perfil-main-container">
         <PerfilCard ref="perfilCard"/>
+        <PublicacionesPerfil/>
         <RouterView @perfil-updated="actualizarPerfil"/>
     </div>
 </template>
 
 <script setup>
     import PerfilCard from '@/components/perfil/PerfilCard.vue';
+    import PublicacionesPerfil from '@/components/perfil/PublicacionesPerfil.vue';
     import { ref } from 'vue';
     import { RouterView } from 'vue-router';
     
@@ -22,15 +24,16 @@
 
 <style scoped>
     .perfil-main-container {
-        width: 65%;
-        height: auto;
+        width: 50%;
+        height: 100vh;
         background-color: var(--background-color-primary);
         color: var(--color-text-primary);
         padding-top: 30px;
-        position: relative
+        position: relative;
+        overflow: hidden; /* Prevent overflow beyond the viewport */
     }
 
-    @media (max-width: 800px) {
+    @media (max-width: 1200px) {
         .perfil-main-container {
             width: 100%;
         }

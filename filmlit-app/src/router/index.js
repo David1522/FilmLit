@@ -11,6 +11,11 @@ import DetallesPublicacion from '@/components/publicaciones/DetallesPublicacion.
 
 import Noticias from '@/views/Noticias.vue'
 
+import Biblioteca from '@/views/Biblioteca.vue'
+import Principal from '@/components/biblioteca/Explorar.vue'
+import Peliculas from '@/components/biblioteca/Peliculas.vue'
+import Series from '@/components/biblioteca/Series.vue'
+import Libros from '@/components/biblioteca/Libros.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -57,7 +62,28 @@ const router = createRouter({
       path: '/noticias',
       name: 'Noticias',
       component: Noticias,
-    }
+    },
+    {
+      path: '/biblioteca',
+      name: 'Biblioteca',
+      component: Biblioteca,
+      children: [
+          {
+              path: 'peliculas',
+              name: 'Peliculas',
+              component: Peliculas,
+          },
+          {
+              path: 'series',
+              name: 'Series',
+              component: Series,
+          },{
+            path: 'libros',
+            name: 'Libros',
+            component: Libros,
+        },
+      ],
+  }
   ]
 })
 

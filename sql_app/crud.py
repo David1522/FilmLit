@@ -1,6 +1,9 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
+from typing import Optional
+from datetime import date
+
 import models, schemas, utils
 
 
@@ -54,13 +57,15 @@ def crear_perfil(db: Session, id_usuario: str):
     db.refresh(db_perfil)
     
     
-def actualizar_perfil(db: Session, id_perfil: str, perfil_actualizado: schemas.ActualizarPerfil):
+def actualizar_perfil(db: Session, id_perfil: str, nombre: str, fecha_nacimiento: date, descripcion: str, foto_perfil_path: Optional[str]):
     perfil_db = get_perfil(db, id_perfil)
     if not perfil_db:
         return False
-    perfil_db.nombre = perfil_actualizado.nombre
-    perfil_db.fecha_nacimiento = perfil_actualizado.fecha_nacimiento
-    perfil_db.descripcion = perfil_actualizado.descripcion
+    perfil_db.nombre = nombre
+    perfil_db.fecha_nacimiento = fecha_nacimiento
+    perfil_db.descripcion = descripcion
+    if foto_perfil_path:
+        perfil_db.foto_perfil = foto_perfil_path
     db.commit()
     db.refresh(perfil_db)
     return True

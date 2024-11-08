@@ -1,8 +1,11 @@
-from datetime import datetime, timedelta, timezone
-from typing import Annotated
+import os
+
+from datetime import date, datetime, timedelta, timezone
+from typing import Annotated, Optional
 
 from jose import jwt, JWTError
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status, UploadFile, File, Form
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
@@ -130,6 +133,10 @@ async def get_usuario_me(current_user: Annotated[schemas.Usuario, Depends(get_cu
     return current_user
 
 
+# Endpoints Imagenes
+app.mount("/static/fotos_perfil", StaticFiles(directory="images/fotos_perfil"), name="fotos_perfil")
+
+
 # Endpoints Perfil
 @app.get("/perfil/me", response_model=schemas.Perfil)
 async def get_perfil_me(perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
@@ -137,8 +144,32 @@ async def get_perfil_me(perfil_usuario: Annotated[schemas.Perfil, Depends(get_cu
 
 
 @app.put("/perfil/me")
-async def update_perfil(perfil_actualizado: schemas.ActualizarPerfil, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
-    success = crud.actualizar_perfil(db, perfil_usuario.id_perfil, perfil_actualizado)
+async def update_perfil(
+    perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)],
+    db: Annotated[Session, Depends(get_db)],
+    nombre: str = Form(...),
+    fecha_nacimiento: date = Form(...),
+    descripcion: str = Form(...),
+    foto_perfil: Optional[UploadFile] = File(None),
+    ):
+    
+    file_path = None
+    
+    if foto_perfil:
+        try:
+            directory = "images/fotos_perfil"
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            
+            file_path = os.path.join(directory, f"{perfil_usuario.id_perfil}.jpg") # Crea la ruta para el nuevo archivo usando el nombre de usuario y la misma extension
+    
+            with open(file_path , "wb") as f:
+                f.write(await foto_perfil.read())
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error al guardar imagen: {str(e)}")
+        
+    
+    success = crud.actualizar_perfil(db, perfil_usuario.id_perfil, nombre, fecha_nacimiento, descripcion, file_path)
     if not success:
         raise HTTPException(status_code=404, detail="Perfil no encontrado.")
     return {"mensaje": "¡Tu perfil ha sido actualizado correctamente!"}

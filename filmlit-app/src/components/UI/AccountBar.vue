@@ -4,7 +4,8 @@
             <a href="/perfil" class="nombre-usuario">{{ perfil.usuario.nombre_usuario }}</a>
             <p class="perfil-nombre">{{ perfil.nombre }}</p>
         </div>
-        <a href="./perfil"><img src="../icons/pfp-icon.jpg" alt="pfp-usuario" class="pfp-usuario"></a>
+        <a href="./perfil"><img :src="perfil.foto_perfil ? `http://localhost:8000/static/fotos_perfil/${perfil.id_perfil}.jpg`
+            : 'http://localhost:8000/static/fotos_perfil/pfp-icon.jpg'" alt="pfp-usuario" class="pfp-usuario"></a>
     </div>
     <div v-else>
         <p>Cargando Cuetna...</p>

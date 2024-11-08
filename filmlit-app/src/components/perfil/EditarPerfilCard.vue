@@ -5,10 +5,11 @@
             <form @submit.prevent="updatePerfilUsuario">
                 <div class="pfp-container">
                     <div class="pfp-default">
-                        <img src="../icons/pfp-icon.jpg" alt="default-pfp"/>
+                        <img :src="perfil.foto_perfil ? `http://localhost:8000/static/fotos_perfil/${perfil.id_perfil}.jpg`
+            : 'http://localhost:8000/static/fotos_perfil/pfp-icon.jpg'" alt="default-pfp"/>
                     </div>
                     <label for="file-upload" class="file-upload-btn">Cambiar Foto de Perfil</label>
-                    <input id="file-upload" type="file"/>
+                    <input id="file-upload" type="file" accept="image/*" @change="guardarImagen"/>
                 </div>
 
                 <div class="input-container">
@@ -46,14 +47,13 @@
     import { defineEmits } from 'vue';
 
     const emits = defineEmits();
-
     const token = ref('');
 
     const perfil = ref(null);
-    // const pfpUsuario = ref(perfil.foto_perfil) Añadir despues
     const nombre = ref('');
     const fechaNacimiento = ref('');
     const descripcion = ref('');
+    const fotoPerfil = ref(null)
 
 
     async function validarToken() {
@@ -87,19 +87,25 @@
     }
 
 
+    function guardarImagen(event) {
+        fotoPerfil.value = event.target.files[0]
+    }
+
+
     async function updatePerfilUsuario() {
         validarToken();
         
-        const perfilActualizado = {
-            nombre: nombre.value,
-            fecha_nacimiento: fechaNacimiento.value,
-            descripcion: descripcion.value,
-        }
+        const formData = new FormData();
+        formData.append('nombre', nombre.value);
+        formData.append('fecha_nacimiento', fechaNacimiento.value);
+        formData.append('descripcion', descripcion.value);
+        formData.append('foto_perfil', fotoPerfil.value);
 
         try {
-            const response = await axios.put('http://localhost:8000/perfil/me', perfilActualizado, {
+            const response = await axios.put('http://localhost:8000/perfil/me', formData, {
                 headers: {
-                    Authorization: `Bearer ${token.value}`
+                    Authorization: `Bearer ${token.value}`,
+                    'Content-Type': 'multipart/form-data',
                 }
             });
 

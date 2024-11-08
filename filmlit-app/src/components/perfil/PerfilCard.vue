@@ -1,6 +1,6 @@
 <template>
     <div class="perfil-card" v-if="perfil">
-        <img src="../icons/pfp-icon.jpg" alt="pfp" class="usuario-pfp">
+        <img :src="fotoPerfilUrl" alt="pfp" class="usuario-pfp">
 
         <div class="detalles-perfil">
             <div class="ajustes-perfil">
@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-    import { ref, onMounted } from 'vue';
+    import { ref, onMounted, computed } from 'vue';
     import axios from 'axios';
     import router from '@/router';
     
@@ -51,6 +51,14 @@
             router.push('/login');
         }
     }
+
+
+    const fotoPerfilUrl = computed(() => {
+        console.log("Computing the profile picture URL");
+        return perfil.value && perfil.value.foto_perfil
+            ? `http://localhost:8000/static/fotos_perfil/${perfil.value.id_perfil}.jpg`
+            : "http://localhost:8000/static/fotos_perfil/pfp-icon.jpg";
+    });
 
 
     // Expone la funcion para que el componente padre la pueda llamar

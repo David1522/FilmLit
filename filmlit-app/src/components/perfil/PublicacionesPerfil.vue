@@ -3,7 +3,8 @@
         <div class="publ-card" v-for="publicacion in publicaciones" :key="publicacion.id_publicacion">
             <div class="publ-header">
                 <div class="info-usuario">
-                    <img src="../icons/pfp-icon.jpg" alt="usuario-pfp" class="pfp-usuario">
+                    <img :src="publicacion.perfil.foto_perfil ? `http://localhost:8000/static/fotos_perfil/${publicacion.perfil.id_perfil}.jpg`
+            : 'http://localhost:8000/static/fotos_perfil/pfp-icon.jpg'" alt="usuario-pfp" class="pfp-usuario">
                     <p class="nombre-usuario">{{ publicacion.perfil.usuario.nombre_usuario }}</p>
                 </div>
 

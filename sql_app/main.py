@@ -147,29 +147,51 @@ async def get_perfil_me(perfil_usuario: Annotated[schemas.Perfil, Depends(get_cu
 async def update_perfil(
     perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)],
     db: Annotated[Session, Depends(get_db)],
-    nombre: str = Form(...),
-    fecha_nacimiento: date = Form(...),
-    descripcion: str = Form(...),
+    nombre: Optional[str] = Form(None),
+    fecha_nacimiento: Optional[str] = Form(None),
+    descripcion: Optional[str] = Form(None),
     foto_perfil: Optional[UploadFile] = File(None),
+    eliminar_pfp: Optional[str] = Form(None)
     ):
     
-    file_path = None
+    
+    parsed_fecha_nacimiento = None
+    if fecha_nacimiento:
+        try:
+            parsed_fecha_nacimiento = datetime.strptime(fecha_nacimiento, "%Y-%m-%d").date()
+        except ValueError:
+            raise HTTPException(status_code=422, detail="Invalid date format for fecha_nacimiento")
+        
+        
+    directory = "images/fotos_perfil" # Carpeta donde se guardan las imagenes
+    file_name = None # Ruta de la foto de perfil del usuario
+    
     
     if foto_perfil:
         try:
-            directory = "images/fotos_perfil"
-            if not os.path.exists(directory):
-                os.makedirs(directory)
+            previus_file_path = os.path.join(directory, perfil_usuario.foto_perfil)
+            if os.path.exists(previus_file_path):
+                os.remove(previus_file_path)
             
-            file_path = os.path.join(directory, f"{perfil_usuario.id_perfil}.jpg") # Crea la ruta para el nuevo archivo usando el nombre de usuario y la misma extension
-    
+            file_name = f"{foto_perfil.filename}-{perfil_usuario.id_perfil}.jpg"
+            file_path = os.path.join(directory, file_name) # Crea la ruta para el nuevo archivo usando el nombre de usuario y la misma extension
+                
             with open(file_path , "wb") as f:
                 f.write(await foto_perfil.read())
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error al guardar imagen: {str(e)}")
         
     
-    success = crud.actualizar_perfil(db, perfil_usuario.id_perfil, nombre, fecha_nacimiento, descripcion, file_path)
+    if eliminar_pfp:
+        file_name = f"{foto_perfil.filename}-{perfil_usuario.id_perfil}.jpg"
+        file_path = os.path.join(directory, file_name)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        else:
+            raise HTTPException(status_code=500, detail=f"Error al eliminar imagen.")
+        
+    
+    success = crud.actualizar_perfil(db, perfil_usuario.id_perfil, nombre, fecha_nacimiento, descripcion, file_name, eliminar_pfp)
     if not success:
         raise HTTPException(status_code=404, detail="Perfil no encontrado.")
     return {"mensaje": "¡Tu perfil ha sido actualizado correctamente!"}

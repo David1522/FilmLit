@@ -3,8 +3,7 @@
         <div class="publ-card" v-for="publicacion in publicaciones" :key="publicacion.id_publicacion">
             <div class="publ-header">
                 <div class="info-usuario">
-                    <img :src="publicacion.perfil.foto_perfil ? `http://localhost:8000/static/fotos_perfil/${publicacion.perfil.id_perfil}.jpg`
-            : 'http://localhost:8000/static/fotos_perfil/pfp-icon.jpg'" alt="usuario-pfp" class="pfp-usuario">
+                    <img :src= 'publicacion.perfil.foto_perfil ? `http://localhost:8000/static/fotos_perfil/${publicacion.perfil.foto_perfil}?${Date.now}` : "http://localhost:8000/static/fotos_perfil/pfp-icon.jpg"' alt="usuario-pfp" class="pfp-usuario">
                     <p class="nombre-usuario">{{ publicacion.perfil.usuario.nombre_usuario }}</p>
                 </div>
 
@@ -50,7 +49,7 @@
 </template>
 
 <script setup>
-    import { ref, onMounted } from 'vue';
+    import { ref, onMounted, computed } from 'vue';
     import axios from 'axios';
     import router from '@/router';
     import { format } from 'date-fns';
@@ -67,19 +66,13 @@
     const hasNext = ref(false)
     const cargandoPublicaciones = ref(false)
 
-    
-    async function validarToken() {
-        token.value = localStorage.getItem('token');
-        if (!token.value) {
-            router.push('login');
-            return;
-        }
-    }
+    const fotoPerfilUrl = computed(() => {
+        
+    });
 
     const formattedDate = (date) => {
         return format(new Date(date), "dd/MM/yyyy · h:mm aaa").toUpperCase();
     };
-
 
     async function getPosts(page = 1) {
         validarToken();
@@ -112,10 +105,9 @@
         } catch (error) {
             console.log(error);
             localStorage.removeItem('token');
-            router.push('/login');
+            router.push('/');
         }
     }
-
 
     async function getNumInteracionesPublicacion(idPublicacion) {
         interaccionesPublicaciones.value[idPublicacion] = { "cargando": true }
@@ -134,10 +126,9 @@
         } catch (error) {
             console.log(error);
             localStorage.removeItem('token');
-            router.push('/login');
+            router.push('/');
         }
     }
-
 
     async function cargarPublicaciones() {
         if (!hasNext.value || cargandoPublicaciones.value) return;
@@ -149,7 +140,6 @@
         cargandoPublicaciones.value = false;
     }
 
-
     // Detecta cuando el usuario hace scroll en la parte iferior del contenedor
     function handleScroll() {
         const container = document.querySelector('.publicaciones-container');
@@ -160,12 +150,10 @@
         }
     }
 
-
     async function updatePost() {
         publicaciones.value = [];
         getPosts();
     }
-
 
     async function likeFunc(idPublicacion, publicacionLikeada) {
         const statusLikePrevio = publicacionLikeada;
@@ -197,16 +185,21 @@
         }
     }
 
-
     async function accederDetallesPublicacion(idPublicacion) {
         router.push(`/publicaciones/detalles/${idPublicacion}`);
     }
 
+    async function validarToken() {
+        token.value = localStorage.getItem('token');
+        if (!token.value) {
+            router.push('/');
+            return;
+        }
+    }
 
     defineExpose({
         updatePost,
     });
-
 
     onMounted(() => {
         page.value = 1;

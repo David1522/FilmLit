@@ -5,11 +5,15 @@
             <form @submit.prevent="updatePerfilUsuario">
                 <div class="pfp-container">
                     <div class="pfp-default">
-                        <img :src="perfil.foto_perfil ? `http://localhost:8000/static/fotos_perfil/${perfil.id_perfil}.jpg`
-            : 'http://localhost:8000/static/fotos_perfil/pfp-icon.jpg'" alt="default-pfp"/>
+                        <!-- Use the computed property 'fotoPerfilUrl' for the img src -->
+                        <img :src="fotoPerfilUrl" :key="fotoPerfilUrl"alt="default-pfp" />
                     </div>
-                    <label for="file-upload" class="file-upload-btn">Cambiar Foto de Perfil</label>
-                    <input id="file-upload" type="file" accept="image/*" @change="guardarImagen"/>
+
+                    <div class="pfp-action-btns">
+                        <label for="file-upload" class="file-upload-btn">Subir Foto</label>
+                        <input id="file-upload" type="file" accept="image/*" :multiple="false" @change="guardarImagen" />
+                        <button v-if="perfil.foto_perfil || fotoPerfil" @click="borrarFotoPerfil" type="button" class="borrar-pfp-btn">Borrar</button>
+                    </div>
                 </div>
 
                 <div class="input-container">
@@ -36,11 +40,11 @@
         <div class="cargando" v-else>
             <p>Cargando Perfil...</p>
         </div>
-    </div> 
+    </div>
 </template>
 
 <script setup>
-    import { ref, onMounted } from 'vue';
+    import { ref, onMounted, computed, onUnmounted } from 'vue';
     import axios from 'axios';
     import router from '@/router';
     import Swal from 'sweetalert2';
@@ -53,17 +57,9 @@
     const nombre = ref('');
     const fechaNacimiento = ref('');
     const descripcion = ref('');
-    const fotoPerfil = ref(null)
-
-
-    async function validarToken() {
-        token.value = localStorage.getItem('token')
-        if (!token) {
-            router.push('/login');
-            return;
-        }
-    }
-
+    const fotoPerfil = ref(null); // Guarda el archivo seleccionado
+    const objectUrl = ref(null) // Guarda la URL para el archivo seleccionado por el usuario
+    const deletePfp = ref(false); // Guarda si el usuario decide borrar su foto de perfil
 
     async function fetchPerfilUsuario() {
         validarToken();
@@ -86,20 +82,49 @@
         }
     }
 
+    // Computed property para mostrear la imagen de perfil dinamicamente
+    const fotoPerfilUrl = computed(() => {
+        // Muestra la imagen si hay un archivo subido al form
+        if (fotoPerfil.value) {
+            if (objectUrl.value) URL.revokeObjectURL(objectUrl); // Limpia la URL previa
+            objectUrl.value = URL.createObjectURL(fotoPerfil.value);
+            return objectUrl.value;
+        }
+        // Si deletePfp es true, se mostrará la imagen por defecto
+        if (deletePfp.value) {
+            return `http://localhost:8000/static/fotos_perfil/pfp-icon.jpg`;
+        }
+        // Muestra la foto de perfil del usuario si existe
+        return perfil.value && perfil.value.foto_perfil
+            ? `http://localhost:8000/static/fotos_perfil/${perfil.value.foto_perfil}?${Date.now}`
+            : `http://localhost:8000/static/fotos_perfil/pfp-icon.jpg`;
+    });
 
     function guardarImagen(event) {
-        fotoPerfil.value = event.target.files[0]
+        if (event.target.files.length > 0) {
+            fotoPerfil.value = event.target.files[0];
+            deletePfp.value = false;
+        }
     }
 
+    function borrarFotoPerfil() {
+        fotoPerfil.value = null;
+        deletePfp.value = true;
+        if (objectUrl.value) {
+            URL.revokeObjectURL(objectUrl);
+            objectUrl = null;
+        }
+    }
 
     async function updatePerfilUsuario() {
         validarToken();
-        
+
         const formData = new FormData();
-        formData.append('nombre', nombre.value);
-        formData.append('fecha_nacimiento', fechaNacimiento.value);
-        formData.append('descripcion', descripcion.value);
-        formData.append('foto_perfil', fotoPerfil.value);
+        if (nombre.value) formData.append('nombre', nombre.value);
+        if (fechaNacimiento.value) formData.append('fecha_nacimiento', fechaNacimiento.value);
+        if (descripcion.value) formData.append('descripcion', descripcion.value);
+        if (fotoPerfil.value) formData.append('foto_perfil', fotoPerfil.value);
+        if (deletePfp.value) formData.append('eliminar_pfp', deletePfp.value);
 
         try {
             const response = await axios.put('http://localhost:8000/perfil/me', formData, {
@@ -115,7 +140,7 @@
                 text: response.data.mensaje
             });
 
-            emits('perfil-updated'); // Emite un evento para notidicartle al componente padre acerca del update
+            emits('perfil-updated');
             router.push('/perfil');
         } catch (error) {
             Swal.fire({
@@ -128,11 +153,23 @@
             router.push('/perfil');
         }
     }
-    
-    
+
+    async function validarToken() {
+        token.value = localStorage.getItem('token');
+        if (!token.value) {
+            router.push('/login');
+            return;
+        }
+    }
+
     onMounted(() => {
         fetchPerfilUsuario();
-    })
+    });
+
+    // Limpiamos el objeto URL para evitar alguna fuga de informacion en la memoria
+    onUnmounted(() => {
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+    });
 </script>
 
 <style scoped>
@@ -197,7 +234,28 @@
         font-weight: 100;
         border-radius: 10px;
         padding: 5px 10px;
+        margin-right: 9px;
         cursor: pointer;
+    }
+
+    .file-upload-btn:hover {
+        background-color: var(--background-color-secondary);
+    }
+
+    .borrar-pfp-btn {
+        background-color: transparent;
+        color: #fff;
+        border: 1px solid var(--color-border);
+        font-size: 14px;
+        font-weight: 100;
+        border-radius: 10px;
+        padding: 5px 10px;
+        cursor: pointer;
+        transition: background-color ease-out 300ms;
+    }
+
+    .borrar-pfp-btn:hover {
+        background-color: red;
     }
 
     .input-container {

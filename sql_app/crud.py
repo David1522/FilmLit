@@ -57,7 +57,7 @@ def crear_perfil(db: Session, id_usuario: str):
     db.refresh(db_perfil)
     
     
-def actualizar_perfil(db: Session, id_perfil: str, nombre: str, fecha_nacimiento: date, descripcion: str, foto_perfil_path: Optional[str]):
+def actualizar_perfil(db: Session, id_perfil: str, nombre: str, fecha_nacimiento: date, descripcion: str, foto_perfil_path: Optional[str], eliminar_pfp: bool):
     perfil_db = get_perfil(db, id_perfil)
     if not perfil_db:
         return False
@@ -66,6 +66,8 @@ def actualizar_perfil(db: Session, id_perfil: str, nombre: str, fecha_nacimiento
     perfil_db.descripcion = descripcion
     if foto_perfil_path:
         perfil_db.foto_perfil = foto_perfil_path
+    if eliminar_pfp:
+        perfil_db.foto_perfil = None
     db.commit()
     db.refresh(perfil_db)
     return True

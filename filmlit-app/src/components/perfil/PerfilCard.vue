@@ -1,6 +1,7 @@
 <template>
     <div class="perfil-card" v-if="perfil">
-        <img :src="fotoPerfilUrl" alt="pfp" class="usuario-pfp">
+        <!-- El key biding hace que la imagen sea renderizada cada que la variable -->
+        <img :src="fotoPerfilUrl" :key="fotoPerfilUrl" alt="pfp" class="usuario-pfp">
 
         <div class="detalles-perfil">
             <div class="ajustes-perfil">
@@ -26,7 +27,7 @@
 </template>
 
 <script setup>
-    import { ref, onMounted, computed } from 'vue';
+    import { ref, onMounted, computed, watch } from 'vue';
     import axios from 'axios';
     import router from '@/router';
     
@@ -35,7 +36,7 @@
     async function fetchPerfilUsuario() {
         const token = localStorage.getItem('token');
         if (!token) {
-            router.push('/login');
+            router.push('/');
             return;
         }
 
@@ -46,26 +47,23 @@
                 }
             });
             perfil.value = response.data
+            console.log(perfil.value)
         } catch (error) {
             localStorage.removeItem('token');
-            router.push('/login');
+            router.push('/');
         }
     }
 
-
     const fotoPerfilUrl = computed(() => {
-        console.log("Computing the profile picture URL");
         return perfil.value && perfil.value.foto_perfil
-            ? `http://localhost:8000/static/fotos_perfil/${perfil.value.id_perfil}.jpg`
+            ? `http://localhost:8000/static/fotos_perfil/${perfil.value.foto_perfil}?${Date.now}`
             : "http://localhost:8000/static/fotos_perfil/pfp-icon.jpg";
     });
-
 
     // Expone la funcion para que el componente padre la pueda llamar
     defineExpose({
         fetchPerfilUsuario,
     });
-
 
     onMounted(() => {
         fetchPerfilUsuario();

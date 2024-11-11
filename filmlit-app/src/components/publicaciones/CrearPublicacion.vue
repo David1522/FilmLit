@@ -7,10 +7,14 @@
                 <div class="img-container">
                     <div class="img-container">
                         <div class="img-default">
-                            <img src="../icons/pfp-icon.jpg" alt="publ-image">
+                            <img v-if="imagenUrl" :src="imagenUrl" alt="publ-image">
                         </div>
-                        <label for="file-upload" class="file-upload-btn">Añadir Foto</label>
-                        <input id="file-upload" type="file"/>
+
+                        <div class="img-actions">
+                            <label for="file-upload" class="file-upload-btn">Añadir Foto</label>
+                            <input id="file-upload" type="file" accept="image/*" :multiple="false" @change="guardarImagen"/>
+                            <button type="button" class="borrar-img-btn" @click="borrarImagen">Borrar</button>
+                        </div>
                     </div>
                 </div>
 
@@ -29,7 +33,7 @@
 </template>
 
 <script setup>
-    import { ref } from 'vue';
+    import { computed, onBeforeMount, ref } from 'vue';
     import axios from 'axios';
     import Swal from 'sweetalert2';
     import router from '@/router';
@@ -38,13 +42,14 @@
     
     const token = ref('');
 
-    const multimedia = ref(''); // Añadir funcionalidad despues
+    const multimedia = ref(null);
     const descripcion = ref('');
+    const objectUrl = ref(null)
 
     async function validarToken() {
         token.value = localStorage.getItem('token');
         if(!token) {
-            router.push('/login');
+            router.push('/');
             return;
         }
         console.log("Token validado: ", token.value)
@@ -54,16 +59,16 @@
     async function crearPublicacion() {
         validarToken();
 
-        const publicacion = {
-            descripcion: descripcion.value,
-            multimedia: multimedia.value
-        }
+        const formData = new FormData();
+        if (multimedia.value) formData.append('multimedia', multimedia.value);
+        if (descripcion.value) formData.append('descripcion', descripcion.value);
 
-        if (publicacion.descripcion || publicacion.multimedia) {
+        if (multimedia.value || descripcion.value) {
             try {
-                const response = await axios.post('http://localhost:8000/publicaciones', publicacion, {
+                const response = await axios.post('http://localhost:8000/publicaciones', formData, {
                     headers: {
-                    Authorization: `Bearer ${token.value}`
+                        Authorization: `Bearer ${token.value}`,
+                        "Content-Type": "multipart/form-data"
                     }
                 });
 
@@ -76,18 +81,51 @@
                 emits('publicacion-creada');
                 router.push('/publicaciones');
             } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error en al Crear Publicacion',
+                    text: error.response.data.detail
+                });
+
                 console.log(error);
-                localStorage.removeItem('token');
-                router.push('/login');
+                router.push('/publicaciones');
             }
         } else {
             Swal.fire({
                 icon: 'error',
                 title: 'Error en los Campos',
-                text: 'Asegurate de haber llenado por lo menos un campo para crear una publicacion'
+                text: "Asegurate de llenar la información en los campos antes de crear una publicacion."
             });
         }
     }
+
+    const imagenUrl = computed(() => {
+        if (multimedia.value) {
+            return objectUrl.value = URL.createObjectURL(multimedia.value);
+        } else {
+            return null;
+        }
+    })
+
+    function guardarImagen(event) {
+        if (event.target.files.length > 0) {
+            multimedia.value = event.target.files[0];
+        }
+    }
+
+    function borrarImagen() {
+        multimedia.value = null;
+        if (objectUrl.value) {
+            URL.revokeObjectURL(objectUrl);
+            objectUrl.value = null;
+        }
+    }
+
+    onBeforeMount(() => {
+        if (objectUrl.value) {
+            URL.revokeObjectURL(objectUrl.value);
+        }
+    })
 </script>
 
 <style scoped>
@@ -130,7 +168,6 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        margin-bottom: 10px
     }
 
     .img-default > img {
@@ -144,7 +181,25 @@
         display: none;
     }
 
+    .img-actions {
+        width: 100%;
+        padding: 10px;
+        display: flex;
+    }
+
     .file-upload-btn {
+        border: 1px solid var(--color-border);
+        font-size: 14px;
+        font-weight: 100;
+        border-radius: 10px;
+        padding: 5px 10px;
+        margin-right: 9px;
+        cursor: pointer;
+    }
+
+    .borrar-img-btn {
+        background-color: transparent;
+        color: var(--color-text-primary);
         border: 1px solid var(--color-border);
         font-size: 14px;
         font-weight: 100;

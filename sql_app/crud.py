@@ -70,7 +70,6 @@ def actualizar_perfil(db: Session, id_perfil: str, nombre: str, fecha_nacimiento
         perfil_db.foto_perfil = None
     db.commit()
     db.refresh(perfil_db)
-    return True
 
 
 # CRUD Publicaciones
@@ -103,11 +102,11 @@ def get_interacciones_publicacion(db: Session, id_publicacion: int, id_perfil: i
     return interacciones
 
 
-def crear_publicacion(db: Session, id_perfil: int, nueva_publicacion: schemas.PublicacionBase):
+def crear_publicacion(db: Session, id_perfil: int, multimedia: str, descripcion: str):
     db_publicacion = models.Publicacion(
         id_perfil = id_perfil,
-        descripcion = nueva_publicacion.descripcion,
-        multimedia = nueva_publicacion.multimedia
+        descripcion = descripcion,
+        multimedia = multimedia
     )
     db.add(db_publicacion)
     db.commit()

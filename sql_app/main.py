@@ -19,7 +19,7 @@ import models, schemas, crud, utils
 # Configuracion para JWT
 SECRET_KEY = "FILMLIT"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 50
+ACCESS_TOKEN_EXPIRE_MINUTES = 120
 
 
 #Crea todas las tablas en la base de datos
@@ -135,6 +135,7 @@ async def get_usuario_me(current_user: Annotated[schemas.Usuario, Depends(get_cu
 
 # Endpoints Imagenes
 app.mount("/static/fotos_perfil", StaticFiles(directory="images/fotos_perfil"), name="fotos_perfil")
+app.mount("/static/publicaciones", StaticFiles(directory="images/publicaciones"), name="publicaciones")
 
 
 # Endpoints Perfil
@@ -153,7 +154,6 @@ async def update_perfil(
     foto_perfil: Optional[UploadFile] = File(None),
     eliminar_pfp: Optional[str] = Form(None)
     ):
-    
     
     parsed_fecha_nacimiento = None
     if fecha_nacimiento:
@@ -179,7 +179,7 @@ async def update_perfil(
             with open(file_path , "wb") as f:
                 f.write(await foto_perfil.read())
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error al guardar imagen: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Error al guardar foto de perfil: {str(e)}")
         
     
     if eliminar_pfp:
@@ -191,9 +191,7 @@ async def update_perfil(
             raise HTTPException(status_code=500, detail=f"Error al eliminar imagen.")
         
     
-    success = crud.actualizar_perfil(db, perfil_usuario.id_perfil, nombre, fecha_nacimiento, descripcion, file_name, eliminar_pfp)
-    if not success:
-        raise HTTPException(status_code=404, detail="Perfil no encontrado.")
+    crud.actualizar_perfil(db, perfil_usuario.id_perfil, nombre, fecha_nacimiento, descripcion, file_name, eliminar_pfp)
     return {"mensaje": "¡Tu perfil ha sido actualizado correctamente!"}
 
 
@@ -256,8 +254,27 @@ async def get_publicacion_perfil(db: Annotated[Session, Depends(get_db)], perfil
 
 
 @app.post("/publicaciones")
-async def post_publicacion(nueva_publicacion: schemas.PublicacionBase, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
-    crud.crear_publicacion(db, perfil_usuario.id_perfil, nueva_publicacion)
+async def post_publicacion(
+    perfil_usuario: Annotated[schemas.Perfil,Depends(get_current_user_perfil)],
+    db: Annotated[Session, Depends(get_db)],
+    multimedia: Optional[UploadFile] = File(None),
+    descripcion: Optional[str] = Form(None)
+    ):
+    
+    directory = "images/publicaciones"
+    file_name = None
+    
+    if multimedia:
+        try:
+            file_name = f"{multimedia.filename}-{crud.get_total_num_post(db) + 1}-{perfil_usuario.id_perfil}.jpg"
+            file_path = os.path.join(directory, file_name)
+            
+            with open(file_path, "wb") as f:
+                f.write(await multimedia.read())
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error al guardar imagen de publicacion: {str(e)}")
+    
+    crud.crear_publicacion(db, perfil_usuario.id_perfil, file_name, descripcion)
     return {"mensaje": "Publicacion creada correctamente"}
 
 

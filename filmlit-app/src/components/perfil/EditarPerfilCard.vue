@@ -11,7 +11,7 @@
 
                     <div class="pfp-action-btns">
                         <label for="file-upload" class="file-upload-btn">Subir Foto</label>
-                        <input id="file-upload" type="file" accept="image/*" :multiple="false" @change="guardarImagen" />
+                        <input id="file-upload" type="file" accept="image/*" :multiple="false" @change="guardarImagen"/>
                         <button v-if="perfil.foto_perfil || fotoPerfil" @click="borrarFotoPerfil" type="button" class="borrar-pfp-btn">Borrar</button>
                     </div>
                 </div>

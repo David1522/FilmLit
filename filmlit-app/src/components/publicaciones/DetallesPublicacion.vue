@@ -15,7 +15,7 @@
 
             <div class="publ-header">
                 <div class="info-usuario">
-                    <img src="../icons/pfp-icon.jpg" alt="user-pfp" class="pfp-usuario">
+                    <img :src="publicacion.perfil.foto_perfil ? `http://localhost:8000/static/fotos_perfil/${publicacion.perfil.foto_perfil}?${Date.now()}` : 'http://localhost:8000/static/fotos_perfil/pfp-icon.jpg'" alt="user-pfp" class="pfp-usuario">
                     <p class="nombre-usuario"> {{ publicacion.perfil.usuario.nombre_usuario }} </p>
                 </div>
                 
@@ -24,7 +24,7 @@
 
             <div class="publ-contenido">
                 <p class="publ-descripcion"> {{ publicacion.descripcion }} </p>
-                <img src="../icons/img-post-example.jpg" alt="publ-img" class="publ-img">
+                <img v-if="publicacion.multimedia" :src="`http://localhost:8000/static/publicaciones/${publicacion.multimedia}?${Date.now()}`" alt="publ-img" class="publ-img">
             </div>
 
             <div class="publ-footer">
@@ -308,6 +308,7 @@
     .publ-descripcion {
         font-size: 15px;
         font-weight: 100;
+        word-break: break-all;
     }
 
     .publ-img {

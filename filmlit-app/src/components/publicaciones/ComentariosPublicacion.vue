@@ -1,7 +1,7 @@
 <template>
     <div class="comentarios-container">
         <div class="comentario-card" v-for="comentario in comentarios" :key="comentario.id_comenario">
-            <img src="../icons/pfp-icon.jpg" alt="user-pfp" class="pfp-usuario">
+            <img :src="comentario.perfil.foto_perfil ? `http://localhost:8000/static/fotos_perfil/${comentario.perfil.foto_perfil}?${Date.now()}` : 'http://localhost:8000/static/fotos_perfil/pfp-icon.jpg'" class="pfp-usuario" alt="user-pfp">
 
             <div class="comentario-info">
                 <span class="nombreusuario">{{ comentario.perfil.usuario.nombre_usuario }}</span>
@@ -120,6 +120,7 @@
     }
 
     .comentario-card {
+        width: 100%;
         display: flex;
         gap: 10px;
         border-top: 1px solid var(--color-border);
@@ -128,13 +129,13 @@
     }
 
     .pfp-usuario {
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
         border-radius: 50%;
     }
 
     .comentario-info {
-        width: 100%;
+        width: 80%;
         display: flex;
         flex-direction: column;
         padding-top: 9px;
@@ -150,6 +151,7 @@
         width: 100%;
         font-size: 15px;
         font-weight: 100;
+        word-break: break-all;
     }
 
     .fecha {

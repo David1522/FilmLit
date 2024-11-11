@@ -16,7 +16,8 @@
             </div>
 
             <div class="publ-content" @click="accederDetallesPublicacion(publicacion.id_publicacion)">
-                <p>{{ publicacion.descripcion }}</p>
+                <p class="publ-descripcion">{{ publicacion.descripcion }}</p>
+                <img v-if="publicacion.multimedia" :src="`http://localhost:8000/static/publicaciones/${publicacion.multimedia}?${Date.now()}`" class="publ-image" alt="img-publicacion">
             </div>
 
             <div class="publ-footer">
@@ -38,7 +39,7 @@
                 </div>
                 <div class="loading-message" v-else>Cargando Interacciones...</div>
 
-                <a class="publ-comentarios-lnk" href="#">Todos los comentarios</a>
+                <a class="publ-comentarios-lnk" href="#" @click="accederDetallesPublicacion(publicacion.id_publicacion)">Todos los comentarios</a>
             </div>
         </div>
 
@@ -286,12 +287,25 @@
     }
 
     .publ-content {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
         font-size: 14px;
         padding: 10px 0;
     }
 
     .publ-content:hover {
         cursor: pointer;
+    }
+
+    .publ-descripcion {
+        word-break: break-all;
+    }
+
+    .publ-image {
+        width: 70%;
+        border-radius: 15px;
+        margin: 0 auto
     }
 
     .publ-footer {

@@ -167,6 +167,10 @@
         padding-bottom: 5px;
     }
 
+    .info-desc {
+        word-break: break-all;
+    }
+
     .cargando {
         text-align: center;
         padding: 20px;

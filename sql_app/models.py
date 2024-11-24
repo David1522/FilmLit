@@ -44,7 +44,7 @@ class Publicacion(Base):
     
 
 class Like(Base):
-    __tablename__ = "LIKE"
+    __tablename__ = "LIKES"
     
     id_like = Column(Integer, primary_key=True, autoincrement=True, index=True)
     id_perfil = Column(Integer, ForeignKey("PERFIL.id_perfil"))

@@ -7,12 +7,7 @@
                     <p class="nombre-usuario">{{ publicacion.perfil.usuario.nombre_usuario }}</p>
                 </div>
 
-
-                <div class="publ-actions">
-                    <div class="icon-container">
-                        <fa icon="ellipsis"/>
-                    </div>
-                </div>
+                <opciones-publicacion-perfil :idPublicacion="publicacion.id_publicacion" @posts-updated="updatePost"/>
             </div>
 
             <div class="publ-content" @click="accederDetallesPublicacion(publicacion.id_publicacion)">
@@ -47,9 +42,12 @@
         <div v-else class="publ-message">No hay más publicaciones</div>
     </div>
     <div v-else class="no-publ-message">No tienes publicaciones creadas</div>
+    <router-view></router-view>
 </template>
 
 <script setup>
+    import OpcionesPublicacionPerfil from './OpcionesPublicacionPerfil.vue';
+
     import { ref, onMounted, computed } from 'vue';
     import axios from 'axios';
     import router from '@/router';
@@ -92,11 +90,8 @@
             // Crea un nuevo array con las publicaciones previamente guardadas junto con las nuevas almacenadas en data
             const { data, total: totalPost, has_next } = response.data;
 
-            console.log(response.data)
-
             // Crea un nuevo array con las publicaciones previamente guardadas junto con las nuevas almacenadas en data
             publicaciones.value = [...publicaciones.value, ...data]; 
-            console.log(publicaciones.value)
             total.value = totalPost;
             hasNext.value = has_next;
 
@@ -254,13 +249,6 @@
     .nombre-usuario {
         font-size: 16px;
         font-weight: 600;
-    }
-
-    .publ-actions {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
     }
 
     .follow-btn {

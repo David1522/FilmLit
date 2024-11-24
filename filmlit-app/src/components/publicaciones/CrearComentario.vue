@@ -26,7 +26,7 @@
     async function validarToken() {
         token.value = localStorage.getItem('token');
         if (!token.value) {
-            router.push('/login');
+            router.push('/');
             return;
         }
     }
@@ -52,7 +52,7 @@
         } catch (error) {
             console.log(error);
             localStorage.removeItem('token');
-            router.push('/login');
+            router.push('/');
         }
     }
 </script>

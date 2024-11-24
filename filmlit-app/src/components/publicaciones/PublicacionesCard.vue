@@ -10,9 +10,8 @@
 
                 <div class="publ-actions">
                     <button class="follow-btn">Follow</button>
-                    <div class="icon-container">
-                        <fa icon="ellipsis"/>
-                    </div>
+                    
+                    <opciones-publicaciones-page :id-publicacion="publicacion.id_publicacion"/>
                 </div>
             </div>
 
@@ -50,6 +49,8 @@
 </template>
 
 <script setup>
+    import OpcionesPublicacionesPage from './OpcionesPublicacionesPage.vue';
+
     import { ref, onMounted } from 'vue';
     import axios from 'axios';
     import router from '@/router';
@@ -109,7 +110,7 @@
         } catch (error) {
             console.log(error);
             localStorage.removeItem('token');
-            router.push('/login');
+            router.push('/');
         }
     }
 
@@ -131,7 +132,7 @@
         } catch (error) {
             console.log(error);
             localStorage.removeItem('token');
-            router.push('/login');
+            router.push('/');
         }
     }
 

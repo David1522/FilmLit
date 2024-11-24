@@ -22,7 +22,7 @@
     async function fetchCuentaUsuario() {
         const token = localStorage.getItem('token');
         if (!token) {
-            router.push('/login')
+            router.push('/')
             return
         }
 
@@ -36,7 +36,7 @@
         } catch (error) {
             console.log(error);
             localStorage.removeItem('token');
-            router.push('/login');
+            router.push('/');
         }
     }
 

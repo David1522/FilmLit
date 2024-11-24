@@ -6,13 +6,13 @@
                 <div class="pfp-container">
                     <div class="pfp-default">
                         <!-- Use the computed property 'fotoPerfilUrl' for the img src -->
-                        <img :src="fotoPerfilUrl" :key="fotoPerfilUrl"alt="default-pfp" />
+                        <img :src="fotoPerfilUrl" :key="fotoPerfilUrl" alt="default-pfp" />
                     </div>
 
                     <div class="pfp-action-btns">
                         <label for="file-upload" class="file-upload-btn">Subir Foto</label>
                         <input id="file-upload" type="file" accept="image/*" :multiple="false" @change="guardarImagen"/>
-                        <button v-if="perfil.foto_perfil || fotoPerfil" @click="borrarFotoPerfil" type="button" class="borrar-pfp-btn">Borrar</button>
+                        <button v-if="!deletePfp" @click="borrarFotoPerfil" type="button" class="borrar-pfp-btn">Borrar</button>
                     </div>
                 </div>
 
@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-    import { ref, onMounted, computed, onUnmounted } from 'vue';
+    import { ref, computed, onMounted, onUnmounted } from 'vue';
     import axios from 'axios';
     import router from '@/router';
     import Swal from 'sweetalert2';
@@ -58,7 +58,7 @@
     const fechaNacimiento = ref('');
     const descripcion = ref('');
     const fotoPerfil = ref(null); // Guarda el archivo seleccionado
-    const objectUrl = ref(null) // Guarda la URL para el archivo seleccionado por el usuario
+    const objectUrl = ref(null);// Guarda la URL para el archivo seleccionado por el usuario
     const deletePfp = ref(false); // Guarda si el usuario decide borrar su foto de perfil
 
     async function fetchPerfilUsuario() {
@@ -78,32 +78,46 @@
         } catch (error) {
             console.log(error);
             localStorage.removeItem('token');
-            router.push('/login');
+            router.push('/');
         }
     }
 
-    // Computed property para mostrear la imagen de perfil dinamicamente
     const fotoPerfilUrl = computed(() => {
-        // Muestra la imagen si hay un archivo subido al form
+        console.log('Calculando Foto Perfil INICIO (Estado FotoPerfil): ', fotoPerfil.value)
+
+        // Si hay una imagen seleccionada por el usuario se usa la URL
         if (fotoPerfil.value) {
-            if (objectUrl.value) URL.revokeObjectURL(objectUrl); // Limpia la URL previa
+            if (objectUrl.value) {
+                URL.revokeObjectURL(objectUrl.value); // Revoke la URL previa
+            }
             objectUrl.value = URL.createObjectURL(fotoPerfil.value);
-            return objectUrl.value;
+            console.log('Calculando Foto Perfil Final Caso 1 (Estado FotoPerfil): ', fotoPerfil.value)
+            console.log('URL: ', objectUrl.value);
+            return objectUrl.value; // Devuelve la nueva URL
         }
-        // Si deletePfp es true, se mostrará la imagen por defecto
+
+        // Si la foto de perfil es eliminada
         if (deletePfp.value) {
-            return `http://localhost:8000/static/fotos_perfil/pfp-icon.jpg`;
+            console.log('Calculando Foto Perfil Final Caso 2 (Estado FotoPerfil): ', fotoPerfil.value)
+            return `http://localhost:8000/static/fotos_perfil/pfp-icon.jpg`; // Devuelve la foto por defecto
         }
-        // Muestra la foto de perfil del usuario si existe
-        return perfil.value && perfil.value.foto_perfil
-            ? `http://localhost:8000/static/fotos_perfil/${perfil.value.foto_perfil}?${Date.now}`
-            : `http://localhost:8000/static/fotos_perfil/pfp-icon.jpg`;
+
+        // Si hay una foto de perfil valida
+        if (perfil.value && perfil.value.foto_perfil) {
+            console.log('Calculando Foto Perfil Final Caso 3 (Estado FotoPerfil): ', fotoPerfil.value)
+            return `http://localhost:8000/static/fotos_perfil/${perfil.value.foto_perfil}?${Date.now}`;
+        }
+
+        // Devuelve imagen por defecto si no exite ninguno de los casos
+        console.log('Calculando Foto Perfil Final Caso 4 (Estado FotoPerfil): ', fotoPerfil.value)
+        return `http://localhost:8000/static/fotos_perfil/pfp-icon.jpg`;
     });
 
     function guardarImagen(event) {
         if (event.target.files.length > 0) {
             fotoPerfil.value = event.target.files[0];
             deletePfp.value = false;
+            console.log('Imagen seleccionada: ', fotoPerfil.value);
         }
     }
 
@@ -112,19 +126,21 @@
         deletePfp.value = true;
         if (objectUrl.value) {
             URL.revokeObjectURL(objectUrl);
-            objectUrl = null;
+            objectUrl.value = null;
         }
     }
 
     async function updatePerfilUsuario() {
+        console.log('Antes de Actualizar Perfil: ', fotoPerfil.value);
+        
         validarToken();
 
         const formData = new FormData();
         if (nombre.value) formData.append('nombre', nombre.value);
         if (fechaNacimiento.value) formData.append('fecha_nacimiento', fechaNacimiento.value);
         if (descripcion.value) formData.append('descripcion', descripcion.value);
-        if (fotoPerfil.value) formData.append('foto_perfil', fotoPerfil.value);
-        if (deletePfp.value) formData.append('eliminar_pfp', deletePfp.value);
+        if (fotoPerfil.value) formData.append('foto_perfil', fotoPerfil.value); // Include the new image file
+        if (deletePfp.value) formData.append('eliminar_pfp', deletePfp.value); // Handle deleting the photo
 
         try {
             const response = await axios.put('http://localhost:8000/perfil/me', formData, {
@@ -146,7 +162,7 @@
             Swal.fire({
                 icon: 'error',
                 title: 'Error al Actualizar Perfil',
-                text: error.response.data.detail,
+                text: error.response,
             });
 
             console.log(error);

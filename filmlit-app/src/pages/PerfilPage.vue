@@ -2,7 +2,6 @@
     <div class="perfil-main-container">
         <PerfilCard ref="perfilCard"/>
         <PublicacionesPerfil ref="publicacionesPerfil"/>
-        <RouterView @perfil-updated="actualizarPerfil"/>
     </div>
 </template>
 
@@ -10,16 +9,15 @@
     import PerfilCard from '@/components/perfil/PerfilCard.vue';
     import PublicacionesPerfil from '@/components/perfil/PublicacionesPerfil.vue';
     import { ref } from 'vue';
-    import { RouterView } from 'vue-router';
     
     const perfilCard = ref(null);
     const publicacionesPerfil = ref(null)
 
     async function actualizarPerfil() {
-        if (perfilCard.value && PublicacionesPerfil.value) {
+        if (perfilCard.value && publicacionesPerfil.value) {
             // Llama la funcion para volver a cargar la info del perfil del usuario
             await perfilCard.value.fetchPerfilUsuario();
-            await publicacionesPerfil.value.getPost(); 
+            await publicacionesPerfil.value.updatePost(); 
         }
     }
 </script>

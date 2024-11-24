@@ -3,10 +3,12 @@ import Login from '@/views/Login.vue'
 
 import Perfil from '@/views/Perfil.vue'
 import EditarPerfilCard from '@/components/perfil/EditarPerfilCard.vue'
+import OpcionesPublicacion from '@/components/perfil/OpcionesPublicacionPerfil.vue'
 
 import Publicaciones from '@/views/Publicaciones.vue';
 import CrearPublicacion from '@/components/publicaciones/CrearPublicacion.vue';
-import DetallesPublicacion from '@/components/publicaciones/DetallesPublicacion.vue'
+import DetallesPublicacion from '@/components/publicaciones/DetallesPublicacion.vue';
+import EditarPublicacion from '@/components/perfil/EditarPublicacion.vue';
 
 import Noticias from '@/views/Noticias.vue'
 
@@ -28,11 +30,8 @@ const router = createRouter({
       name: 'Perfil',
       component: Perfil,
       children: [
-        {
-          path: 'editar',
-          name: 'EditarPerfil',
-          component: EditarPerfilCard,
-        }
+        { path: 'editar/me', name: 'EditarPerfil', component: EditarPerfilCard },
+        { path: '/publicacion-editar/:id', name: 'EditarPublicacion', component: EditarPublicacion }
       ],
     },
     {
@@ -40,16 +39,8 @@ const router = createRouter({
       name: 'Publicaciones',
       component: Publicaciones,
       children: [
-        {
-          path: 'crear',
-          name: 'CrearPublicacion',
-          component: CrearPublicacion,
-        },
-        {
-          path: 'detalles/:id',
-          name: 'DetallesPublicacion',
-          component: DetallesPublicacion,
-        }
+        { path: 'crear', name: 'CrearPublicacion', component: CrearPublicacion },
+        { path: 'detalles/:id', name: 'DetallesPublicacion', component: DetallesPublicacion }
       ],
     },
     {
@@ -62,20 +53,9 @@ const router = createRouter({
       name: 'Biblioteca',
       component: Biblioteca,
       children: [
-          {
-              path: 'peliculas',
-              name: 'Peliculas',
-              component: Peliculas,
-          },
-          {
-              path: 'series',
-              name: 'Series',
-              component: Series,
-          },{
-            path: 'libros',
-            name: 'Libros',
-            component: Libros,
-        },
+          { path: 'peliculas', name: 'Peliculas', component: Peliculas },
+          { path: 'series', name: 'Series', component: Series },
+          { path: 'libros', name: 'Libros', component: Libros },
       ],
   }
   ]

@@ -6,7 +6,7 @@
         <div class="detalles-perfil">
             <div class="ajustes-perfil">
                 <p class="nombre-usuario">{{ perfil.usuario.nombre_usuario }}</p>
-                <router-link to="/perfil/editar" class="btn-perfil">Editar</router-link>
+                <button @click="router.push('/perfil/editar/me')" class="btn-perfil">Editar</button>
                 <button class="btn-acc-options"> <fa icon="ellipsis" /> </button>
             </div>
             <div class="stats-perfil">
@@ -47,7 +47,6 @@
                 }
             });
             perfil.value = response.data
-            console.log(perfil.value)
         } catch (error) {
             localStorage.removeItem('token');
             router.push('/');
@@ -109,10 +108,13 @@
         background-color: var(--background-color-secondary);
         font-size: 15px;
         padding: 0 15px;
+        border: none;
         border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
+        cursor: pointer;
+        margin-left: 10px
     }
 
     .btn-perfil:hover {

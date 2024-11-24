@@ -43,7 +43,7 @@
     async function validarToken() {
         token.value = localStorage.getItem('token');
         if (!token.value) {
-            router.push('/login');
+            router.push('/');
             return;
         }
     }
@@ -68,8 +68,6 @@
             comentarios.value = [...comentarios.value, ...data];
             total.value = totalComentarios;
             hasNext.value = has_next;
-
-            console.log(comentarios)
         } catch (error) {
             console.log(error)
         }

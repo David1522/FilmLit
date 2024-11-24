@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 
 from typing import Optional
-from datetime import date
+from datetime import date, datetime
 
 import models, schemas, utils
 
@@ -81,7 +81,7 @@ def get_total_num_post(db: Session):
     return db.query(models.Publicacion).count()
 
 
-def get_post_paginados(db: Session, offset: int, size: int):
+def get_post_paginados(db: Session, id_perfil: int, offset: int, size: int):
     return db.query(models.Publicacion).order_by(models.Publicacion.fecha.desc()).offset(offset).limit(size).all()
 
 
@@ -91,6 +91,10 @@ def get_total_num_post_perfil(db: Session, id_perfil = int):
 
 def get_post_perfil(db: Session, id_perfil: int, offset: int, size: int):
     return db.query(models.Publicacion).filter(models.Publicacion.id_perfil == id_perfil).order_by(models.Publicacion.fecha.desc()).offset(offset).limit(size).all()
+
+
+def get_post_own_valdiation(db: Session, id_perfil: int, id_publicacion: int):
+    return db.query(models.Publicacion).filter(models.Publicacion.id_publicacion == id_publicacion, models.Publicacion.id_perfil == id_perfil).first()
 
 
 def get_interacciones_publicacion(db: Session, id_publicacion: int, id_perfil: int):
@@ -106,11 +110,32 @@ def crear_publicacion(db: Session, id_perfil: int, multimedia: str, descripcion:
     db_publicacion = models.Publicacion(
         id_perfil = id_perfil,
         descripcion = descripcion,
-        multimedia = multimedia
+        multimedia = multimedia,
+        fecha = datetime.now()
     )
     db.add(db_publicacion)
     db.commit()
     db.refresh(db_publicacion)
+    
+    
+def actualizar_publicacion(db: Session, id_publicacion: str, descripcion: str, file_name: Optional[str], eliminar_multimedia: bool):
+    post_db = get_post(db, id_publicacion)
+    if not post_db:
+        return False
+    post_db.descripcion = descripcion
+    post_db.fecha = datetime.now()
+    if file_name:
+        post_db.multimedia = file_name
+    if eliminar_multimedia:
+        post_db.multimedia = None
+    db.commit()
+    db.refresh(post_db)
+    
+    
+def eliminar_publicacion(db: Session, id_publicacion: int):
+    publicacion = get_post(db, id_publicacion)
+    db.delete(publicacion)
+    db.commit()
     
 
 # CRUD Likes

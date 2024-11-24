@@ -3,13 +3,13 @@
             <div class="publicacion-contenedor" v-if="publicacion.perfil && publicacion.perfil.usuario" @scroll="handleScroll">
                 <div class="publ-controls">
                 <div class="publ-nav">
-                    <div class="icon-container" @click="router.push('/publicaciones')">
+                    <div class="icon-container" @click="router.go(-1)">
                         <fa icon="arrow-left" class="go-back-btn"/>
                     </div>
                     <p>Post</p>
                 </div>
                 <div class="icon-container">
-                    <fa icon="ellipsis"/>
+                    <OpcionesPublicacion :id-publicacion="idPublicacion" @posts-updated="router.go(-1)"/>
                 </div>
             </div>
 
@@ -56,6 +56,7 @@
 </template>
 
 <script setup>
+    import OpcionesPublicacion from '../perfil/OpcionesPublicacionPerfil.vue';
     import CrearComentario from './CrearComentario.vue';
     import ComentariosPublicacion from './ComentariosPublicacion.vue';
 
@@ -78,7 +79,7 @@
     async function validarToken() {
         token.value = localStorage.getItem('token');
         if (!token.value) {
-            router.push('/login');
+            router.push('/');
             return;
         }
     }
@@ -103,7 +104,7 @@
         } catch (error) {
             console.log(error);
             localStorage.removeItem('token');
-            router.push('/login');
+            router.push('/');
         }
     }
 
@@ -125,7 +126,7 @@
         } catch (error) {
             console.log(error);
             localStorage.removeItem('token');
-            router.push('/login');
+            router.push('/');
         }
     }
 
@@ -206,7 +207,6 @@
         width: 100%;
         max-width: 550px;
         height: 100%;
-        background-color: var(--background-color-primary);
         color: var(--color-text-primary);
         padding: 0 18px;
         overflow: auto;

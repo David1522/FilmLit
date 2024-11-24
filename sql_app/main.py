@@ -155,6 +155,7 @@ async def update_perfil(
     eliminar_pfp: Optional[str] = Form(None)
     ):
     
+    print('Actualizando perfil...')
     parsed_fecha_nacimiento = None
     if fecha_nacimiento:
         try:
@@ -169,9 +170,10 @@ async def update_perfil(
     
     if foto_perfil:
         try:
-            previus_file_path = os.path.join(directory, perfil_usuario.foto_perfil)
-            if os.path.exists(previus_file_path):
-                os.remove(previus_file_path)
+            if perfil_usuario.foto_perfil:
+                previus_file_path = os.path.join(directory, perfil_usuario.foto_perfil)
+                if os.path.exists(previus_file_path):
+                    os.remove(previus_file_path)
             
             file_name = f"{foto_perfil.filename}-{perfil_usuario.id_perfil}.jpg"
             file_path = os.path.join(directory, file_name) # Crea la ruta para el nuevo archivo usando el nombre de usuario y la misma extension
@@ -183,8 +185,7 @@ async def update_perfil(
         
     
     if eliminar_pfp:
-        file_name = f"{foto_perfil.filename}-{perfil_usuario.id_perfil}.jpg"
-        file_path = os.path.join(directory, file_name)
+        file_path = os.path.join(directory, perfil_usuario.foto_perfil)
         if os.path.exists(file_path):
             os.remove(file_path)
         else:
@@ -201,40 +202,6 @@ async def get_publicacion(id_publicacion: int, db: Annotated[Session, Depends(ge
     return crud.get_post(db, id_publicacion)
 
 
-@app.get("/publicaciones", response_model=schemas.PaginatedPubl)
-async def get_publicaciones(db: Annotated[Session, Depends(get_db)], page: int = 1, size: int = 10):
-    if page < 1 or size < 1:
-        raise HTTPException(status_code=400, detail="Invalid page or size paramenters")
-    
-    publ_totales = crud.get_total_num_post(db)
-    offset = (page - 1) * size # Numero de publicaciones a skipear
-    
-    return schemas.PaginatedPubl(
-        data = crud.get_post_paginados(db, offset, size),
-        total = publ_totales,
-        page = page,
-        size = size,
-        has_next = publ_totales > offset + size
-    )
-    
-    
-@app.get("/perfil/me/publicaciones")
-async def get_publ_perfil(perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)],  page: int = 1, size: int = 10):
-    if page < 1 or size < 1:
-        raise HTTPException(status_code=400, detail="Invalid page or size parameters")
-    
-    publ_totales = crud.get_total_num_post_perfil(db, perfil_usuario.id_perfil)
-    offset = (page - 1) * size
-    
-    return schemas.PaginatedPubl(
-        data = crud.get_post_perfil(db, perfil_usuario.id_perfil, offset, size),
-        total = publ_totales,
-        page = page,
-        size = size,
-        has_next = publ_totales > offset + size
-    )
-
-
 @app.get("/perfil/me/publicaciones", response_model=schemas.PaginatedPubl)
 async def get_publicacion_perfil(db: Annotated[Session, Depends(get_db)], perfil_usuario: Annotated[schemas.Perfil, Depends(get_db)], perfi_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], page: int = 1, size: int = 10):
     if page < 1 or size < 1:
@@ -245,7 +212,24 @@ async def get_publicacion_perfil(db: Annotated[Session, Depends(get_db)], perfil
     
     
     return schemas.PaginatedPubl(
-        data = crud.get_post_usuario_paginados(db, perfi_usuario.id_perfil, offset, size),
+        data = crud.get_post_perfil(db, perfi_usuario.id_perfil, offset, size),
+        total = publ_totales,
+        page = page,
+        size = size,
+        has_next = publ_totales > offset + size
+    )
+
+
+@app.get("/publicaciones", response_model=schemas.PaginatedPubl)
+async def get_publicaciones(perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)], page: int = 1, size: int = 10):
+    if page < 1 or size < 1:
+        raise HTTPException(status_code=400, detail="Invalid page or size paramenters")
+    
+    publ_totales = crud.get_total_num_post(db)
+    offset = (page - 1) * size # Numero de publicaciones a skipear
+    
+    return schemas.PaginatedPubl(
+        data = crud.get_post_paginados(db, perfil_usuario.id_perfil, offset, size),
         total = publ_totales,
         page = page,
         size = size,
@@ -276,6 +260,59 @@ async def post_publicacion(
     
     crud.crear_publicacion(db, perfil_usuario.id_perfil, file_name, descripcion)
     return {"mensaje": "Publicacion creada correctamente"}
+
+
+@app.put("/publicaciones")
+async def update_publicacion(
+    perfi_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)],
+    db: Annotated[Session, Depends(get_db)],
+    id_publicacion: Optional[str] = Form(None),
+    descripcion: Optional[str] = Form(None),
+    multimedia: Optional[UploadFile] = File(None),
+    eliminar_multimedia: Optional[bool] = Form(None)
+):
+    
+    directory = "images/publicaciones"
+    file_name = None
+    
+    publiacion = crud.get_post(db, id_publicacion)
+    
+    if multimedia:
+        try:
+            file_name = f"{multimedia.filename}-{crud.get_total_num_post(db) + 1}-{perfi_usuario.id_perfil}.jpg"
+            file_path = os.path.join(directory, file_name)
+            
+            with open(file_path, "wb") as f:
+                f.write(await multimedia.read())
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error al guardar foto de perfil: {str(e)}")
+        
+    if eliminar_multimedia:
+        file_name = publiacion.multimedia
+        print(f"Nombre de la foto a eliminar: {file_name}")
+        file_path = os.path.join(directory, file_name)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        else:
+            raise HTTPException(status_code=500, detail=f"Error al eliminar imagen.")
+        
+    crud.actualizar_publicacion(db, id_publicacion, descripcion, file_name, eliminar_multimedia)
+    return {"mensaje": "¡La publicacion ha sido actualizado correctamente!"}
+
+
+@app.delete("/publicaciones/{id_publicacion}")
+async def delete_publicacion(id_publicacion: int, db: Annotated[Session, Depends(get_db)]):
+    crud.eliminar_publicacion(db, id_publicacion)
+    return {"Message": "¡Publicacion Eliminada con Exito!"}
+
+
+@app.get("/publicaciones/validacion/{id_publicacion}")
+async def validar_publicacion_usuario(id_publicacion: int, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
+    post_exist = crud.get_post_own_valdiation(db, perfil_usuario.id_perfil, id_publicacion)
+    if post_exist:
+        return True
+    else:
+        return False
 
 
 @app.get("/publicaciones/{id_publicacion}/interacciones")

@@ -133,6 +133,11 @@ async def get_usuario_me(current_user: Annotated[schemas.Usuario, Depends(get_cu
     return current_user
 
 
+@app.delete("/usuarios/me")
+async def delete_usuario_me(current_user: Annotated[schemas.Usuario, Depends(get_current_active_user)], db: Annotated[Session, Depends(get_db)]):
+    return crud.eliminar_usuario(db, current_user)
+
+
 # Endpoints Imagenes
 app.mount("/static/fotos_perfil", StaticFiles(directory="images/fotos_perfil"), name="fotos_perfil")
 app.mount("/static/publicaciones", StaticFiles(directory="images/publicaciones"), name="publicaciones")

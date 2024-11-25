@@ -47,6 +47,9 @@
     }
 
     // Añadir funcionalidad de repotar despues
+    const handleCommand = (command) => {
+        console.log("Holaa")
+    };
 
     async function validarToken() {
         token.value = localStorage.getItem('token');

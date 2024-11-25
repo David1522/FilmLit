@@ -34,9 +34,14 @@ def crear_usuario(db: Session, usuario: schemas.UsuarioCreate):
 
 
 def eliminar_usuario(db: Session, usuario: models.Usuario):
-    db.delete(usuario)
-    db.commit()
-    return {"message": "Usuario eliminado con éxito"}
+    usuario_db = get_usuario(db, usuario.id_usuario)
+    if usuario_db:
+        db.delete(usuario_db)
+        db.commit()
+        return "Usuario eliminado con éxito"
+    else:
+        return "Error al eliminar cuenta"
+    
     
     
 # CRUD Perfil

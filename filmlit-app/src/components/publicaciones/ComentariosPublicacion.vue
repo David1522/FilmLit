@@ -10,14 +10,14 @@
 
                 <span class="fecha">{{ formattedDate(comentario.fecha) }}</span>
             </div>
-            <div class="icon-container">
-                    <fa icon="ellipsis"/>
-            </div>
+            <opciones-comentario :isOwnComent="comentario.perfil.id_perfil == idPerfil" :idComentario="comentario.id_comentario"/>
         </div>
     </div>
 </template>
 
 <script setup>
+    import OpcionesComentario from './OpcionesComentario.vue';
+
     import router from '@/router';
     import axios from 'axios';
     import { onMounted, ref } from 'vue';
@@ -28,8 +28,8 @@
     const emit = defineEmits(['childCliked']);
     const token = ref('');
 
+    const idPerfil = ref(null)
     const comentarios = ref([])
-    
 
     // Variables para la paginacion de comentarios
     const idPublicacion = ref(route.params.id);
@@ -38,16 +38,6 @@
     const total = ref(0)
     const hasNext = ref(false)
     const cargandoComentarios = ref(false)
-
-
-    async function validarToken() {
-        token.value = localStorage.getItem('token');
-        if (!token.value) {
-            router.push('/');
-            return;
-        }
-    }
-
 
     async function getComentarios(page = 1) {
         validarToken();
@@ -73,13 +63,11 @@
         }
     }
 
-
     async function actualizarComentarios() {
         comentarios.value = [];
         page.value = 1;
         getComentarios();
     }
-
 
     async function cargarComentarios() {
         if (!hasNext.value || cargandoComentarios.value) return;
@@ -91,11 +79,32 @@
         cargandoComentarios.value = false;
     }
 
-
     const formattedDate = (date) => {
         return format(new Date(date), "h:mm aaa · MMM d, yyyy");
     };
 
+    async function getIdPerfil() {
+        validarToken();
+
+        try {
+            const response = await axios.get("http://localhost:8000/perfil/me/id", {
+                headers: {
+                    Authorization: `Bearer ${token.value}`
+                }
+            });
+            idPerfil.value = response.data;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async function validarToken() {
+        token.value = localStorage.getItem('token');
+        if (!token.value) {
+            router.push('/');
+            return;
+        }
+    }
 
     defineExpose({
         actualizarComentarios,
@@ -105,6 +114,7 @@
 
     onMounted(() => {
         getComentarios();
+        getIdPerfil();
     })
 
 </script>

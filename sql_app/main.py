@@ -368,6 +368,15 @@ async def get_comentarios_publ(perfil_usuario: Annotated[schemas.Perfil, Depends
 async def post_comentario_publ(descripcion: str, id_publicacion: int, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
     crud.crear_comentario(db, id_publicacion, perfil_usuario.id_perfil, descripcion)
     
+    
+@app.delete("/publicaciones/comentario/{id_comentario}")
+async def delete_comentario_publ(id_comentario: int, usuario: Annotated[schemas.Usuario, Depends(get_current_active_user)], db: Annotated[Session, Depends(get_db)]):
+    resultado = crud.eliminar_comentario(db, id_comentario)
+    if resultado:
+        raise HTTPException(status_code=200, detail="Comentario eliminado satisfactoriamente.")
+    else:
+        raise HTTPException(status_code=500, detail="Error: Comentario no encontrado")
+    
 
 # Enpoints Funcionalidad Premium
 @app.get("/usuario/me/type")

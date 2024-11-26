@@ -368,3 +368,26 @@ async def get_comentarios_publ(perfil_usuario: Annotated[schemas.Perfil, Depends
 async def post_comentario_publ(descripcion: str, id_publicacion: int, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
     crud.crear_comentario(db, id_publicacion, perfil_usuario.id_perfil, descripcion)
     
+
+# Enpoints Funcionalidad Premium
+@app.get("/usuario/me/type")
+async def get_usuario_type(usuario: Annotated[schemas.Usuario, Depends(get_current_active_user)]):
+    return usuario.tipo_usuario
+
+
+@app.put("/usuario/me/upgrade")
+async def update_usuario_type_up(usuario: Annotated[schemas.Usuario, Depends(get_current_active_user)], db: Annotated[Session, Depends(get_db)]):
+    resultado = crud.upgrade_usuario(db, usuario.id_usuario)
+    if resultado:
+        raise HTTPException(status_code=200, detail="Gracias por pasarte a premium, disfruta de tus nuevas funcionalidades.")
+    else:
+        raise HTTPException(status_code=500, detail="Error: Usuario no encontrado.")
+    
+
+@app.put("/usuario/me/downgrade")
+async def update_usuario_type_down(usuario: Annotated[schemas.Usuario, Depends(get_current_active_user)], db: Annotated[Session, Depends(get_db)]):
+    resultado = crud.downgrade_usuario(db, usuario.id_usuario)
+    if resultado:
+        raise HTTPException(status_code=200, detail="Lamentamos que te vayas del premium, tacaño.")
+    else:
+        raise HTTPException(status_code=500, detail="Error: Usuario no encontrado.")

@@ -43,6 +43,28 @@ def eliminar_usuario(db: Session, usuario: models.Usuario):
         return "Error al eliminar cuenta"
     
     
+def upgrade_usuario(db: Session, id_usuario: int):
+    usuario_db = get_usuario(db, id_usuario)
+    if usuario_db:
+        usuario_db.tipo_usuario = 'PREMIUM'
+        db.commit()
+        db.refresh(usuario_db)
+        return True
+    else:
+        return False
+    
+    
+def downgrade_usuario(db: Session, id_usuario: int):
+    usuario_db = get_usuario(db, id_usuario)
+    if usuario_db:
+        usuario_db.tipo_usuario = 'BASE'
+        db.commit()
+        db.refresh(usuario_db)
+        return True
+    else:
+        return False
+    
+    
     
 # CRUD Perfil
 def get_perfil(db: Session, id_perfil):

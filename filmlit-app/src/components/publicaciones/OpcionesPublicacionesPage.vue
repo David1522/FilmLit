@@ -18,7 +18,6 @@
 <script setup>
     import { defineProps, onMounted, ref, nextTick } from 'vue';
     import axios from 'axios';
-    import Swal from 'sweetalert2';
     import router from '@/router';
 
     const emits = defineEmits();

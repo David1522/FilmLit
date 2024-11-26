@@ -11,11 +11,6 @@
     import PublicacionesPerfil from '@/components/perfil/PublicacionesPerfil.vue';
 
     import { ref } from 'vue';
-    import { useRoute } from 'vue-router';
-
-    const route = useRoute();
-
-    const idPerfil = ref(route.params.id);
 </script>
 
 <style scoped>

@@ -11,7 +11,7 @@
                     <div>
                         <label for="file-upload" class="file-upload-btn">Subir Foto</label>
                         <input id="file-upload" type="file" accept="image/*" :multiple="false" @change="guardarImagen"/>
-                        <button v-if="!deleteMultimedia" @click="borrarFotoPerfil" type="button" class="borrar-multimedia-btn">Borrar</button>
+                        <button v-if="publicacion.multimedia || multimedia" @click="borrarFotoPerfil" type="button" class="borrar-multimedia-btn">Borrar</button>
                     </div>
                 </div>
 
@@ -22,7 +22,7 @@
 
                 <div class="acciones-btn">
                     <button type="submit" class="btn-action btn-guardar">Guardar</button>
-                    <button type="button" class="btn-action btn-descartar" @click="router.push('/perfil')">Descartar</button>
+                    <button type="button" class="btn-action btn-descartar" @click="router.push(`/perfil/${perfilId}`);">Descartar</button>
                 </div>
             </form>
         </div>
@@ -42,7 +42,8 @@
     const route = useRoute();
     const emits = defineEmits();
 
-    const idPublicacion = ref(route.params.id);
+    const perfilId = ref(route.params.id);
+    const idPublicacion = ref(route.params.publicacionid);
     const token = ref('');
 
     const publicacion = ref(null)
@@ -64,8 +65,8 @@
             descripcion.value = publicacion.value.descripcion;
         } catch (error) {
             console.log(error);
-            // localStorage.removeItem('token');
-            // router.push('/');
+            localStorage.removeItem('token');
+            router.push('/');
         }
     }
 
@@ -127,7 +128,7 @@
             });
 
             emits('posts-updated');
-            router.push('/perfil');
+            router.push(`/perfil/${perfilId.value}`);
         } catch (error) {
             Swal.fire({
                 icon: 'error',

@@ -145,8 +145,18 @@ app.mount("/static/publicaciones", StaticFiles(directory="images/publicaciones")
 
 # Endpoints Perfil
 @app.get("/perfil/me", response_model=schemas.Perfil)
-async def get_perfil_me(perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
+async def get_perfil_me(perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)]):
     return perfil_usuario # Automaticamente transforma el modelo orm al schema designado en el modelo de respuesta
+
+
+@app.get("/perfil/me/id")
+async def get_perfil_me_id(perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)]):
+    return perfil_usuario.id_perfil
+
+
+@app.get("/perfil/{id_perfil}", response_model=schemas.Perfil)
+async def get_perfil(perfi_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)], id_perfil: int):
+    return crud.get_perfil(db, id_perfil)
 
 
 @app.put("/perfil/me")
@@ -207,17 +217,17 @@ async def get_publicacion(id_publicacion: int, db: Annotated[Session, Depends(ge
     return crud.get_post(db, id_publicacion)
 
 
-@app.get("/perfil/me/publicaciones", response_model=schemas.PaginatedPubl)
-async def get_publicacion_perfil(db: Annotated[Session, Depends(get_db)], perfil_usuario: Annotated[schemas.Perfil, Depends(get_db)], perfi_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], page: int = 1, size: int = 10):
+@app.get("/perfil/{id_perfil}/publicaciones", response_model=schemas.PaginatedPubl)
+async def get_publicacion_perfil(db: Annotated[Session, Depends(get_db)], id_perfil: int, page: int = 1, size: int = 10):
     if page < 1 or size < 1:
         raise HTTPException(status_code=400, detail="Invalid page or size paramenters")
     
-    publ_totales = crud.get_total_num_post(db)
+    publ_totales = crud.get_total_num_post_perfil(db, id_perfil)
     offset = (page - 1) * size
     
     
     return schemas.PaginatedPubl(
-        data = crud.get_post_perfil(db, perfi_usuario.id_perfil, offset, size),
+        data = crud.get_post_perfil(db, id_perfil, offset, size),
         total = publ_totales,
         page = page,
         size = size,

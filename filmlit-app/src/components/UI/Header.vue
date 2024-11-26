@@ -7,7 +7,11 @@
             <a href="/biblioteca"> <span class="icon"> <fa icon="bookmark"/> </span> <span class="icon-text"> Biblioteca </span> </a>
             <a href="/habitaciones"> <span class="icon"> <fa icon="people-group"/> </span> <span class="icon-text"> Habitaciones </span> </a>
             <a href="/chats"> <span class="icon"> <fa icon="comment"/> </span> <span class="icon-text"> Chats </span> </a>
-            <a href="/perfil" > <span class="icon"> <fa icon="user"/> </span> <span class="icon-text"> Perfil </span> </a>
+            <!-- Dynamically set the profile link -->
+            <a :href="`/perfil/${perfil?.id_perfil || ''}`"> 
+                <span class="icon"> <fa icon="user"/> </span> 
+                <span class="icon-text"> Perfil </span> 
+            </a>
             <a href="/noticias"> <span class="icon"> <fa icon="newspaper"/> </span> <span class="icon-text"> Noticias </span> </a>
 
             <!-- Botones especiales -->
@@ -23,9 +27,12 @@
     import Settings from './Settings.vue';
 
     import { ref, onMounted } from 'vue';
+    import axios from 'axios'; // Ensure axios is imported
 
+    const token = ref('');
+
+    const perfil = ref(null); // Holds profile data
     const isDark = ref(localStorage.getItem('theme') === 'dark');
-
 
     function setTheme() {
         const newTheme = isDark.value ? 'light' : 'dark';
@@ -34,14 +41,38 @@
         localStorage.setItem('theme', newTheme);
     }
 
+    async function fetchPerfilUsuario() {
+        validarToken();
+
+        try {
+            const response = await axios.get('http://localhost:8000/perfil/me', {
+                headers: {
+                    Authorization: `Bearer ${token.value}`
+                }
+            });
+            perfil.value = response.data; // Store response data in `perfil`
+        } catch (error) {
+            localStorage.removeItem('token');
+            router.push('/');
+        }
+    }
+
+    async function validarToken() {
+        token.value = localStorage.getItem('token');
+        if (!token.value) {
+            router.push('/');
+            return;
+        }
+    }
 
     onMounted(() => {
+        fetchPerfilUsuario();
         const theme = localStorage.getItem('theme');
         
         if (theme) {
             document.documentElement.className = theme;
         }
-    })
+    });
 </script>
 
 <style scoped>

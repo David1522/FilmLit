@@ -2,7 +2,7 @@
     <div class="publicaciones-container" @scroll="handleScroll">
         <div class="publ-card" v-for="publicacion in publicaciones" :key="publicacion.id_publicacion">
             <div class="publ-header">
-                <div class="info-usuario">
+                <div class="info-usuario" @click="router.push(`/perfil/${publicacion.perfil.id_perfil}`)">
                     <img :src="publicacion.perfil.foto_perfil ? `http://localhost:8000/static/fotos_perfil/${publicacion.perfil.foto_perfil}?${Date.now()}` : 'http://localhost:8000/static/fotos_perfil/pfp-icon.jpg'" alt="usuario-pfp" class="pfp-usuario">
                     <p class="nombre-usuario">{{ publicacion.perfil.usuario.nombre_usuario }}</p>
                 </div>
@@ -244,6 +244,7 @@
         display: flex;
         align-items: center;
         gap: 10px;
+        cursor: pointer;
     }
 
     .pfp-usuario {

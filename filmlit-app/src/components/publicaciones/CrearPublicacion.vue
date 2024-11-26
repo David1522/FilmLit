@@ -13,7 +13,7 @@
                         <div class="img-actions">
                             <label for="file-upload" class="file-upload-btn">Añadir Foto</label>
                             <input id="file-upload" type="file" accept="image/*" :multiple="false" @change="guardarImagen"/>
-                            <button type="button" class="borrar-img-btn" @click="borrarImagen">Borrar</button>
+                            <button v-if="multimedia" type="button" class="borrar-img-btn" @click="borrarImagen">Borrar</button>
                         </div>
                     </div>
                 </div>

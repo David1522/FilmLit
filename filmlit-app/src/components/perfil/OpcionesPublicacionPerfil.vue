@@ -5,7 +5,7 @@
                 <fa icon="ellipsis" class="actions-btn"/>
             </span>
             <template #dropdown>
-                <el-dropdown-menu>
+                <el-dropdown-menu v-if="publicacionPropia">
                     <el-dropdown-item command="editar" class="editar-act" type="warning">
                         <span class="publ-act"> Editar <fa icon="pencil"/> </span>
                     </el-dropdown-item>
@@ -14,28 +14,37 @@
                         <span class="publ-act"> Eliminar <fa icon="trash"/> </span>
                     </el-dropdown-item>
                 </el-dropdown-menu>
+
+                <el-dropdown-menu v-else>
+                    <el-dropdown-item command="reportar" class="eliminar-act">
+                        <span class="publ-act"> Reportar <fa icon="circle-info"/> </span>
+                    </el-dropdown-item>
+                </el-dropdown-menu>
             </template>
         </el-dropdown>
     </div>
 </template>
 
 <script setup>
-    import { defineProps, ref } from 'vue';
+    import { defineProps, onMounted, ref } from 'vue';
+    import { useRoute } from 'vue-router';
     import axios from 'axios';
     import Swal from 'sweetalert2';
     import router from '@/router';
 
     const emits = defineEmits();
     
+    const route = useRoute();
     const token = ref('');
-    const props = defineProps({
-        idPublicacion: Number
-    })
+
+    const perfilId = ref(route.params.id);
+    const props = defineProps({ idPublicacion: Number })
+    const publicacionPropia = ref(false);
 
     // Funcionalidad de las opciones de la publicacion
     const handleCommand = (command) => {
         if (command === 'editar') {
-            router.push(`/publicacion-editar/${props.idPublicacion}`);
+            router.push(`/perfil/${perfilId.value}/publicacion-editar/${props.idPublicacion}`);
         } else {
             Swal.fire({
                 title: "¿Estás Seguro de Borrar Esta Publicación?",
@@ -54,6 +63,8 @@
     };
 
     async function eliminarPublicacion() {
+        validarToken();
+
         try {
             const response = await axios.delete(`http://localhost:8000/publicaciones/${props.idPublicacion}`, {
                 headers: {
@@ -79,6 +90,21 @@
         }
     }
 
+    async function validacionPublicacionUsuario() {
+        validarToken();
+
+        try {
+            const response = await axios.get(`http://localhost:8000/publicaciones/validacion/${props.idPublicacion}`, {
+                headers: {
+                    Authorization: `Bearer ${token.value}`
+                }
+            });
+            publicacionPropia.value = response.data;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     async function validarToken() {
         token.value = localStorage.getItem('token');
         if (!token.value) {
@@ -86,6 +112,10 @@
             return;
         }
     }
+
+    onMounted(() => {
+        validacionPublicacionUsuario();
+    })
 </script>
 
 <style lang="scss" scoped>

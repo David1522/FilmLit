@@ -1,25 +1,21 @@
 <template>
     <div class="perfil-main-container">
-        <PerfilCard ref="perfilCard"/>
-        <PublicacionesPerfil ref="publicacionesPerfil"/>
+        <PerfilCard/>
+        <PublicacionesPerfil/>
+        <router-view/>
     </div>
 </template>
 
 <script setup>
     import PerfilCard from '@/components/perfil/PerfilCard.vue';
     import PublicacionesPerfil from '@/components/perfil/PublicacionesPerfil.vue';
-    import { ref } from 'vue';
-    
-    const perfilCard = ref(null);
-    const publicacionesPerfil = ref(null)
 
-    async function actualizarPerfil() {
-        if (perfilCard.value && publicacionesPerfil.value) {
-            // Llama la funcion para volver a cargar la info del perfil del usuario
-            await perfilCard.value.fetchPerfilUsuario();
-            await publicacionesPerfil.value.updatePost(); 
-        }
-    }
+    import { ref } from 'vue';
+    import { useRoute } from 'vue-router';
+
+    const route = useRoute();
+
+    const idPerfil = ref(route.params.id);
 </script>
 
 <style scoped>

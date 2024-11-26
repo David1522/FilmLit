@@ -6,13 +6,13 @@
                 <div class="pfp-container">
                     <div class="pfp-default">
                         <!-- Use the computed property 'fotoPerfilUrl' for the img src -->
-                        <img :src="fotoPerfilUrl" :key="fotoPerfilUrl" alt="default-pfp" />
+                        <img :src="fotoPerfilUrl" :key="fotoPerfilUrl" alt="default-pfp"/>
                     </div>
 
                     <div class="pfp-action-btns">
                         <label for="file-upload" class="file-upload-btn">Subir Foto</label>
                         <input id="file-upload" type="file" accept="image/*" :multiple="false" @change="guardarImagen"/>
-                        <button v-if="!deletePfp" @click="borrarFotoPerfil" type="button" class="borrar-pfp-btn">Borrar</button>
+                        <button v-if="perfil.foto_perfil || fotoPerfil" @click="borrarFotoPerfil" type="button" class="borrar-pfp-btn">Borrar</button>
                     </div>
                 </div>
 
@@ -33,7 +33,7 @@
 
                 <div class="acciones-btn">
                     <button type="submit" class="btn-action btn-guardar">Guardar</button>
-                    <button type="button" class="btn-action btn-descartar" @click="router.push('/perfil')">Descartar</button>
+                    <button type="button" class="btn-action btn-descartar" @click="router.push(`/perfil/${perfilId}`)">Descartar</button>
                 </div>
             </form>
         </div>
@@ -45,13 +45,17 @@
 
 <script setup>
     import { ref, computed, onMounted, onUnmounted } from 'vue';
+    import { useRoute } from 'vue-router';
     import axios from 'axios';
     import router from '@/router';
     import Swal from 'sweetalert2';
     import { defineEmits } from 'vue';
 
+    const route = useRoute();
     const emits = defineEmits();
+
     const token = ref('');
+    const perfilId = ref(route.params.id);
 
     const perfil = ref(null);
     const nombre = ref('');
@@ -65,12 +69,11 @@
         validarToken();
 
         try {
-            const response = await axios.get('http://localhost:8000/perfil/me', {
+            const response = await axios.get(`http://localhost:8000/perfil/${perfilId.value}`, {
                 headers: {
                     Authorization: `Bearer ${token.value}`
                 }
             });
-
             perfil.value = response.data;
             nombre.value = perfil.value.nombre;
             fechaNacimiento.value = perfil.value.fecha_nacimiento;
@@ -83,33 +86,27 @@
     }
 
     const fotoPerfilUrl = computed(() => {
-        console.log('Calculando Foto Perfil INICIO (Estado FotoPerfil): ', fotoPerfil.value)
-
         // Si hay una imagen seleccionada por el usuario se usa la URL
         if (fotoPerfil.value) {
             if (objectUrl.value) {
+                deletePfp.value = false;
                 URL.revokeObjectURL(objectUrl.value); // Revoke la URL previa
             }
             objectUrl.value = URL.createObjectURL(fotoPerfil.value);
-            console.log('Calculando Foto Perfil Final Caso 1 (Estado FotoPerfil): ', fotoPerfil.value)
-            console.log('URL: ', objectUrl.value);
             return objectUrl.value; // Devuelve la nueva URL
         }
 
         // Si la foto de perfil es eliminada
         if (deletePfp.value) {
-            console.log('Calculando Foto Perfil Final Caso 2 (Estado FotoPerfil): ', fotoPerfil.value)
             return `http://localhost:8000/static/fotos_perfil/pfp-icon.jpg`; // Devuelve la foto por defecto
         }
 
         // Si hay una foto de perfil valida
         if (perfil.value && perfil.value.foto_perfil) {
-            console.log('Calculando Foto Perfil Final Caso 3 (Estado FotoPerfil): ', fotoPerfil.value)
             return `http://localhost:8000/static/fotos_perfil/${perfil.value.foto_perfil}?${Date.now}`;
         }
 
         // Devuelve imagen por defecto si no exite ninguno de los casos
-        console.log('Calculando Foto Perfil Final Caso 4 (Estado FotoPerfil): ', fotoPerfil.value)
         return `http://localhost:8000/static/fotos_perfil/pfp-icon.jpg`;
     });
 
@@ -131,8 +128,6 @@
     }
 
     async function updatePerfilUsuario() {
-        console.log('Antes de Actualizar Perfil: ', fotoPerfil.value);
-        
         validarToken();
 
         const formData = new FormData();
@@ -157,7 +152,7 @@
             });
 
             emits('perfil-updated');
-            router.push('/perfil');
+            router.push(`/perfil/${perfilId.value}`);
         } catch (error) {
             Swal.fire({
                 icon: 'error',
@@ -166,14 +161,14 @@
             });
 
             console.log(error);
-            router.push('/perfil');
+            router.push(`/perfil/${perfilId.value}`);
         }
     }
 
     async function validarToken() {
         token.value = localStorage.getItem('token');
         if (!token.value) {
-            router.push('/login');
+            router.push('/');
             return;
         }
     }

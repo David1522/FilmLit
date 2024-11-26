@@ -1,10 +1,10 @@
 <template>
     <div class="cuenta-main-container" v-if="perfil">
         <div class="credentials-container">
-            <a href="/perfil" class="nombre-usuario">{{ perfil.usuario.nombre_usuario }}</a>
+            <a :href="`/perfil/${perfil.id_perfil}`" class="nombre-usuario">{{ perfil.usuario.nombre_usuario }}</a>
             <p class="perfil-nombre">{{ perfil.nombre }}</p>
         </div>
-        <a href="./perfil"><img :src="perfil.foto_perfil ? `http://localhost:8000/static/fotos_perfil/${perfil.foto_perfil}?${Date.now()}`
+        <a :href="`/perfil/${perfil.id_perfil}`"><img :src="perfil.foto_perfil ? `http://localhost:8000/static/fotos_perfil/${perfil.foto_perfil}?${Date.now()}`
             : 'http://localhost:8000/static/fotos_perfil/pfp-icon.jpg'" alt="pfp-usuario" class="pfp-usuario"></a>
     </div>
     <div v-else>
@@ -27,7 +27,7 @@
         }
 
         try {
-            const response = await axios.get('http://127.0.0.1:8000/perfil/me', {
+            const response = await axios.get(`http://127.0.0.1:8000/perfil/me`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 }

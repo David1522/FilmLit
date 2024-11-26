@@ -6,8 +6,8 @@
         <div class="detalles-perfil">
             <div class="ajustes-perfil">
                 <p class="nombre-usuario">{{ perfil.usuario.nombre_usuario }}</p>
-                <button @click="router.push('/perfil/editar/me')" class="btn-perfil">Editar</button>
-                <button class="btn-acc-options"> <fa icon="ellipsis" /> </button>
+                <button v-if="perfilPropio" @click="router.push(`/perfil/${perfilId}/editar`)" class="btn-perfil">Editar</button>
+                <button v-else class="btn-acc-options"> <fa icon="ellipsis" /> </button>
             </div>
             <div class="stats-perfil">
                 <p class="stat"><span class="num-seguidos"> {{ perfil.seguidos }} </span> segidos</p>
@@ -27,27 +27,30 @@
 </template>
 
 <script setup>
-    import { ref, onMounted, computed, watch } from 'vue';
+    import { ref, onMounted, computed } from 'vue';
+    import { useRoute } from 'vue-router';
     import axios from 'axios';
     import router from '@/router';
-    
+
+    const route = useRoute();
+    const token = ref('');
+
+    const perfilId = ref(route.params.id);
     const perfil = ref(null)
+    const perfilPropio = ref(false)
 
     async function fetchPerfilUsuario() {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            router.push('/');
-            return;
-        }
+        validarToken();
 
         try {
-            const response = await axios.get('http://localhost:8000/perfil/me', {
+            const response = await axios.get(`http://localhost:8000/perfil/${perfilId.value}`, {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token.value}`
                 }
             });
-            perfil.value = response.data
+            perfil.value = response.data;
         } catch (error) {
+            console.log(error);
             localStorage.removeItem('token');
             router.push('/');
         }
@@ -59,6 +62,29 @@
             : "http://localhost:8000/static/fotos_perfil/pfp-icon.jpg";
     });
 
+    async function validarPerfilPropio() {
+        validarToken();
+
+        try {
+            const response = await axios.get("http://localhost:8000/perfil/me/id", {
+                headers: {
+                    Authorization: `Bearer ${token.value}`
+                }
+            });
+            perfilPropio.value = perfilId.value == response.data;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async function validarToken() {
+        token.value = localStorage.getItem('token');
+        if (!token.value) {
+            router.push('/');
+            return;
+        }
+    }
+
     // Expone la funcion para que el componente padre la pueda llamar
     defineExpose({
         fetchPerfilUsuario,
@@ -66,6 +92,8 @@
 
     onMounted(() => {
         fetchPerfilUsuario();
+        validarPerfilPropio();
+
     })
 </script>
 
@@ -96,6 +124,7 @@
         height: 100%;
         display: flex;
         gap: 10px;
+        margin-left: auto
     }
 
     .nombre-usuario {

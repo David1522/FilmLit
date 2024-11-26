@@ -7,7 +7,7 @@
                     <p class="nombre-usuario">{{ publicacion.perfil.usuario.nombre_usuario }}</p>
                 </div>
 
-                <opciones-publicacion-perfil :idPublicacion="publicacion.id_publicacion" @posts-updated="updatePost"/>
+                <opciones-publicacion-perfil :idPublicacion="publicacion.id_publicacion" :perfilId @posts-updated="updatePost"/>
             </div>
 
             <div class="publ-content" @click="accederDetallesPublicacion(publicacion.id_publicacion)">
@@ -42,19 +42,21 @@
         <div v-else class="publ-message">No hay más publicaciones</div>
     </div>
     <div v-else class="no-publ-message">No tienes publicaciones creadas</div>
-    <router-view></router-view>
 </template>
 
 <script setup>
     import OpcionesPublicacionPerfil from './OpcionesPublicacionPerfil.vue';
 
     import { ref, onMounted, computed } from 'vue';
+    import { useRoute } from 'vue-router';
     import axios from 'axios';
     import router from '@/router';
     import { format } from 'date-fns';
 
+    const route = useRoute();
     const token = ref('');
 
+    const perfilId = ref(route.params.id);
     const publicaciones = ref([]);
     const interaccionesPublicaciones = ref({});
 
@@ -77,7 +79,7 @@
         validarToken();
 
         try {
-            const response = await axios.get('http://localhost:8000/perfil/me/publicaciones', {
+            const response = await axios.get(`http://localhost:8000/perfil/${perfilId.value}/publicaciones`, {
                 headers: {
                     Authorization: `Bearer ${token.value}`
                 },

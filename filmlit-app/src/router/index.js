@@ -13,7 +13,6 @@ import EditarPublicacion from '@/components/perfil/EditarPublicacion.vue';
 import Noticias from '@/views/Noticias.vue'
 
 import Biblioteca from '@/views/Biblioteca.vue'
-import Principal from '@/components/biblioteca/Explorar.vue'
 import Peliculas from '@/components/biblioteca/Peliculas.vue'
 import Series from '@/components/biblioteca/Series.vue'
 import Libros from '@/components/biblioteca/Libros.vue'
@@ -26,12 +25,12 @@ const router = createRouter({
       component: Login,
     },
     {
-      path: '/perfil',
+      path: '/perfil/:id',
       name: 'Perfil',
       component: Perfil,
       children: [
-        { path: 'editar/me', name: 'EditarPerfil', component: EditarPerfilCard },
-        { path: '/publicacion-editar/:id', name: 'EditarPublicacion', component: EditarPublicacion }
+          { path: 'editar', name: 'EditarPerfil', component: EditarPerfilCard },
+          { path: 'publicacion-editar/:publicacionid', name: 'EditarPublicacion', component: EditarPublicacion }
       ],
     },
     {

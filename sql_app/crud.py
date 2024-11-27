@@ -99,6 +99,39 @@ def actualizar_perfil(db: Session, id_perfil: str, nombre: str, fecha_nacimiento
     db.refresh(perfil_db)
 
 
+# CRUD SeguidoresCuenta
+def get_follow(id_seguido: int, id_seguidor: int, db: Session):
+    return db.query(models.SeguidoresCuenta).filter(
+        models.SeguidoresCuenta.id_seguido == id_seguido,
+        models.SeguidoresCuenta.id_seguidor == id_seguidor
+    ).first()
+    
+
+def get_num_followers(id_perfil: int, db):
+    return db.query(models.SeguidoresCuenta).filter(models.SeguidoresCuenta.id_seguido == id_perfil).count()
+
+
+def get_num_follows(id_perfil: int, db):
+    return db.query(models.SeguidoresCuenta).filter(models.SeguidoresCuenta.id_seguidor == id_perfil).count()
+    
+    
+def crear_follow(id_seguido: int, id_seguidor: int, db: Session):
+    db_follow = models.SeguidoresCuenta(
+        id_seguido = id_seguido,
+        id_seguidor = id_seguidor,
+        fecha = datetime.now()
+    )
+    db.add(db_follow)
+    db.commit()
+    db.refresh(db_follow)
+    
+
+def eliminar_follow(id_seguido: int, id_seguidor: int, db: Session):
+    db_follow = get_follow(id_seguido, id_seguidor, db)
+    db.delete(db_follow)
+    db.commit()
+
+
 # CRUD Publicaciones
 def get_post(db: Session, id_publicacion: int):
     return db.query(models.Publicacion).filter(models.Publicacion.id_publicacion == id_publicacion).first();

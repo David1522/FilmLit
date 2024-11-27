@@ -37,12 +37,22 @@ class Perfil(BaseModel):
     nombre: Optional[str] = None
     descripcion: Optional[str] = None
     fecha_nacimiento: Optional[date] = None
-    seguidores: int = Field(default=0)
-    seguidos: int = Field(default=0)
     foto_perfil: Optional[str] = None
     
     usuario: Optional[Usuario] = None
 
+    class Config:
+        from_attributes = True
+        
+
+# Schemas SeguidoresCuenta
+class SeguidoresCuenta(BaseModel):
+    id_seguido: int
+    id_seguidor: int
+    fecha: datetime
+    
+    perfil: Optional[Perfil] = None
+    
     class Config:
         from_attributes = True
 

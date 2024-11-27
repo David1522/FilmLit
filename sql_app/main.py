@@ -211,6 +211,36 @@ async def update_perfil(
     return {"mensaje": "¡Tu perfil ha sido actualizado correctamente!"}
 
 
+# Endpoints Follows
+@app.get("/perfil/me/follows/{id_perfil}")
+async def validar_follow(id_perfil: int, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
+    follow = crud.get_follow(id_perfil, perfil_usuario.id_perfil, db)
+    if follow:
+        return True
+    else:
+        return False
+    
+    
+@app.get("/perfil/{id_perfil}/follow/data")
+async def get_followers_perfil(id_perfil: int, db: Annotated[Session, Depends(get_db)]):
+    followers = crud.get_num_followers(id_perfil, db)
+    follows = crud.get_num_follows(id_perfil, db)
+    return {
+        "followers": followers,
+        "follow": follows
+    }
+
+
+@app.post("/perfil/me/follows/{id_perfil}")
+async def create_follow(id_perfil: int, perfi_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
+    crud.crear_follow(id_perfil, perfi_usuario.id_perfil, db)
+
+
+@app.delete("/perfil/me/follows/{id_perfil}")
+async def delete_follow(id_perfil: int, perfi_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
+    crud.eliminar_follow(id_perfil, perfi_usuario.id_perfil, db)
+
+
 # Endpoints Publicaciones
 @app.get("/publicaciones/{id_publicacion}", response_model=schemas.Publicacion)
 async def get_publicacion(id_publicacion: int, db: Annotated[Session, Depends(get_db)]):

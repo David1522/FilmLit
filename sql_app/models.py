@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
@@ -24,11 +24,21 @@ class Perfil(Base):
     nombre = Column(String(255), nullable=True)
     descripcion = Column(String(280), nullable=True)
     fecha_nacimiento = Column(DateTime,  nullable=True)
-    seguidores = Column(Integer, default=0)
-    seguidos = Column(Integer, default=0)
     foto_perfil = Column(String(255), nullable=True)
     
     usuario = relationship("Usuario")
+    
+    
+class SeguidoresCuenta(Base):
+    __tablename__ = "SEGUIDORES_CUENTA"
+    
+    id_seguido = Column(Integer, ForeignKey("PERFIL.id_perfil"), index=True)
+    id_seguidor = Column(Integer, ForeignKey("PERFIL.id_perfil"), index=True)
+    fecha = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    __table_args__ = (
+        PrimaryKeyConstraint('id_seguido', 'id_seguidor'),
+    )
     
 
 class Publicacion(Base):

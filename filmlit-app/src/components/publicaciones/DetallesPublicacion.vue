@@ -8,18 +8,15 @@
                     </div>
                     <p>Post</p>
                 </div>
-                <div class="icon-container">
-                    <OpcionesPublicacion :id-publicacion="idPublicacion" @posts-updated="router.go(-1)"/>
-                </div>
             </div>
 
             <div class="publ-header">
-                <div class="info-usuario">
+                <div class="info-usuario" @click="router.push(`/perfil/${publicacion.perfil.id_perfil}`)">
                     <img :src="publicacion.perfil.foto_perfil ? `http://localhost:8000/static/fotos_perfil/${publicacion.perfil.foto_perfil}?${Date.now()}` : 'http://localhost:8000/static/fotos_perfil/pfp-icon.jpg'" alt="user-pfp" class="pfp-usuario">
                     <p class="nombre-usuario"> {{ publicacion.perfil.usuario.nombre_usuario }} </p>
                 </div>
                 
-                <button class="follow-btn">Follow</button>
+                <follow-btn :id-perfil-creador="publicacion.perfil.id_perfil"/>
             </div>
 
             <div class="publ-contenido">
@@ -56,7 +53,7 @@
 </template>
 
 <script setup>
-    import OpcionesPublicacion from '../perfil/OpcionesPublicacionPerfil.vue';
+    import FollowBtn from './FollowBtn.vue';
     import CrearComentario from './CrearComentario.vue';
     import ComentariosPublicacion from './ComentariosPublicacion.vue';
 
@@ -71,24 +68,10 @@
     const token = ref('');
     const comentariosPublicacion = ref(null)
 
+    const idPerfil = ref(null);
     const idPublicacion = ref(route.params.id);
-    const publicacion = ref({})
-    const interacciones = ref({})
-
-
-    async function validarToken() {
-        token.value = localStorage.getItem('token');
-        if (!token.value) {
-            router.push('/');
-            return;
-        }
-    }
-
-
-    const formattedDate = (date) => {
-        return format(new Date(date), "h:mm aaa · MMM d, yyyy");
-    };
-
+    const publicacion = ref({});
+    const interacciones = ref({});
 
     async function fetchPublicacion() {
         validarToken();
@@ -129,7 +112,6 @@
             router.push('/');
         }
     }
-
 
     async function likeFunc() {
         const statusLikePrevio = interacciones.value.publicacionLikeada;
@@ -174,7 +156,6 @@
         }
     }
 
-
     function handleScroll() {
         const container = document.querySelector('.publicacion-contenedor');
         const inferiorContainer = container.scrollHeight - container.scrollTop <= container.clientHeight + 200;
@@ -184,9 +165,36 @@
         }
     }
 
+    async function getIdPerfil() {
+        validarToken();
+
+        try {
+            const response = await axios.get("http://localhost:8000/perfil/me/id", {
+                headers: {
+                    Authorization: `Bearer ${token.value}`
+                }
+            });
+            idPerfil.value = response.data;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const formattedDate = (date) => {
+        return format(new Date(date), "h:mm aaa · MMM d, yyyy");
+    };
+
+    async function validarToken() {
+        token.value = localStorage.getItem('token');
+        if (!token.value) {
+            router.push('/');
+            return;
+        }
+    }
 
     onMounted(() => {
         fetchPublicacion();
+        getIdPerfil();
     })
 </script>
 
@@ -279,6 +287,7 @@
         display: flex;
         align-items: center;
         gap: 10px;
+        cursor: pointer;
     }
 
     .nombre-usuario {

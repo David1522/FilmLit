@@ -1,23 +1,35 @@
 <template>
     <div class="perfil-card" v-if="perfil">
-        <!-- El key biding hace que la imagen sea renderizada cada que la variable -->
         <img :src="fotoPerfilUrl" :key="fotoPerfilUrl" alt="pfp" class="usuario-pfp">
 
         <div class="detalles-perfil">
             <div class="ajustes-perfil">
                 <p class="nombre-usuario">{{ perfil.usuario.nombre_usuario }}</p>
                 <button v-if="perfilPropio" @click="router.push(`/perfil/${perfilId}/editar`)" class="btn-perfil">Editar</button>
-                <button v-else class="btn-acc-options"> <fa icon="ellipsis" /> </button>
+                <button v-else class="btn-acc-options">
+                    <follow-btn :id-perfil-creador="perfil.id_perfil" @update-follow-data="fetchAccountFollowData" />
+                    <fa icon="ellipsis" />
+                </button>
             </div>
             <div class="stats-perfil">
-                <p class="stat"><span class="num-seguidos"> {{ perfil.seguidos }} </span> segidos</p>
-                <p class="stat"><span class="num-seguidores"> {{ perfil.seguidores }} </span> siguiendo</p>
+                <p class="stat">
+                    <span class="num-seguidos" v-if="followers">{{ followers }}</span>
+                    <span class="num-seguidores" v-else>0</span>
+                    SEGUIDORES
+                </p>
+                <p class="stat">
+                    <span class="num-seguidores" v-if="follows">{{ follows }}</span>
+                    <span class="num-seguidores" v-else>0</span>
+                    SIGUIENDO
+                </p>
             </div>
 
             <div class="info-perfil">
-                <p class="info info-nombre"> <span> {{ perfil.nombre }} </span> </p>
-                <p class="info info-birthdate"> <span v-if="perfil.fecha_nacimiento"> 🎂 {{ perfil.fecha_nacimiento }}</span> </p>
-                <p class="info info-desc"> {{ perfil.descripcion }} </p>
+                <p class="info info-nombre"><span>{{ perfil.nombre }}</span></p>
+                <p class="info info-birthdate">
+                    <span v-if="perfil.fecha_nacimiento">🎂 {{ perfil.fecha_nacimiento }}</span>
+                </p>
+                <p class="info info-desc">{{ perfil.descripcion }}</p>
             </div>
         </div>
     </div>
@@ -27,6 +39,8 @@
 </template>
 
 <script setup>
+    import FollowBtn from '../publicaciones/FollowBtn.vue';
+
     import { ref, onMounted, computed } from 'vue';
     import { useRoute } from 'vue-router';
     import axios from 'axios';
@@ -37,6 +51,8 @@
 
     const perfilId = ref(route.params.id);
     const perfil = ref(null)
+    const followers = ref(0);
+    const follows = ref(0);
     const perfilPropio = ref(false)
 
     async function fetchPerfilUsuario() {
@@ -49,12 +65,28 @@
                 }
             });
             perfil.value = response.data;
+            fetchAccountFollowData();
         } catch (error) {
             console.log(error);
             localStorage.removeItem('token');
             router.push('/');
         }
     }
+
+    async function fetchAccountFollowData() {
+        try {
+            const response = await axios.get(`http://localhost:8000/perfil/${perfilId.value}/follow/data`, {
+                headers: {
+                    Authorization: `Bearer ${token.value}`
+                }
+            });
+            console.log(response.data);
+            followers.value = response.data.followers;
+            follows.value = response.data.follow;
+        } catch (error) {
+            console.log(error);
+        }
+    } 
 
     const fotoPerfilUrl = computed(() => {
         return perfil.value && perfil.value.foto_perfil
@@ -151,8 +183,6 @@
     }
 
     .btn-acc-options {
-        width: 30px;
-        height: 25px;
         color: var(--color-text-primary);
         background-color: var(--background-color-primary);
         font-size: 15px;
@@ -163,11 +193,9 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-    }
-
-    .btn-acc-options:hover {
-        transform: scale(1.1);
-        transition: transform ease-in-out 300ms;
+        gap: 10px;
+        margin-left: auto;
+        margin-right: 100px
     }
 
     .stats-perfil {

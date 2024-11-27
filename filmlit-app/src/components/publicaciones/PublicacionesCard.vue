@@ -9,8 +9,7 @@
 
 
                 <div class="publ-actions">
-                    <button class="follow-btn">Follow</button>
-                    
+                    <follow-btn :id-perfil-creador="publicacion.perfil.id_perfil"/>
                     <opciones-publicaciones-page :id-publicacion="publicacion.id_publicacion"/>
                 </div>
             </div>
@@ -50,6 +49,7 @@
 
 <script setup>
     import OpcionesPublicacionesPage from './OpcionesPublicacionesPage.vue';
+    import FollowBtn from './FollowBtn.vue';
 
     import { ref, onMounted } from 'vue';
     import axios from 'axios';
@@ -58,6 +58,7 @@
 
     const token = ref('');
 
+    const idPerfil = ref(null)
     const publicaciones = ref([]);
     const interaccionesPublicaciones = ref({});
 
@@ -67,20 +68,6 @@
     const total = ref(0);
     const hasNext = ref(false)
     const cargandoPublicaciones = ref(false)
-
-    
-    async function validarToken() {
-        token.value = localStorage.getItem('token');
-        if (!token.value) {
-            router.push('login');
-            return;
-        }
-    }
-
-    const formattedDate = (date) => {
-        return format(new Date(date), "dd/MM/yyyy · h:mm aaa").toUpperCase();
-    };
-
 
     async function getPosts(page = 1) {
         validarToken();
@@ -114,7 +101,6 @@
         }
     }
 
-
     async function getNumInteracionesPublicacion(idPublicacion) {
         interaccionesPublicaciones.value[idPublicacion] = { "cargando": true }
         try {
@@ -136,7 +122,6 @@
         }
     }
 
-
     async function cargarPublicaciones() {
         if (!hasNext.value || cargandoPublicaciones.value) return;
 
@@ -146,7 +131,6 @@
         await getPosts(page.value);
         cargandoPublicaciones.value = false;
     }
-
 
     // Detecta cuando el usuario hace scroll en la parte iferior del contenedor
     function handleScroll() {
@@ -158,12 +142,10 @@
         }
     }
 
-
     async function updatePost() {
         publicaciones.value = [];
         getPosts();
     }
-
 
     async function likeFunc(idPublicacion, publicacionLikeada) {
         const statusLikePrevio = publicacionLikeada;
@@ -195,16 +177,25 @@
         }
     }
 
-
     async function accederDetallesPublicacion(idPublicacion) {
         router.push(`/publicaciones/detalles/${idPublicacion}`);
     }
 
+    const formattedDate = (date) => {
+        return format(new Date(date), "h:mm aaa · MMM d, yyyy");
+    };
+
+    async function validarToken() {
+        token.value = localStorage.getItem('token');
+        if (!token.value) {
+            router.push('login');
+            return;
+        }
+    }
 
     defineExpose({
         updatePost,
     });
-
 
     onMounted(() => {
         page.value = 1;
@@ -263,17 +254,6 @@
         align-items: center;
         justify-content: center;
         gap: 10px;
-    }
-
-    .follow-btn {
-        width: 75px;
-        height: 30px;
-        background-color: var(--background-color-contrast);
-        color: var(--color-text-contrast);
-        font-weight: 600;
-        border: none;
-        border-radius: 50px;
-        cursor: pointer;
     }
 
     .icon-container {

@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-    import { defineProps, onMounted, ref, nextTick } from 'vue';
+    import { defineProps, onMounted, ref } from 'vue';
     import axios from 'axios';
     import router from '@/router';
 

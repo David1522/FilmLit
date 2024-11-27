@@ -4,9 +4,8 @@
 
         <nav class="nav-bar">
             <a href="/publicaciones"> <span class="icon"> <fa icon="home"/> </span> <span class="icon-text"> Inicio </span> </a>
-            <a href="/biblioteca"> <span class="icon"> <fa icon="bookmark"/> </span> <span class="icon-text"> Biblioteca </span> </a>
-            <a href="/habitaciones"> <span class="icon"> <fa icon="people-group"/> </span> <span class="icon-text"> Habitaciones </span> </a>
-            <a href="/chats"> <span class="icon"> <fa icon="comment"/> </span> <span class="icon-text"> Chats </span> </a>
+            <a href="/biblioteca/peliculas"> <span class="icon"> <fa icon="bookmark"/> </span> <span class="icon-text"> Biblioteca </span> </a>
+            <a href="/salas"> <span class="icon"> <fa icon="people-group"/> </span> <span class="icon-text"> Salas </span> </a>
             <a :href="`/perfil/${perfil?.id_perfil || ''}`"> <span class="icon"> <fa icon="user"/> </span> <span class="icon-text"> Perfil </span> </a>
             <a href="/noticias"> <span class="icon"> <fa icon="newspaper"/> </span> <span class="icon-text"> Noticias </span> </a>
             <a href="/premium"> <span class="icon"> <fa icon="star"/> </span> <span class="icon-text"> Premium </span> </a>

@@ -7,8 +7,8 @@
                     <img :src="'https://image.tmdb.org/t/p/w500' + serie.poster_path" alt="Poster" class="series-image"/>
                 </div>
                 <div class="series-info">
-                    <span class="like-icon">❤️</span>
                     <h2 class="series-title">{{ serie.name }}</h2>
+                    <i class="fa-regular fa-heart"></i>
                 </div>
             </li>
         </ul>
@@ -111,14 +111,19 @@ function debounce(fn, delay) {
     padding: 8px;
     background-color: var(--background-color-primary);
     color: var(--color-text-primary);
-    flex-direction: column;
 }
 
-.like-icon {
+.fa-regular {
     font-size: 20px;
-    color: red;
+    font-weight: 500;
+    border: 1px solid var(--color-text-primary);
+    border-radius: 50%;
+    padding: 5px;
 }
-
+.fa-regular:hover{
+    cursor: pointer;
+    font-weight: 600;
+}
 .series-title {
     font-size: 16px;
     font-weight: bold;

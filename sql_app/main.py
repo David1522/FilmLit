@@ -1,7 +1,8 @@
 import os
+import shutil
 
 from datetime import date, datetime, timedelta, timezone
-from typing import Annotated, Optional
+from typing import Annotated, Optional, List
 
 from jose import jwt, JWTError
 from fastapi import Depends, FastAPI, HTTPException, status, UploadFile, File, Form
@@ -141,6 +142,7 @@ async def delete_usuario_me(current_user: Annotated[schemas.Usuario, Depends(get
 # Endpoints Imagenes
 app.mount("/static/fotos_perfil", StaticFiles(directory="images/fotos_perfil"), name="fotos_perfil")
 app.mount("/static/publicaciones", StaticFiles(directory="images/publicaciones"), name="publicaciones")
+app.mount("/static/salas", StaticFiles(directory="images/salas"), name="salas")
 
 
 # Endpoints Perfil
@@ -430,3 +432,91 @@ async def update_usuario_type_down(usuario: Annotated[schemas.Usuario, Depends(g
         raise HTTPException(status_code=200, detail="Lamentamos que te vayas del premium, tacaño.")
     else:
         raise HTTPException(status_code=500, detail="Error: Usuario no encontrado.")
+    
+
+# Endpoints Sala
+@app.get("/salas/{id_sala}", response_model=schemas.Sala)
+async def get_sala_endpoint(id_sala: int, db: Session = Depends(get_db)):
+    sala = crud.get_sala(db, id_sala)
+    if sala is None:
+        raise HTTPException(status_code=404, detail="Sala not found")
+    return sala
+
+@app.get("/salas", response_model=List[schemas.Sala])
+async def get_salas_endpoint(db: Session = Depends(get_db), skip: int = 0, limit: int = 10):
+    return crud.get_salas(db, skip=skip, limit=limit)
+
+@app.post("/salas", response_model=schemas.Sala)
+async def crear_sala_endpoint(
+    nombre: str = Form(...),
+    privado: Optional[bool] = Form(False),
+    contrasena: Optional[str] = Form(None),
+    descripcion_corta: str = Form(...),
+    multimedia: Optional[UploadFile] = File(None),
+    db: Session = Depends(get_db),
+    current_user: schemas.Usuario = Depends(get_current_user)
+):
+    directory = "images/salas"
+    file_name = None
+    
+    if multimedia:
+        try:
+            file_name = f"{multimedia.filename}-{nombre}-{current_user.id_usuario}.jpg"
+            file_path = os.path.join(directory, file_name)
+            
+            with open(file_path, "wb") as f:
+                f.write(await multimedia.read())
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error al guardar archivo multimedia: {str(e)}")
+    
+    return crud.crear_sala(db, id_perfil=current_user.id_usuario, nombre=nombre, privado=privado, contrasena=contrasena, descripcion_corta=descripcion_corta, multimedia=file_name)
+
+
+@app.put("/salas/{id_sala}", response_model=schemas.Sala)
+async def actualizar_sala_endpoint(
+    id_sala: int,
+    id_perfil: int = Form(...),
+    nombre: str = Form(...),
+    privado: bool = Form(...),
+    contrasena: Optional[str] = Form(None),
+    descripcion_corta: str = Form(...),
+    multimedia: Optional[UploadFile] = File(None),
+    eliminar_multimedia: bool = Form(False),
+    db: Session = Depends(get_db)
+):
+    multimedia_filename = None
+    if multimedia:
+        multimedia_filename = f"{multimedia.filename}-{id_sala}.jpg"
+        with open(f"images/salas/{multimedia_filename}", "wb") as buffer:
+            shutil.copyfileobj(multimedia.file, buffer)
+
+    updated_sala = crud.actualizar_sala(
+        db, id_sala,
+        id_perfil=id_perfil,
+        nombre=nombre,
+        privado=privado,
+        contrasena=contrasena,
+        descripcion_corta=descripcion_corta,
+        multimedia=multimedia_filename,
+        eliminar_multimedia=eliminar_multimedia
+    )
+    if not updated_sala:
+        raise HTTPException(status_code=404, detail="Sala not found")
+    return updated_sala
+
+
+@app.delete("/salas/{id_sala}")
+async def eliminar_sala_endpoint(id_sala: int, db: Session = Depends(get_db)):
+    result = crud.eliminar_sala(db, id_sala)
+    if not result:
+        raise HTTPException(status_code=404, detail="Sala not found")
+    return {"message": "Sala deleted successfully"}
+
+
+#Endpoints sala_miembros
+@app.post("/salas/{id_sala}/unirme")
+async def unirse_sala(id_sala: int, current_user: schemas.Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+    
+    crud.agregar_registro_acceso(db=db, id_perfil = current_user.id_usuario, id_sala=id_sala)
+    
+    

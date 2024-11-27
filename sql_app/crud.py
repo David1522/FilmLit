@@ -1,6 +1,9 @@
+from fastapi import HTTPException
+
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
+import logging
 from typing import Optional
 from datetime import date, datetime
 
@@ -251,3 +254,108 @@ def eliminar_comentario(db: Session, id_comentario: int):
         return True
     else:
         return False
+    
+    
+# CRUD Sala
+def get_sala(db: Session, id_sala: int):
+    return db.query(models.Sala).filter(models.Sala.id_sala == id_sala).first()
+
+def get_salas(db: Session, skip: int = 0, limit: int = 10):
+    return db.query(models.Sala).offset(skip).limit(limit).all()
+
+
+def crear_sala(db: Session, id_perfil: int, nombre: str, privado: Optional[bool], contrasena: Optional[str], descripcion_corta: str, multimedia: Optional[str] = None):
+    logging.info("Verificando si existe una sala con el mismo nombre para el mismo anfitrión.")
+    
+    sala_existente = db.query(models.Sala).filter(
+        models.Sala.id_perfil == id_perfil,
+        models.Sala.nombre == nombre
+    ).first()
+    
+    logging.info(f"Sala existente: {sala_existente}")
+    
+    if sala_existente:
+        raise HTTPException(status_code=400, detail="Ya tienes una sala con ese nombre!.")
+    db_sala = models.Sala(
+        id_perfil=id_perfil,
+        nombre=nombre,
+        privado=privado,
+        contrasena=contrasena,
+        descripcion_corta=descripcion_corta,
+        multimedia=multimedia
+    )
+    db.add(db_sala)
+    db.commit()
+    db.refresh(db_sala)
+    return db_sala
+
+
+
+def actualizar_sala(
+    db: Session,
+    id_sala: int,
+    id_perfil: Optional[int],
+    nombre: Optional[str],
+    privado: Optional[bool],
+    contrasena: Optional[str],
+    descripcion_corta: Optional[str],
+    multimedia: Optional[str],
+    eliminar_multimedia: bool
+):
+    sala_db = get_sala(db, id_sala)
+    if not sala_db:
+        return False
+
+    if nombre and nombre != sala_db.nombre:
+        sala_existente = db.query(models.Sala).filter(
+            models.Sala.nombre == nombre,
+            models.Sala.id_perfil == sala_db.id_perfil,
+            models.Sala.id_sala != id_sala  # Asegurarse de que no es la misma sala
+        ).first()
+        
+        if sala_existente:
+            raise HTTPException(status_code=400, detail="Ya existe una sala con este nombre.")
+    
+    if id_perfil is not None:
+        sala_db.id_perfil = id_perfil
+    if nombre is not None:
+        sala_db.nombre = nombre
+    if privado is not None:
+        sala_db.privado = privado
+    if contrasena is not None:
+        sala_db.contrasena = contrasena
+    if descripcion_corta is not None:
+        sala_db.descripcion_corta = descripcion_corta
+    if eliminar_multimedia:
+        sala_db.multimedia = None
+    elif multimedia is not None:
+        sala_db.multimedia = multimedia
+
+    db.commit()
+    db.refresh(sala_db)
+    return sala_db
+
+
+def eliminar_sala(db: Session, id_sala: int):
+    sala_db = get_sala(db, id_sala)
+    if sala_db:
+        db.delete(sala_db)
+        db.commit()
+        return True
+    return False
+
+
+#CRUD registro_acceso
+def agregar_registro_acceso(db: Session, id_sala: int, id_perfil: int):
+    db_registro_acceso = models.RegistroAcceso(
+        id_perfil=id_perfil,
+        id_sala=id_sala,
+        fecha = datetime.now()
+    )
+    db.add(db_registro_acceso)
+    db.commit()
+    db.refresh(db_registro_acceso)
+
+
+def obtener_miembros_sala(db: Session, id_sala: int):
+    return db.query(models.SalaMiembro).filter(models.SalaMiembro.id_sala == id_sala).all()

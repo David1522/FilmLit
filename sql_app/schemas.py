@@ -110,3 +110,27 @@ class PaginatedComentarios(BaseModel):
     page: int
     size: int
     has_next: bool
+    
+    
+# Schemas Sala
+class SalaBase(BaseModel):
+    id_perfil: Optional[int] = None
+    nombre: str
+    privado: Optional[bool] = None
+    contrasena: Optional[str] = None
+    descripcion_corta: str
+    multimedia: Optional[str] = None
+    perfil: Optional[Perfil] = None
+
+    class Config:
+         from_atributes= True
+
+
+class SalaCreate(SalaBase):
+    pass
+
+class Sala(SalaBase):
+    id_sala: int
+
+    class Config:
+        from_attributes = True

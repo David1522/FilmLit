@@ -161,7 +161,8 @@
 
     .nombre-usuario {
         font-size: 15px;
-        font-weight: 500;
+        font-weight: 600;
+
     }
 
     .btn-perfil {

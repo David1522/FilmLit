@@ -76,3 +76,28 @@ class Comentario(Base):
     
     perfil = relationship("Perfil")
     publicacion = relationship("Publicacion")
+    
+    
+class Sala(Base):
+    __tablename__ = "SALA"
+    
+    id_sala = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    id_perfil = Column(Integer, ForeignKey("PERFIL.id_perfil"))
+    nombre = Column(String(100), nullable=False)
+    privado = Column(Boolean, nullable=True)
+    contrasena = Column(String(100), nullable=True)
+    multimedia = Column(String(255), nullable=True)
+    descripcion_corta = Column(String(255), nullable=False)
+
+    perfil = relationship("Perfil")
+
+class RegistroAcceso(Base):
+    __tablename__ = "REGISTRO_ACCESO"
+    
+    id_registro_acceso = Column(Integer, primary_key=True, autoincrement=True)
+    id_sala = Column(Integer, ForeignKey("SALA.id_sala", ondelete="CASCADE"))
+    id_perfil = Column(Integer, ForeignKey("PERFIL.id_perfil", ondelete="CASCADE"))
+    fecha = Column(DateTime, default=datetime.utcnow)
+    
+    sala = relationship("Sala")
+    perfil = relationship("Perfil")

@@ -9,6 +9,8 @@ import CrearPublicacion from '@/components/publicaciones/CrearPublicacion.vue';
 import DetallesPublicacion from '@/components/publicaciones/DetallesPublicacion.vue';
 import EditarPublicacion from '@/components/perfil/EditarPublicacion.vue';
 
+import Salas from '@/views/Salas.vue';
+
 import Noticias from '@/views/Noticias.vue'
 
 import Biblioteca from '@/views/Biblioteca.vue'
@@ -58,6 +60,11 @@ const router = createRouter({
       path: '/noticias',
       name: 'Noticias',
       component: Noticias,
+    },
+    {
+      path: '/salas',
+      name: 'Salas',
+      component: Salas,
     },
     {
       path: '/premium',

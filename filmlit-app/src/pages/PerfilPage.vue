@@ -2,7 +2,7 @@
     <div class="perfil-main-container">
         <PerfilCard/>
         <PublicacionesPerfil/>
-        <router-view/>
+        <router-view @perfil-updated="actualizarPerfil" @posts-updated="actualizarPerfil"/>
     </div>
 </template>
 
@@ -11,6 +11,14 @@
     import PublicacionesPerfil from '@/components/perfil/PublicacionesPerfil.vue';
 
     import { ref } from 'vue';
+
+    // const perfilCard = ref(null);
+    // const publicacionPerfil = ref(null);
+
+    // async function actualizarPerfil() {
+    //     perfilCard.value.fetchPerfilUsuario();
+    //     publicacionPerfil.value.updatePost();
+    // }
 </script>
 
 <style scoped>

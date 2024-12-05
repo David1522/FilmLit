@@ -67,10 +67,6 @@
     const hasNext = ref(false)
     const cargandoPublicaciones = ref(false)
 
-    const fotoPerfilUrl = computed(() => {
-        
-    });
-
     const formattedDate = (date) => {
         return format(new Date(date), "dd/MM/yyyy · h:mm aaa").toUpperCase();
     };

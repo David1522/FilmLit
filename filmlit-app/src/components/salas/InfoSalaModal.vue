@@ -16,10 +16,7 @@
         <div class="info-item" v-if="sala.privado">
           <label>Id: {{ sala.id_sala }}</label>
         </div>
-        <div class="info-item">
-          <label>Miembros:</label>
-          <p>{{ sala.miembros }} miembros</p>
-        </div>
+
       </div>
       <div class="acciones-btn">
         <button type="button" class="btn-action btn-unirme" @click="unirmeSala">Unirme</button>
@@ -31,6 +28,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
   sala: Object,
@@ -51,7 +49,11 @@ async function unirmeSala() {
         Authorization: `Bearer ${token.value}`
       }
     });
-    alert('Te has unido a la sala con éxito!');
+    Swal.fire({
+      title: 'Has Entrado a la Sala',
+      icon: 'success',
+      text: 'Te has unido a la sala satisfactoriamente.'
+    })
     cerrarModal();
   } catch (error) {
     console.error('Error al unirse a la sala:', error);

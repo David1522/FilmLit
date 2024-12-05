@@ -134,3 +134,25 @@ class Sala(SalaBase):
 
     class Config:
         from_attributes = True
+
+
+# Schemas RegistroAcceso
+class RegistroAccesoBase(BaseModel):
+    id_sala: Optional[int] = None
+    id_perfil: Optional[int] = None
+    fecha: Optional[datetime] = None
+    sala: Optional[Sala] = None
+    perfil: Optional[Perfil] = None
+
+    class Config:
+        from_attributes = True
+
+class RegistroAccesoCreate(RegistroAccesoBase):
+    pass
+
+class RegistroAcceso(RegistroAccesoBase):
+    id_registro_acceso: int
+
+    class Config:
+        from_attributes = True
+

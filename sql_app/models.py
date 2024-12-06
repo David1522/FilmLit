@@ -91,6 +91,7 @@ class Sala(Base):
 
     perfil = relationship("Perfil")
 
+
 class RegistroAcceso(Base):
     __tablename__ = "REGISTRO_ACCESO"
     
@@ -101,3 +102,15 @@ class RegistroAcceso(Base):
     
     sala = relationship("Sala")
     perfil = relationship("Perfil")
+    
+    
+class Libro(Base):
+    __tablename__ = "LIBRO"
+    
+    id_libro = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    id_usuario = Column(Integer, ForeignKey("USUARIO.id_usuario"))
+    titulo = Column(String(255), nullable=False)
+    fecha_publicacion = Column(DateTime, nullable=False)
+    portada = Column(String(255), nullable=True)
+    
+    usuario = relationship("Usuario")

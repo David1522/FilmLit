@@ -67,7 +67,28 @@ def downgrade_usuario(db: Session, id_usuario: int):
     else:
         return False
     
-    
+
+def become_author(db: Session, id_usuario: int):
+    usuario_db = get_usuario(db, id_usuario)
+    if usuario_db:
+        usuario_db.tipo_usuario = 'AUTOR'
+        db.commit()
+        db.refresh(usuario_db)
+        return True
+    else:
+        return False
+
+
+def remove_author(db: Session, id_usuario: int):
+    usuario_db = get_usuario(db, id_usuario)
+    if usuario_db:
+        usuario_db.tipo_usuario = 'PREMIUM'
+        db.commit()
+        db.refresh(usuario_db)
+        return True
+    else:
+        return False
+
     
 # CRUD Perfil
 def get_perfil(db: Session, id_perfil):
@@ -137,14 +158,14 @@ def eliminar_follow(id_seguido: int, id_seguidor: int, db: Session):
 
 # CRUD Publicaciones
 def get_post(db: Session, id_publicacion: int):
-    return db.query(models.Publicacion).filter(models.Publicacion.id_publicacion == id_publicacion).first();
+    return db.query(models.Publicacion).filter(models.Publicacion.id_publicacion == id_publicacion).first()
 
 
 def get_total_num_post(db: Session):
     return db.query(models.Publicacion).count()
 
 
-def get_post_paginados(db: Session, id_perfil: int, offset: int, size: int):
+def get_post_paginados(db: Session, offset: int, size: int):
     return db.query(models.Publicacion).order_by(models.Publicacion.fecha.desc()).offset(offset).limit(size).all()
 
 
@@ -359,3 +380,50 @@ def agregar_registro_acceso(db: Session, id_sala: int, id_perfil: int):
 
 def obtener_miembros_sala(db: Session, id_sala: int):
     return db.query(models.SalaMiembro).filter(models.SalaMiembro.id_sala == id_sala).all()
+
+
+# CRUD Libro
+def get_libro(db: Session, id_libro: int):
+    return db.query(models.Libro).filter(models.Libro.id_libro == id_libro).first()
+
+
+def get_total_num_books(db: Session):
+    return db.query(models.Libro).count()
+
+
+def get_books_paginados(db: Session, offset: int, size: int):
+    return db.query(models.Libro).offset(offset).limit(size).all()
+
+
+def get_book_own_validation(db: Session, id_usuario: int, id_libro: int):
+    return db.query(models.Libro).filter(models.Libro.id_usuario == id_usuario, models.Libro.id_libro == id_libro).first()
+
+
+def crear_libro(db: Session, id_usuario: int, titulo: str, fecha_publicacion: datetime, portada: str):
+    db_libro = models.Libro(
+        id_usuario = id_usuario,
+        titulo = titulo,
+        fecha_publicacion = fecha_publicacion,
+        portada = portada
+    )
+    db.add(db_libro)
+    db.commit()
+    db.refresh(db_libro)
+    
+
+def actualizar_libro(db: Session, id_libro: str, titulo: str, fecha_publicacion: datetime, portada: str):
+    libro_db = get_libro(db, id_libro)
+    if not libro_db:
+        return False
+    libro_db.titulo = titulo
+    libro_db.fecha_publicacion = fecha_publicacion
+    libro_db.portada = portada
+    db.commit()
+    db.refresh(libro_db)
+    
+    
+def eliminar_libro(db: Session, id_libro: int):
+    libro_db = get_libro(db, id_libro)
+    db.delete(libro_db)
+    db.commit()
+    

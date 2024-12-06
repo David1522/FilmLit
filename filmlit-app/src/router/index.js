@@ -17,6 +17,8 @@ import Biblioteca from '@/views/Biblioteca.vue'
 import Peliculas from '@/components/biblioteca/Peliculas.vue'
 import Series from '@/components/biblioteca/Series.vue'
 import Libros from '@/components/biblioteca/Libros.vue'
+import LibrosAutores from '@/components/biblioteca/LibrosAutores.vue';
+import CrearLibroForm from '@/components/biblioteca/CrearLibroForm.vue';
 
 import Premium from '@/views/Premium.vue'
 
@@ -54,6 +56,8 @@ const router = createRouter({
           { path: 'peliculas', name: 'Peliculas', component: Peliculas },
           { path: 'series', name: 'Series', component: Series },
           { path: 'libros', name: 'Libros', component: Libros },
+          { path: 'libros-autores', name: 'LibrosAutores', component: LibrosAutores },
+          { path: 'crear-libro', name: 'CrearLibro', component: CrearLibroForm }
       ],
     },
     {

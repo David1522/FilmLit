@@ -123,7 +123,7 @@ class SalaBase(BaseModel):
     perfil: Optional[Perfil] = None
 
     class Config:
-         from_atributes= True
+        from_atributes= True
 
 
 class SalaCreate(SalaBase):
@@ -134,3 +134,24 @@ class Sala(SalaBase):
 
     class Config:
         from_attributes = True
+        
+
+# Schemas Libro
+class Libro(BaseModel):
+    id_libro: int
+    id_usuario: int
+    titulo: str
+    fecha_publicacion: datetime
+    portada: Optional[str] = None
+    usuario: Optional[Usuario] = None
+    
+    class Config:
+        from_attributes = True
+        
+
+class PaginatedLibros(BaseModel):
+    data: List[Libro]
+    total: int
+    page: int
+    size: int
+    has_next: bool

@@ -1,59 +1,73 @@
 <template>
     <div class="premium-container">
-      <form v-if="tipoUsuario == 'BASE'" @submit.prevent="submitPayment" class="payment-form">
-        <legend class="form-title">Upgrade to Premium</legend>
-        <div class="form-group">
-          <label for="name">Propietario de Tarjeta</label>
-          <input
-            type="text"
-            id="name"
-            placeholder="Enter name on card"
-            required
-          />
+        <form v-if="tipoUsuario == 'BASE'" @submit.prevent="submitPayment" class="payment-form">
+            <legend class="form-title">Upgrade to Premium</legend>
+            <div class="form-group">
+            <label for="name">Propietario de Tarjeta</label>
+            <input
+                type="text"
+                id="name"
+                placeholder="Enter name on card"
+                required
+            />
+            </div>
+            <div class="form-group">
+            <label for="cardNumber">Numero de Tarjeta</label>
+            <input
+                type="text"
+                id="cardNumber"
+                placeholder="Enter card number"
+                required
+                maxlength="16"
+            />
+            </div>
+            <div class="form-group">
+            <label for="expiry">Fecha de Expiración</label>
+            <input
+                type="month"
+                id="expiry"
+                required
+            />
+            </div>
+            <div class="form-group">
+            <label for="cvv">CVV</label>
+            <input
+                type="text"
+                id="cvv"
+                placeholder="123"
+                required
+                maxlength="3"
+            />
+            </div>
+            <div class="price-charged">
+                <p>Canidad a Pagar:</p>
+                <h3>$4.990 COP</h3>
+            </div>
+            <div class="submmit-btn-container">
+                <button type="submit" class="submit-btn">Obtener Premium</button>
+            </div>
+            
+        </form>
+
+        <div v-else class="card">
+            <h2>Subscripto a Premium ✅</h2>
+            <p>Tu estas subscrito al premium actualmente.</p>
+            <p>Disgruta de funcionalidades unicas y nuestro soporte prioritario.</p>
+            <button @click="cancelSubscription" class="cancel-btn">Cancel Subscription</button>
         </div>
-        <div class="form-group">
-          <label for="cardNumber">Numero de Tarjeta</label>
-          <input
-            type="text"
-            id="cardNumber"
-            placeholder="Enter card number"
-            required
-            maxlength="16"
-          />
+
+        <div v-if="tipoUsuario == 'PREMIUM'" class="card">
+            <h2>Aplicar para Autor 📚</h2>
+            <p>¡Si eres autor puedes usar nuestra plataforma para publiciatar tus obras!.</p>
+            <p>Al ser usuario premium puedes acceder directamente a estas funcionalidades.</p>
+            <button @click="volverseAutor" class="submit-btn">Volverse Autor</button>
         </div>
-        <div class="form-group">
-          <label for="expiry">Fecha de Expiración</label>
-          <input
-            type="month"
-            id="expiry"
-            required
-          />
+        <div v-if="tipoUsuario == 'AUTOR'" class="card">
+            <h2>¡Eres un autor! ✅</h2>
+            <p>Tu eres un autor en nuestra plataforma.</p>
+            <p>Disgruta de funcionalidades unicas y especiales para publicitar tu trabajo.</p>
+            <button @click="validarRemoverAutor" class="cancel-btn">Remover Autor</button>
         </div>
-        <div class="form-group">
-          <label for="cvv">CVV</label>
-          <input
-            type="text"
-            id="cvv"
-            placeholder="123"
-            required
-            maxlength="3"
-          />
-        </div>
-        <div class="price-charged">
-            <p>Canidad a Pagar:</p>
-            <h3>$4.990 COP</h3>
-        </div>
-        <div class="submmit-btn-container">
-            <button type="submit" class="submit-btn">Obtener Premium</button>
-        </div>
-        
-      </form>
-      <div v-else class="card">
-        <h2>Subscripto a Premium ✅</h2>
-        <p>Tu estas subscrito al premium actualmente.</p>
-        <p>Disgruta de funcionalidades unicas y nuestro soporte prioritario.</p>
-        <button @click="cancelSubscription" class="cancel-btn">Cancel Subscription</button>
-    </div>
     </div>
 </template>
   
@@ -117,6 +131,75 @@
             })
         }
     }
+    
+    async function volverseAutor() {
+        validarToken();
+
+        try {
+            const response = await axios.put('http://localhost:8000/usuario/me/become-autor', {}, {
+                headers: {
+                    Authorization: `Bearer ${token.value}`
+                }
+            })
+
+            Swal.fire({
+                title: '¡Ahora eres un Autor!',
+                icon: 'success',
+                text: response.data.detail
+            })
+
+            getTipoUsuario();
+        } catch (error) {
+            Swal.fire({
+                title: '¡Ha Ocurrido un Herror!',
+                icon: 'error',
+                text: error
+            })
+        }
+    }
+
+    async function validarRemoverAutor() {
+        Swal.fire({
+                title: '¿Seguro que Quieres Dejar de ser Autor?',
+                icon: 'question',
+                text: 'Tus obras serán eliminadas y no podras volver a recuperarlas despues.',
+                showCancelButton: true,
+                focusConfirm: false,
+                focusCancel: true,
+                confirmButtonText: 'Confirmar',
+                cancelButtonText: 'Cancelar',
+            }).then((result => {
+                if (result.isConfirmed) {
+                    removerAutor();
+                }
+            }))
+    }
+
+    async function removerAutor() {
+        validarToken();
+
+        try {
+            const response = await axios.put('http://localhost:8000/usuario/me/remove-autor', {}, {
+                headers: {
+                    Authorization: `Bearer ${token.value}`
+                }
+            })
+
+            Swal.fire({
+                title: '¡Ya no eres un Autor!',
+                icon: 'success',
+                text: response.data.detail
+            })
+
+            getTipoUsuario();
+        } catch (error) {
+            Swal.fire({
+                title: '¡Ha Ocurrido un Herror!',
+                icon: 'error',
+                text: error
+            })
+        }
+    }
 
     async function getTipoUsuario() {
         validarToken();
@@ -152,6 +235,8 @@
         width: 100%;
         height: 100%;
         display: flex;
+        flex-direction: column;
+        gap: 10px;
         align-items: center;
         justify-content: center;
     }

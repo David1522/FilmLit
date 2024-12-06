@@ -32,6 +32,7 @@
     }
 
     .contenido {
+        width: 100%;
         grid-area: contenido;
         justify-self: center;
         padding: 50px;

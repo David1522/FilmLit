@@ -24,6 +24,7 @@
 
     import { ref, onMounted } from 'vue';
     import axios from 'axios'; // Ensure axios is imported
+import router from '@/router';
 
     const token = ref('');
 

@@ -143,6 +143,7 @@ async def delete_usuario_me(current_user: Annotated[schemas.Usuario, Depends(get
 app.mount("/static/fotos_perfil", StaticFiles(directory="images/fotos_perfil"), name="fotos_perfil")
 app.mount("/static/publicaciones", StaticFiles(directory="images/publicaciones"), name="publicaciones")
 app.mount("/static/salas", StaticFiles(directory="images/salas"), name="salas")
+app.mount("/static/libros", StaticFiles(directory="images/libros"), name="libros")
 
 
 # Endpoints Perfil
@@ -276,7 +277,7 @@ async def get_publicaciones(perfil_usuario: Annotated[schemas.Perfil, Depends(ge
     offset = (page - 1) * size # Numero de publicaciones a skipear
     
     return schemas.PaginatedPubl(
-        data = crud.get_post_paginados(db, perfil_usuario.id_perfil, offset, size),
+        data = crud.get_post_paginados(db, offset, size),
         total = publ_totales,
         page = page,
         size = size,
@@ -434,6 +435,24 @@ async def update_usuario_type_down(usuario: Annotated[schemas.Usuario, Depends(g
         raise HTTPException(status_code=500, detail="Error: Usuario no encontrado.")
     
 
+@app.put("/usuario/me/become-autor")
+async def update_usuario_type_author(usuario: Annotated[schemas.Usuario, Depends(get_current_active_user)], db: Annotated[Session, Depends(get_db)]):
+    resultado = crud.become_author(db, usuario.id_usuario)
+    if resultado:
+        raise HTTPException(status_code=200, detail="¡Te has convertido en autor! Gracias por aportar a nuestra aplicacion.")
+    else:
+        raise HTTPException(status_code=500, detail="Error: Usuario no encontrado.")
+    
+    
+@app.put("/usuario/me/remove-autor")
+async def remove_usuario_type_author(usuario: Annotated[schemas.Usuario, Depends(get_current_active_user)], db: Annotated[Session, Depends(get_db)]):
+    resultado = crud.remove_author(db, usuario.id_usuario)
+    if resultado:
+        raise HTTPException(status_code=200, detail="¡Has dejado de ser autor!")
+    else:
+        raise HTTPException(status_code=500, detail="Error: Usuario no encontrado.")
+    
+
 # Endpoints Sala
 @app.get("/salas/{id_sala}", response_model=schemas.Sala)
 async def get_sala_endpoint(id_sala: int, db: Session = Depends(get_db)):
@@ -519,4 +538,48 @@ async def unirse_sala(id_sala: int, current_user: schemas.Usuario = Depends(get_
     
     crud.agregar_registro_acceso(db=db, id_perfil = current_user.id_usuario, id_sala=id_sala)
     
+
+#Endpoints Libros
+@app.get("/libros", response_model=schemas.PaginatedLibros)
+async def obtener_libros(perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)], page: int = 1, size: int = 10):
+    if page < 1 or size < 1:
+        raise HTTPException(status_code=400, detail="Invalid page or size paramenters")
+    
+    libros_totales = crud.get_total_num_books(db)
+    offset = (page - 1) * size
+    
+    libros_paginados = [schemas.Libro.from_orm(libro) for libro in crud.get_books_paginados(db, offset, size)]
+    
+    return schemas.PaginatedLibros(
+        data = libros_paginados,
+        total = libros_totales,
+        page = page,
+        size = size,
+        has_next = libros_totales > offset + size
+    )
+
+
+@app.post("/libros/crear")
+async def crear_libro(
+    current_user: Annotated[schemas.Usuario, Depends(get_current_active_user)],
+    db: Annotated[Session, Depends(get_db)],
+    titulo: Optional[str] = Form(None),
+    fecha_publicacion: Optional[datetime] = Form(None),
+    portada: Optional[UploadFile] = File(None)
+    ):
+    
+    directory = "images/libros"
+    file_name = None
+    
+    try:
+        file_name = f"{portada.filename}-{crud.get_total_num_books(db) + 1}-{current_user.id_usuario}.jpg"
+        file_path = os.path.join(directory, file_name)
+        
+        with open(file_path, "wb") as f:
+                f.write(await portada.read())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al guardar imagen de libro: {str(e)}")
+    
+    crud.crear_libro(db, current_user.id_usuario, titulo, fecha_publicacion, file_name)
+    return {"mensaje": "Publicacion creada correctamente"}
     

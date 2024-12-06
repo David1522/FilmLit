@@ -1,11 +1,12 @@
 <template>
     <div>
         <div class="button-container">
-            <router-link class="link" :to = "{name: 'Peliculas'}">Peliculas</router-link>
-            <router-link class="link" :to = "{name: 'Series'}">Series</router-link>
-            <router-link class="link" :to = "{name: 'Libros'}">Libros</router-link>
+            <router-link class="link peliculas" :to = "{name: 'Peliculas'}">Peliculas</router-link>
+            <router-link class="link series" :to = "{name: 'Series'}">Series</router-link>
+            <router-link class="link libros" :to = "{name: 'Libros'}">Libros</router-link>
+            <router-link class="link nuestros-autores" :to = "{name: 'LibrosAutores'}">Nuestros Autores</router-link>
         </div>
-        <router-view /> <!-- Aquí se cargarán las vistas hijas -->
+        <router-view class="router-container"/> <!-- Aquí se cargarán las vistas hijas -->
     </div>
 </template>
 
@@ -17,32 +18,45 @@ export default {
 </script>
 
 <style scoped>
-.button-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-.link {
-        justify-self: end;
-        width: 75px;
-        height: 30px;
-        background-color: var(--background-color-primary);
+    .button-container {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .link {
         color: var(--color-text-primary);
-        font-weight: 600;
-        font-size: 14px;
-        border: 1px solid var(--color-border);
+        height: 30px;
+        border: 1px solid var(--color-text-primary);
         border-radius: 15px;
-        margin: 10px;
+        padding: 0 15px;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 5px;
-        cursor: pointer;
         transition: background-color 200ms ease-in-out;
     }
 
-    .link:hover {
-        background-color: green;
+    .peliculas:hover {
+        background-color: #FCC737;
         transition: background-color 200ms ease-in-out;
+    }
+
+    .series:hover {
+        background-color: #F26B0F;
+        transition: background-color 200ms ease-in-out;
+    }
+
+    .libros:hover {
+        background-color: #E73879;
+        transition: background-color 200ms ease-in-out;
+    }
+
+    .nuestros-autores:hover {
+        background-color: #7E1891;
+        transition: background-color 200ms ease-in-out;
+    }
+
+    .router-container {
+        width: 100%;
     }
 </style>

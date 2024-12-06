@@ -156,3 +156,19 @@ class RegistroAcceso(RegistroAccesoBase):
     class Config:
         from_attributes = True
 
+
+# Schemas Mensajes
+class MensajeBase(BaseModel):
+    descripcion: str
+    multimedia: Optional[str] = None
+
+class MensajeCreate(MensajeBase):
+    id_registro_acceso: int
+
+class Mensaje(MensajeBase):
+    id_mensaje: int
+    id_registro_acceso: int
+    fecha: datetime
+    registro_acceso: Optional[RegistroAcceso] = None
+    class Config:
+        from_attributes = True

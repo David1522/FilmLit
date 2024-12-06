@@ -7,7 +7,8 @@
           <h2 class="sala-nombre">{{ sala.nombre }} <i id="candado" :class="sala.privado ? 'fas fa-lock' : 'fas fa-lock-open'"></i></h2>
           <p class="sala-anfitrion">Anfitrión: {{ sala.perfil.usuario.nombre_usuario }}</p>
           <p class="sala-descripcion">{{ sala.descripcion_corta }}</p>
-          <button class="accion-btn" @click="unirmeSala">Unirme</button>
+          <button v-if="yaUnido" class="accion-btn" @click="entrarSala(sala.id_sala)">Entrar</button>
+          <button v-else class="accion-btn" @click="unirmeSala">Unirme</button>
         </div>
       </div>
       <div class="sala-privado">
@@ -26,15 +27,18 @@
       v-if="mostrarInfoSala" 
       :sala="sala" 
       @close="cerrarInfoSala" 
+      @actualizarSalas="actualizarDatos" 
+      @registroAccesoObtenido="setRegistroAcceso"
     />
     <EditarSalaModal 
       v-if="mostrarEditarSala" 
       :sala="sala" 
       @close="cerrarEditarSala" 
-      @salaEditada="actualizarSalas" 
+      @salaEditada="actualizarDatos" 
     />
   </li>
 </template>
+
 
 <script>
 import EditarSalaModal from '@/components/salas/EditarSalaModal.vue';
@@ -48,14 +52,24 @@ export default {
   },
   props: {
     sala: Object,
-    userId: Number // Recibimos el ID del usuario actual
+    userId: Number, // Recibimos el ID del usuario actual
+    registrosAcceso: {
+      type: Array,
+      required: true
+    }
   },
   data() {
     return {
       mostrarOpciones: false, // Estado para mostrar u ocultar el dropdown
       mostrarEditarSala: false, // Estado para mostrar u ocultar el modal de edición
-      mostrarInfoSala: false // Estado para mostrar u ocultar el modal de información
+      mostrarInfoSala: false, // Estado para mostrar u ocultar el modal de información
+      registroAcceso: null // Información del registro de acceso
     };
+  },
+  computed: {
+    yaUnido() {
+      return this.registrosAcceso.some(registro => registro.id_sala === this.sala.id_sala);
+    }
   },
   methods: {
     toggleDropdown() {
@@ -92,10 +106,30 @@ export default {
     cerrarInfoSala() {
       this.mostrarInfoSala = false;
     },
+    entrarSala() {
+      this.obtenerRegistroAcceso(this.sala.id_sala);
+    },
+    async obtenerRegistroAcceso(id_sala) {
+      try {
+        const response = await axios.get(`http://localhost:8000/registro_acceso/${id_sala}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        this.registroAcceso = response.data;
+        this.mostrarChat(); // Mostrar el componente de chat con la información del registro de acceso
+      } catch (error) {
+        console.error('Error al obtener el registro de acceso:', error);
+      }
+    },
+    mostrarChat() {
+      // Redirigir al usuario al componente de chat con la información del registro de acceso
+      this.$router.push({ name: 'Chat', query: { registroAcceso: JSON.stringify(this.registroAcceso) } });
+    },
     unirmeSala() {
       this.mostrarInfoSala = true;
     },
-    actualizarSalas() {
+    actualizarDatos() {
       this.$emit('salaEditada');
     },
     handleClickOutside(event) {
@@ -112,6 +146,11 @@ export default {
   }
 };
 </script>
+
+
+
+
+
 
 
 

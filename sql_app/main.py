@@ -513,10 +513,62 @@ async def eliminar_sala_endpoint(id_sala: int, db: Session = Depends(get_db)):
     return {"message": "Sala deleted successfully"}
 
 
-#Endpoints sala_miembros
+#Endpoints RegistroAcceso
 @app.post("/salas/{id_sala}/unirme")
 async def unirse_sala(id_sala: int, current_user: schemas.Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+    existing_record = db.query(models.RegistroAcceso).filter(
+        models.RegistroAcceso.id_perfil == current_user.id_usuario,
+        models.RegistroAcceso.id_sala == id_sala
+    ).first()
+
+    if existing_record:
+        raise HTTPException(status_code=400, detail="Ya estas unido a esta sala!")
+    return crud.agregar_registro_acceso(db=db, id_perfil=current_user.id_usuario, id_sala=id_sala)
+
     
-    crud.agregar_registro_acceso(db=db, id_perfil = current_user.id_usuario, id_sala=id_sala)
+@app.get("/registros_acceso", response_model=List[schemas.RegistroAccesoBase])
+async def obtener_registros_acceso(db: Session = Depends(get_db)):
+    registros = crud.obtener_todos_registros_acceso(db)
+    return registros
+
+
+@app.get("/mi_registros_acceso")
+async def obtener_mis_registros_acceso(current_user: schemas.Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+    registros = crud.obtener_registros_acceso_usuario(db, current_user.id_usuario)
+    return registros
+
+
+@app.get("/registro_acceso/{id_sala}", response_model=schemas.RegistroAcceso)
+async def obtener_registro_acceso(id_sala: int, current_user: schemas.Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+    registro_acceso = db.query(models.RegistroAcceso).filter(
+        models.RegistroAcceso.id_sala == id_sala,
+        models.RegistroAcceso.id_perfil == current_user.id_usuario
+    ).first()
     
+    if not registro_acceso:
+        raise HTTPException(status_code=404, detail="Registro de acceso no encontrado")
     
+    return registro_acceso
+
+
+#EndPoints Mensajes
+
+@app.post("/mensajes", response_model=schemas.Mensaje)
+async def crear_mensaje(mensaje: schemas.MensajeCreate, db: Session = Depends(get_db)):
+    db_mensaje = models.Mensaje(**mensaje.dict())
+    db.add(db_mensaje)
+    db.commit()
+    db.refresh(db_mensaje)
+    return db_mensaje
+
+
+@app.get("/mensajes/{id_sala}", response_model=List[schemas.Mensaje])
+async def obtener_mensajes(id_sala: int, db: Session = Depends(get_db)):
+    mensajes = db.query(models.Mensaje).join(models.RegistroAcceso).filter(models.RegistroAcceso.id_sala == id_sala).all()
+    return mensajes
+
+
+@app.get("/mensajes/{id_sala}", response_model=List[schemas.Mensaje])
+async def obtener_mensajes(id_sala: int, db: Session = Depends(get_db)):
+    mensajes = db.query(models.Mensaje).join(models.RegistroAcceso).filter(models.RegistroAcceso.id_sala == id_sala).all()
+    return mensajes

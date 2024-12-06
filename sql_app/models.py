@@ -91,6 +91,7 @@ class Sala(Base):
 
     perfil = relationship("Perfil")
 
+
 class RegistroAcceso(Base):
     __tablename__ = "REGISTRO_ACCESO"
     
@@ -101,3 +102,15 @@ class RegistroAcceso(Base):
     
     sala = relationship("Sala")
     perfil = relationship("Perfil")
+
+
+class Mensaje(Base):
+    __tablename__ = "MENSAJE"
+    
+    id_mensaje = Column(Integer, primary_key=True, autoincrement=True)
+    id_registro_acceso = Column(Integer, ForeignKey("REGISTRO_ACCESO.id_registro_acceso", ondelete="CASCADE"))
+    descripcion = Column(String(280), nullable=False)
+    multimedia = Column(String(255), nullable=True)
+    fecha = Column(DateTime, default=datetime.utcnow)
+    
+    registro_acceso = relationship("RegistroAcceso")

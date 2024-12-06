@@ -356,6 +356,31 @@ def agregar_registro_acceso(db: Session, id_sala: int, id_perfil: int):
     db.commit()
     db.refresh(db_registro_acceso)
 
+# CRUD registro_acceso
+def agregar_registro_acceso(db: Session, id_sala: int, id_perfil: int):
+    # Verificar si ya existe un registro con el mismo id_perfil e id_sala
+    existing_record = db.query(models.RegistroAcceso).filter(
+        models.RegistroAcceso.id_perfil == id_perfil,
+        models.RegistroAcceso.id_sala == id_sala
+    ).first()
+    
+    if existing_record:
+        raise HTTPException(status_code=400, detail="El usuario ya está unido a esta sala.")
+    
+    db_registro_acceso = models.RegistroAcceso(
+        id_perfil=id_perfil,
+        id_sala=id_sala,
+        fecha=datetime.now()
+    )
+    db.add(db_registro_acceso)
+    db.commit()
+    db.refresh(db_registro_acceso)
+    return db_registro_acceso
 
-def obtener_miembros_sala(db: Session, id_sala: int):
-    return db.query(models.SalaMiembro).filter(models.SalaMiembro.id_sala == id_sala).all()
+
+def obtener_todos_registros_acceso(db: Session):
+    return db.query(models.RegistroAcceso).join(models.Sala).join(models.Perfil).join(models.Usuario).all()
+
+
+def obtener_registros_acceso_usuario(db: Session, id_perfil: int):
+    return db.query(models.RegistroAcceso).filter(models.RegistroAcceso.id_perfil == id_perfil).all()

@@ -10,6 +10,7 @@ import DetallesPublicacion from '@/components/publicaciones/DetallesPublicacion.
 import EditarPublicacion from '@/components/perfil/EditarPublicacion.vue';
 
 import Salas from '@/views/Salas.vue';
+import Chat from '@/views/Chat.vue';
 
 import Noticias from '@/views/Noticias.vue'
 
@@ -21,6 +22,7 @@ import LibrosAutores from '@/components/biblioteca/LibrosAutores.vue';
 import CrearLibroForm from '@/components/biblioteca/CrearLibroForm.vue';
 
 import Premium from '@/views/Premium.vue'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -74,6 +76,12 @@ const router = createRouter({
       path: '/premium',
       name: 'Premium',
       component: Premium,
+    },
+    {
+      path: '/chat',
+      name: 'Chat',
+      component: Chat,
+      props: route => ({ registroAcceso: JSON.parse(route.query.registroAcceso) }) // Aceptar props
     }
   ]
 })

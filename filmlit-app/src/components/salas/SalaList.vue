@@ -6,13 +6,16 @@
         :key="sala.id_sala"
         :sala="sala"
         :user-id="userId"
-        @salaEditada="fetchSalas"
+        :registros-acceso="registrosAcceso"
+        @salaEditada="actualizarDatos"
         @salaEliminada="fetchSalas"
       />
     </ul>
     <p v-else class="no-salas">No hay salas disponibles.</p>
   </div>
 </template>
+
+
 
 <script>
 import SalaItem from './SalaItem.vue';
@@ -23,15 +26,17 @@ export default {
     SalaItem
   },
   props: {
-    userId: Number // Recibimos el ID del usuario actual
+    userId: Number
   },
   data() {
     return {
-      salas: []
+      salas: [],
+      registrosAcceso: []
     };
   },
   created() {
     this.fetchSalas();
+    this.fetchRegistrosAcceso();
   },
   methods: {
     async fetchSalas() {
@@ -47,10 +52,30 @@ export default {
         console.error(error);
         alert('Error al cargar las salas.');
       }
+    },
+    async fetchRegistrosAcceso() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8000/mi_registros_acceso', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        this.registrosAcceso = response.data;
+      } catch (error) {
+        console.error(error);
+        alert('Error al cargar los registros de acceso.');
+      }
+    },
+    async actualizarDatos() {
+      await this.fetchSalas();
+      await this.fetchRegistrosAcceso();
     }
   }
 };
 </script>
+
+
 
 
 <style scoped>

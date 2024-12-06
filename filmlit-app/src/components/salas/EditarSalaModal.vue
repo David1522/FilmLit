@@ -41,7 +41,7 @@
   <script setup>
   import { computed, ref, watch, onUnmounted } from 'vue';
   import axios from 'axios';
-  
+  import Swal from 'sweetalert2';
   const props = defineProps({
     sala: Object,
   });
@@ -105,7 +105,11 @@
           "Content-Type": "multipart/form-data"
         }
       });
-      alert('Sala editada con éxito!');
+      Swal.fire({
+      title: 'Sala editada!',
+      icon: 'success',
+      text: 'La sala se edito satisfactoriamente!'
+      });
       emits('salaEditada');
       cerrarModal();
     } catch (error) {

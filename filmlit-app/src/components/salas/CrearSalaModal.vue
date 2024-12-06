@@ -122,8 +122,12 @@ async function crearSala() {
     if (error.response && error.response.status === 403) {
       mensaje.value = "No tienes permisos para crear una sala.";
     } else {
-      console.error(error);
-      mensaje.value = 'Error al crear la sala.';
+      Swal.fire({
+        title: 'Error al crear la sala.',
+        icon: 'error',
+        text: error.response.data.detail
+    })
+      console.log(error)
     }
   }
 }

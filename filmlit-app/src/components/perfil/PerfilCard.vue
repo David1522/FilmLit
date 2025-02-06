@@ -143,6 +143,7 @@
         height: 125px;
         border-radius: 50%;
         justify-self: center;
+        object-fit: cover;
     }
 
     .detalles-perfil {

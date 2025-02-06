@@ -22,7 +22,7 @@
   const userId = ref(null); // Guardamos el ID del usuario actual
   
   const puedeCrearSala = computed(() => {
-    return tipoUsuario.value === 'PREMIUM' || tipoUsuario.value === 'AUTHOR';
+    return tipoUsuario.value === 'PREMIUM' || tipoUsuario.value === 'AUTOR';
   });
   
   function mostrarCrearSala() {

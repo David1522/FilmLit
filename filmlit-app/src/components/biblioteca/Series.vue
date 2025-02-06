@@ -15,118 +15,114 @@
     </div>
 </template>
 
-<script>
-import axios from 'axios';
+<script setup>
+    import { ref, onMounted, onBeforeUnmount } from 'vue';
+    import axios from 'axios';
 
-export default {
-    data() {
-        return {
-            series: [],
-            page: 1,
-            isLoading: false,
-        };
-    },
-    mounted() {
-        this.getSeries();
-        this.debouncedScroll = debounce(this.handleScroll, 200); // Usamos debounce con un retraso de 200 ms
-        window.addEventListener('scroll', this.debouncedScroll);
-    },
-    beforeDestroy() {
-        window.removeEventListener('scroll', this.debouncedScroll);
-    },
-    methods: {
-        getSeries() {
-            if (this.isLoading) return;
-            this.isLoading = true;
-            axios.get(`https://api.themoviedb.org/3/tv/popular?api_key=efbd7d7c9ab8c82f03ba88c9ae89b34b&language=en-US&page=${this.page}`)
-                .then(response => {
-                    this.series.push(...response.data.results);
-                    this.page += 1;
-                    this.isLoading = false;
-                })
-                .catch(error => {
-                    console.error('Error al obtener las series:', error);
-                    this.isLoading = false;
-                });
-        },
-        handleScroll() {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
-                this.getSeries();
-            }
-        }
-    },
-    name: 'Series'
-};
+    const series = ref([]);
+    const page = ref(1);
+    const isLoading = ref(false);
 
-// Función de debounce
-function debounce(fn, delay) {
-    let timeout;
-    return function(...args) {
-        if (timeout) clearTimeout(timeout);
-        timeout = setTimeout(() => {
-            fn(...args);
-        }, delay);
+    const getSeries = () => {
+        if (isLoading.value) return;
+        isLoading.value = true;
+        axios.get(`https://api.themoviedb.org/3/tv/popular?api_key=efbd7d7c9ab8c82f03ba88c9ae89b34b&language=en-US&page=${page.value}`)
+            .then(response => {
+                series.value.push(...response.data.results);
+                page.value += 1;
+                isLoading.value = false;
+            })
+            .catch(error => {
+                console.error('Error al obtener las series:', error);
+                isLoading.value = false;
+            });
     };
-}
+
+    const handleScroll = () => {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+            getSeries();
+        }
+    };
+
+    // Función de debounce
+    const debounce = (fn, delay) => {
+        let timeout;
+        return (...args) => {
+            if (timeout) clearTimeout(timeout);
+            timeout = setTimeout(() => fn(...args), delay);
+        };
+    };
+
+    const debouncedScroll = debounce(handleScroll, 200);
+
+    onMounted(() => {
+        getSeries();
+        window.addEventListener('scroll', debouncedScroll);
+    });
+
+    onBeforeUnmount(() => {
+        window.removeEventListener('scroll', debouncedScroll);
+    });
 </script>
 
+
 <style scoped>
-.scroll-container {
-    overflow-y: auto;
-}
+    .scroll-container {
+        overflow-y: auto;
+    }
 
-.series-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    list-style: none;
-    padding: 0;
-}
+    .series-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        list-style: none;
+        padding: 0;
+    }
 
-.series-card {
-    position: relative;
-    width: 200px;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: var(--box-shadow);
-    display: flex;
-    flex-direction: column;
-    background-color: var(--background-color-primary);
-}
+    .series-card {
+        position: relative;
+        width: 200px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--box-shadow);
+        display: flex;
+        flex-direction: column;
+        background-color: var(--background-color-primary);
+    }
 
-.image-container {
-    flex-grow: 1;
-    overflow: hidden;
-}
+    .image-container {
+        flex-grow: 1;
+        overflow: hidden;
+    }
 
-.series-image {
-    width: 100%;
-    height: auto;
-}
+    .series-image {
+        width: 100%;
+        height: auto;
+    }
 
-.series-info {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px;
-    background-color: var(--background-color-primary);
-    color: var(--color-text-primary);
-}
+    .series-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px;
+        background-color: var(--background-color-primary);
+        color: var(--color-text-primary);
+    }
 
-.fa-regular {
-    font-size: 20px;
-    font-weight: 500;
-    border: 1px solid var(--color-text-primary);
-    border-radius: 50%;
-    padding: 5px;
-}
-.fa-regular:hover{
-    cursor: pointer;
-    font-weight: 600;
-}
-.series-title {
-    font-size: 16px;
-    font-weight: bold;
-    margin: 0;
-}
+    .fa-regular {
+        font-size: 20px;
+        font-weight: 500;
+        border: 1px solid var(--color-text-primary);
+        border-radius: 50%;
+        padding: 5px;
+    }
+    .fa-regular:hover{
+        cursor: pointer;
+        font-weight: 600;
+    }
+    .series-title {
+        font-size: 16px;
+        font-weight: bold;
+        margin: 0;
+    }
 </style>

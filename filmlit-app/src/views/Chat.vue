@@ -7,25 +7,19 @@
 </template>
 
 
-<script>
-import Header from '@/components/UI/Header.vue';
-import AccountBar from '@/components/UI/AccountBar.vue';
-import Chat from '@/components/salas/Chat.vue';
+<script setup>
+    import Header from '@/components/UI/Header.vue';
+    import AccountBar from '@/components/UI/AccountBar.vue';
+    import Chat from '@/components/salas/Chat.vue';
 
-export default {
-  components: {
-    Header,
-    AccountBar,
-    Chat
-  },
-  props: {
+    defineProps({
     registroAcceso: {
-      type: Object,
-      required: true
+        type: Object,
+        required: true
     }
-  }
-};
+    });
 </script>
+
 
 <style scoped>
     .main-container {

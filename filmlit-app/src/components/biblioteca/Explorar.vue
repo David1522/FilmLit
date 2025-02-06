@@ -10,11 +10,8 @@
     </div>
 </template>
 
-<script>
-import router from '@/router';
-export default {
-    name: 'Publicaciones'
-};
+<script setup>
+    import router from '@/router';
 </script>
 
 <style scoped>

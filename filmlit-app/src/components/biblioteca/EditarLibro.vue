@@ -1,32 +1,25 @@
 <template>
-    <div class="modal-crear-libro">
-        <div class="libro-contenedor">
-            <legend>Nuevo Libro</legend>
-            <form @submit.prevent="crearLibro">
+    <div class="model-editar-libro">
+        <div class="editar-libro-container">
+            <legend>Editar Libro</legend>
+            <form @submit.prevent="updateLibro">
                 <!-- Imagen Obligatoria -->
                 <div class="img-container">
                     <div class="img-default">
                         <img v-if="imagenUrl" :src="imagenUrl" alt="imagen-libro">
                     </div>
                     <div class="img-actions">
-                        <label for="file-upload" class="file-upload-btn">Añadir Portada</label>
+                        <label for="file-upload" class="file-upload-btn">Cambiar Portada</label>
                         <input
                             id="file-upload"
                             type="file"
                             accept="image/*"
                             @change="guardarImagen"
                         />
-                        <button
-                            v-if="portada"
-                            type="button"
-                            class="borrar-img-btn"
-                            @click="borrarImagen"
-                        >
-                            Borrar
-                        </button>
                     </div>
                 </div>
 
+                <!-- Título -->
                 <div class="input-container">
                     <label for="titulo" class="label-titulo">Título:</label>
                     <input
@@ -41,6 +34,7 @@
                     />
                 </div>
 
+                <!-- Fecha de Publicación -->
                 <div class="input-container">
                     <label for="fecha-publicacion" class="label-fecha">Fecha de Publicación:</label>
                     <input
@@ -69,76 +63,103 @@
 </template>
 
 <script setup>
-    import { ref, computed } from "vue";
-    import axios from "axios";
-    import Swal from "sweetalert2";
-    import router from "@/router";
+    import { ref, computed, onMounted, defineProps } from 'vue';
+    import axios from 'axios';
+    import Swal from 'sweetalert2';
+    import router from '@/router';
 
     const token = ref('');
 
-    const titulo = ref("");
-    const fechaPublicacion = ref("");
+    const idLibro = ref('');
     const portada = ref(null);
+    const titulo = ref('');
+    const fechaPublicacion = ref('');
+
+    const multimedia = ref(null);
     const objectUrl = ref(null);
 
-    // URL de la portada para previsualización
-    const imagenUrl = computed(() => (portada.value ? URL.createObjectURL(portada.value) : null));
+    const props = defineProps({
+        idBook: String
+    });
 
-    // Función para guardar la imagen seleccionada
-    function guardarImagen(event) {
-        if (event.target.files.length > 0) {
-            portada.value = event.target.files[0];
+    const imagenUrl = computed(() => {
+        if (multimedia.value) {
+            if (objectUrl.value) URL.revokeObjectURL(objectUrl);
+            objectUrl.value = URL.createObjectURL(multimedia.value);
+            return objectUrl.value;
         }
-    }
 
-    // Función para borrar la imagen seleccionada
-    function borrarImagen() {
-        portada.value = null;
-        if (objectUrl.value) {
-            URL.revokeObjectURL(objectUrl.value);
-            objectUrl.value = null;
+        if (portada.value) {
+            return `http://localhost:8000/static/libros/${portada.value}?${Date.now()}`;
         }
-    }
+    });
 
-    async function crearLibro() {
+    async function fetchBookData() {
         validarToken();
 
-        if (!portada.value) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "La portada es obligatoria.",
+        try {
+            const response = await axios.get(`http://localhost:8000/libros/${props.idBook}`, {
+                headers: {
+                    Authorization: `Bearer ${token.value}`
+                }
             });
-            return;
+
+            console.log(response.data);
+
+            idLibro.value = response.data.id_libro;
+            portada.value = response.data.portada;
+            titulo.value = response.data.titulo;
+            fechaPublicacion.value = response.data.fecha_publicacion.split("T")[0];
+            
+        } catch(error) {
+            console.log(error);
         }
+    }
+
+    function guardarImagen(event) {
+        if (event.target.files.length > 0) {
+            multimedia.value = event.target.files[0];
+        }
+    }
+
+    async function updateLibro () {
+        validarToken();
 
         const formData = new FormData();
-        formData.append("titulo", titulo.value);
-        formData.append("fecha_publicacion", fechaPublicacion.value);
-        formData.append("portada", portada.value);
+        formData.append('id_libro', idLibro.value);
+        formData.append('titulo', titulo.value);
+        formData.append('fecha_publicacion', fechaPublicacion.value);
+        if (multimedia.value) formData.append('multimedia', multimedia.value);
+
+        formData.forEach((arg) => {
+            console.log(arg)
+        })
+        
 
         try {
-            const response = await axios.post("http://localhost:8000/libros/crear", formData, {
+            const response = await axios.put('http://localhost:8000/libro', formData, {
                 headers: {
                     Authorization: `Bearer ${token.value}`,
-                    "Content-Type": "multipart/form-data",
-                },
+                    'Content-Type': 'multipart/form-data'
+                }
             });
 
             Swal.fire({
-                icon: "success",
-                title: "Libro creado",
-                text: response.data.message,
+                icon: 'success',
+                title: 'Publicacion Actualizada',
+                text: response.data.mensaje
             });
 
-            router.push("/biblioteca/libros-autores");
+            router.push('/biblioteca/libros-autores')
         } catch (error) {
             Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: error.response.data.detail || "No se pudo crear el libro.",
+                icon: 'error',
+                title: 'Error al Actualizar Publicacion',
+                text: error.response?.data?.detail || 'Error desconocido',
             });
-            router.push("/biblioteca/libros-autores");
+
+            console.log(error);
+            router.go(-1);
         }
     }
 
@@ -149,10 +170,14 @@
             return;
         }
     }
+
+    onMounted(() => {
+        fetchBookData();
+    });
 </script>
 
-<style scoped>
-    .modal-crear-libro {
+<style lang="scss">
+    .model-editar-libro {
         width: 100%;
         height: 100%;
         background-color: var(--background-color-blur);
@@ -161,9 +186,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        position: absolute;
+        top: 0;
+        left: 0;
     }
 
-    .libro-contenedor {
+    .editar-libro-container {
         width: 100%;
         max-width: 450px;
         height: auto;
@@ -193,10 +221,11 @@
     }
 
     .img-default > img {
-        width: 150px;
-        height: 150px;
+        width: 200px;
+        height: 250px;
         border-radius: 15px;
         margin-bottom: 5px;
+        object-fit: cover;
     }
 
     input[type="file"] {
@@ -207,6 +236,7 @@
         width: 100%;
         padding: 10px;
         display: flex;
+        justify-content: center;
     }
 
     .file-upload-btn {

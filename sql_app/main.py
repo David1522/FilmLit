@@ -323,7 +323,7 @@ async def update_publicacion(
     directory = "images/publicaciones"
     file_name = None
     
-    publiacion = crud.get_post(db, id_publicacion)
+    publicacion = crud.get_post(db, id_publicacion)
     
     if multimedia:
         try:
@@ -336,7 +336,7 @@ async def update_publicacion(
             raise HTTPException(status_code=500, detail=f"Error al guardar foto de perfil: {str(e)}")
         
     if eliminar_multimedia:
-        file_name = publiacion.multimedia
+        file_name = publicacion.multimedia
         print(f"Nombre de la foto a eliminar: {file_name}")
         file_path = os.path.join(directory, file_name)
         if os.path.exists(file_path):
@@ -356,8 +356,8 @@ async def delete_publicacion(id_publicacion: int, db: Annotated[Session, Depends
 
 @app.get("/publicaciones/validacion/{id_publicacion}")
 async def validar_publicacion_usuario(id_publicacion: int, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
-    post_exist = crud.get_post_own_valdiation(db, perfil_usuario.id_perfil, id_publicacion)
-    if post_exist:
+    post_is_own = crud.get_post_own_valdiation(db, perfil_usuario.id_perfil, id_publicacion)
+    if post_is_own:
         return True
     else:
         return False
@@ -587,6 +587,23 @@ async def obtener_libros(perfil_usuario: Annotated[schemas.Perfil, Depends(get_c
         size = size,
         has_next = libros_totales > offset + size
     )
+    
+    
+@app.get("/libros/{id_libro}", response_model=schemas.Libro)
+async def obtener_libro(id_libro: int, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
+    libro = crud.get_libro(db, id_libro)
+    if libro is None:
+        raise HTTPException(status_code=404, detail="Libro no encontrado")
+    return libro
+
+
+@app.get("/libros/validacion/{id_libro}")
+async def validar_libro_usuario(id_libro: int, usuario: Annotated[schemas.Usuario, Depends(get_current_active_user)], db: Annotated[Session, Depends(get_db)]):
+    book_is_own = crud.get_book_own_validation(db, usuario.id_usuario, id_libro)
+    if book_is_own:
+        return True
+    else:
+        return False
 
 
 @app.post("/libros/crear")
@@ -613,17 +630,52 @@ async def crear_libro(
     crud.crear_libro(db, current_user.id_usuario, titulo, fecha_publicacion, file_name)
     return {"mensaje": "Publicacion creada correctamente"}
     
-
+    
+@app.put("/libro")
+async def update_libro(
+    perfi_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)],
+    db: Annotated[Session, Depends(get_db)],
+    id_libro: Optional[str] = Form(None),
+    titulo: Optional[str] = Form(None),
+    fecha_publicacion: Optional[date] = Form(None),
+    multimedia: Optional[UploadFile] = File(None),
+    eliminar_multimedia: Optional[bool] = Form(None)
+):
+    
+    libro = crud.get_libro(db, id_libro)
+    
+    directory = "images/libros"
+    file_name = libro.portada
+    
+    if multimedia:
+        try:
+            file_name = f"{multimedia.filename}-{crud.get_total_num_books(db) + 1}-{perfi_usuario.id_perfil}.jpg"
+            file_path = os.path.join(directory, file_name)
+            
+            with open(file_path, "wb") as f:
+                f.write(await multimedia.read())
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error al guardar la portada del libro.")
+        
+        old_file_path = os.path.join(directory, libro.portada)
+        
+        if os.path.exists(old_file_path):
+            os.remove(old_file_path)
+        else:
+            raise HTTPException(status_code=500, detail=f"Error al eliminar portada antigua.")
+        
+    
+    crud.actualizar_libro(db, id_libro, titulo, fecha_publicacion, file_name)
+    return {"mensaje": "!El libro ha sido actualizado correctamente!"}
 
 
 #EndPoints Mensajes
-
 @app.post("/mensajes", response_model=schemas.Mensaje)
 async def crear_mensaje(mensaje: schemas.MensajeCreate, db: Session = Depends(get_db)):
     db_mensaje = models.Mensaje(**mensaje.dict())
     db.add(db_mensaje)
     db.commit()
-    db.refresh(db_mensaje)
+    db.refresh(db_mensaje)  
     return db_mensaje
 
 

@@ -22,6 +22,7 @@ import LibrosAutores from '@/components/biblioteca/LibrosAutores.vue';
 import CrearLibroForm from '@/components/biblioteca/CrearLibroForm.vue';
 
 import Premium from '@/views/Premium.vue'
+import EditarLibro from '@/components/biblioteca/EditarLibro.vue';
 
 
 const router = createRouter({
@@ -59,6 +60,7 @@ const router = createRouter({
           { path: 'series', name: 'Series', component: Series },
           { path: 'libros', name: 'Libros', component: Libros },
           { path: 'libros-autores', name: 'LibrosAutores', component: LibrosAutores },
+          { path: '/editar-libro/editar/:idBook', name: 'EditarLibro', component: EditarLibro, props: true },
           { path: 'crear-libro', name: 'CrearLibro', component: CrearLibroForm }
       ],
     },

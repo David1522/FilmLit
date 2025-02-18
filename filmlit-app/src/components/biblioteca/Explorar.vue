@@ -6,7 +6,8 @@
             <router-link class="link libros" :to = "{name: 'Libros'}">Libros</router-link>
             <router-link class="link nuestros-autores" :to = "{name: 'LibrosAutores'}">Nuestros Autores</router-link>
         </div>
-        <router-view class="router-container"/> <!-- Aquí se cargarán las vistas hijas -->
+
+        <router-view class="router-container"/>
     </div>
 </template>
 

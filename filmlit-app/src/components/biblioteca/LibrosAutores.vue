@@ -1,6 +1,6 @@
 <template>
     <div class="header-section">
-        <h2 style="color: var(--color-text-primary); margin-bottom: 15px;">Libros de Nuestros Autores</h2>
+        <h2>Libros de Nuestros Autores</h2>
         <button v-if="tipoUsuario === 'AUTOR'" @click="router.push('/biblioteca/crear-libro')" class="btn-crear">Añadir Obra</button>
     </div>
 
@@ -13,23 +13,28 @@
                 class="book-image" 
             />
             </div>
+
             <div class="book-info">
-                <h2 class="book-title">{{ libro.titulo }}</h2>
+                <div class="book-options">
+                    <h2 class="book-title">{{ libro.titulo }}</h2>
+                    <OpcionesLibroAutores :idBook="libro.id_libro"/>
+                </div>
+                
+
                 <p class="book-author">
-                    Autor: {{ libro.usuario.nombre_usuario }}
+                    <span clas="property">Autor:</span> {{ libro.usuario.nombre_usuario }}
                 </p>
                 <p class="book-publ-date">
-                    Publicado: {{ formatearFecha(libro.fecha_publicacion) }}
+                    <span clas="property">Publicado:</span> {{ formatearFecha(libro.fecha_publicacion) }}
                 </p>
-                <div class="favorite-container">
-                    <i class="fa-regular fa-heart" title="Añadir a favoritos"></i>
-                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
+    import OpcionesLibroAutores from './OpcionesLibroAutores.vue';
+
     import { ref, onMounted } from 'vue';
     import axios from 'axios';
     import router from '@/router';
@@ -112,6 +117,11 @@
         justify-content: space-between;
     }
 
+    .header-section > h2 {
+        color: var(--color-text-primary);
+        margin-bottom: 15px;
+    }
+
     .scroll-container {
         display: flex;
         flex-wrap: wrap;
@@ -147,6 +157,12 @@
     .book-info {
         padding: 10px;
         color: var(--color-text-primary);
+    }
+
+    .book-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
     }
 
     .book-title {

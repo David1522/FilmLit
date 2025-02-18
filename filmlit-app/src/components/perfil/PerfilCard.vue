@@ -125,7 +125,6 @@
     onMounted(() => {
         fetchPerfilUsuario();
         validarPerfilPropio();
-
     })
 </script>
 

@@ -36,6 +36,7 @@
         grid-area: contenido;
         justify-self: center;
         padding: 50px;
+        position: relative;
     }
 
     @media (max-width: 800px) {

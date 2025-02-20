@@ -669,6 +669,12 @@ async def update_libro(
     return {"mensaje": "!El libro ha sido actualizado correctamente!"}
 
 
+@app.delete("/libros/{id_libro}")
+async def delete_libro(id_libro: int, perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_user_perfil)], db: Annotated[Session, Depends(get_db)]):
+    result = crud.eliminar_libro(db, id_libro)
+    return {"message": result}
+
+
 #EndPoints Mensajes
 @app.post("/mensajes", response_model=schemas.Mensaje)
 async def crear_mensaje(mensaje: schemas.MensajeCreate, db: Session = Depends(get_db)):

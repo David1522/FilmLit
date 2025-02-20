@@ -42,11 +42,12 @@
 </template>
 
 <script setup>
-    import { defineProps, onMounted, ref } from 'vue';
+    import { defineProps, onMounted, ref, defineEmits } from 'vue';
     import axios from 'axios';
     import router from '@/router';
+    import Swal from 'sweetalert2';
 
-    const emits = defineEmits();
+    const emits = defineEmits(['bookDeleted']);
     
     const token = ref('');
     const props = defineProps({
@@ -73,11 +74,31 @@
         }
     }
 
-    const handleCommand =  (command) => {
+    const handleCommand = async (command) => {
         if (command == 'editar') {
             router.push({ name: 'EditarLibro', params: { idBook: props.idBook } });
         } else if (command === 'eliminar') {
-            console.log("Libro eliminado.")
+            try {
+                const response = await axios.delete(`http://localhost:8000/libros/${props.idBook}`, {
+                    headers: {
+                        Authorization: `Bearer ${token.value}`
+                    }
+                });
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Libro Eliminado',
+                    text: response.data.message
+                });
+
+                emits("bookDeleted");
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al Eliminar Libro',
+                    text: error
+                });
+            }
         } else if (command === 'guardar') {
             console.log('Libro guardado a favoritos.')
         } else {

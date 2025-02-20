@@ -17,7 +17,7 @@
             <div class="book-info">
                 <div class="book-options">
                     <h2 class="book-title">{{ libro.titulo }}</h2>
-                    <OpcionesLibroAutores :idBook="libro.id_libro"/>
+                    <OpcionesLibroAutores :idBook="libro.id_libro" @bookDeleted="getLibrosPaginados"/>
                 </div>
                 
 

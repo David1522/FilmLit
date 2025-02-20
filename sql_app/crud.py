@@ -451,8 +451,10 @@ def actualizar_libro(db: Session, id_libro: str, titulo: str, fecha_publicacion:
     
 def eliminar_libro(db: Session, id_libro: int):
     libro_db = get_libro(db, id_libro)
-    db.delete(libro_db)
-    db.commit()
     
-
-
+    if libro_db is None:
+        return 'Libro no encontrado con ID: ' + id_libro
+    else:
+        db.delete(libro_db)
+        db.commit()
+        return "Libro eliminado exitosamente."

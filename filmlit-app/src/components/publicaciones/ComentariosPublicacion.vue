@@ -10,7 +10,7 @@
 
                 <span class="fecha">{{ formattedDate(comentario.fecha) }}</span>
             </div>
-            <opciones-comentario :isOwnComent="comentario.perfil.id_perfil == idPerfil" :idComentario="comentario.id_comentario"/>
+            <opciones-comentario :isOwnComent="comentario.perfil.id_perfil == idPerfil" :idComentario="comentario.id_comentario" @comment-deleted="commentDeleted"/>
         </div>
     </div>
 </template>
@@ -20,13 +20,14 @@
 
     import router from '@/router';
     import axios from 'axios';
-    import { onMounted, ref } from 'vue';
+    import { onMounted, ref, defineEmits } from 'vue';
     import { useRoute } from 'vue-router';
     import { format } from 'date-fns';
 
     const route = useRoute();
-    const emit = defineEmits(['childCliked']);
     const token = ref('');
+
+    const emits = defineEmits(['update-post']);
 
     const idPerfil = ref(null)
     const comentarios = ref([])
@@ -104,6 +105,12 @@
             router.push('/');
             return;
         }
+    }
+
+    function commentDeleted() {
+        actualizarComentarios();
+        console.log("Emitting update-post event");
+        emits("update-post");
     }
 
     defineExpose({

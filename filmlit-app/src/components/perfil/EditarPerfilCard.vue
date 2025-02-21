@@ -103,7 +103,7 @@
 
         // Si hay una foto de perfil valida
         if (perfil.value && perfil.value.foto_perfil) {
-            return `http://localhost:8000/static/fotos_perfil/${perfil.value.foto_perfil}?${Date.now}`;
+            return `http://localhost:8000/static/fotos_perfil/${perfil.value.foto_perfil}?${Date.now()}`;
         }
 
         // Devuelve imagen por defecto si no exite ninguno de los casos
@@ -179,7 +179,7 @@
 
     // Limpiamos el objeto URL para evitar alguna fuga de informacion en la memoria
     onUnmounted(() => {
-        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        if (objectUrl.value) URL.revokeObjectURL(objectUrl);
     });
 </script>
 

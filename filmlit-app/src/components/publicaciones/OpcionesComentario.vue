@@ -33,7 +33,7 @@
     import router from '@/router';
     import Swal from 'sweetalert2';
 
-    const emits = defineEmits();
+    const emits = defineEmits(['comment-deleted']);
     
     const token = ref('');
     const props = defineProps({
@@ -65,6 +65,8 @@
                 icon: 'success',
                 text: response.data.detail
             })
+
+            emits("comment-deleted");
         } catch (error) {
             Swal.fire({
                 title: 'Ha Ocurrido un Error',

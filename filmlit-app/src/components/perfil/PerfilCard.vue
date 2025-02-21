@@ -90,7 +90,7 @@
 
     const fotoPerfilUrl = computed(() => {
         return perfil.value && perfil.value.foto_perfil
-            ? `http://localhost:8000/static/fotos_perfil/${perfil.value.foto_perfil}?${Date.now}`
+            ? `http://localhost:8000/static/fotos_perfil/${perfil.value.foto_perfil}?${Date.now()}`
             : "http://localhost:8000/static/fotos_perfil/pfp-icon.jpg";
     });
 

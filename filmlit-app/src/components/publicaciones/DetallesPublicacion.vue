@@ -45,7 +45,7 @@
                 <CrearComentario @comentario-creado="actualizarPublicacion"/>
             </div>
             <div class="seccion-comentarios">
-                <ComentariosPublicacion ref="comentariosPublicacion"/>
+                <ComentariosPublicacion ref="comentariosPublicacion" @update-post="actualizarPublicacion"/>
             </div>
         </div>
         <div v-else>Cargando Publicacion...</div>

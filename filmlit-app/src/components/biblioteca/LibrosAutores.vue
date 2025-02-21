@@ -11,12 +11,13 @@
                 :src="`http://localhost:8000/static/libros/${libro.portada}?${Date.now}`" 
                 alt="Portada del libro" 
                 class="book-image" 
+                @click="router.push({ name: 'DetallesLibro', params: { idBook: libro.id_libro } });"
             />
             </div>
 
             <div class="book-info">
                 <div class="book-options">
-                    <h2 class="book-title">{{ libro.titulo }}</h2>
+                    <h2 class="book-title" @click="router.push({ name: 'DetallesLibro', params: { idBook: libro.id_libro } });">{{ libro.titulo }}</h2>
                     <OpcionesLibroAutores :idBook="libro.id_libro" @bookDeleted="getLibrosPaginados"/>
                 </div>
                 
@@ -27,6 +28,10 @@
                 <p class="book-publ-date">
                     <span clas="property">Publicado:</span> {{ formatearFecha(libro.fecha_publicacion) }}
                 </p>
+
+                <div class="favorite-container">
+                    <i class="fa-regular fa-heart" title="Añadir a favoritos"></i>
+                </div>
             </div>
         </div>
     </div>
@@ -169,6 +174,10 @@
         font-size: 16px;
         font-weight: bold;
         margin: 0 0 5px;
+    }
+
+    .book-title:hover {
+        text-decoration: underline;
     }
 
     .book-author,

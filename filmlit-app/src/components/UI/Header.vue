@@ -24,7 +24,7 @@
 
     import { ref, onMounted } from 'vue';
     import axios from 'axios'; // Ensure axios is imported
-import router from '@/router';
+    import router from '@/router';
 
     const token = ref('');
 
@@ -99,7 +99,6 @@ import router from '@/router';
 
     .nav-bar > a:hover {
         background-color: var(--background-color-secondary);
-        
     }
 
     .icon {
@@ -117,14 +116,17 @@ import router from '@/router';
         transition: font-size ease 300ms;
     }
 
-    @media (max-width: 770px) {
+    @media (max-width: 800px) {
         .nav-bar {
-            grid-template: 1fr / repeat(9, 1fr)
+            grid-template: 1fr / repeat(8, 1fr);
+            width: 90%;
+            margin: 0 auto;
         }
 
         .nav-bar > a {
             padding: 0;
-            height: 65%;
+            width: 30px;
+            height: 30px;
             align-self: center;
         }
 

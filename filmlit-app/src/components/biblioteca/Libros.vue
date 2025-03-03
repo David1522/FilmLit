@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll-container">
+  <div class="scroll-container" @scroll="handleScroll">
     <h2 style="color: var(--color-text-primary); margin-bottom: 15px;">Libros Populares</h2>
 
     <ul v-if="books.length" class="book-list">
@@ -72,11 +72,13 @@
   }
 
   function handleScroll() {
-    const bottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight;
-    if (bottom && !loading.value) {
-      startIndex.value += maxResults;
-      searchBooks(query.value, startIndex.value);
-    }
+        const container = document.querySelector('.scroll-container');
+        const inferiorContainer = container.scrollHeight - container.scrollTop <= container.clientHeight + 200;
+
+        if (inferiorContainer) {
+          startIndex.value += maxResults;
+          searchBooks(query.value, startIndex.value);
+        }
   }
 
   function truncateTitle(title, maxLength = 20) {
@@ -86,109 +88,116 @@
   onMounted(() => {
     query.value = generateRandomQuery();
     searchBooks();
-    window.addEventListener('scroll', handleScroll);
   });
 
-  onBeforeUnmount(() => {
-    window.removeEventListener('scroll', handleScroll);
-  });
   </script>
 
-  <style scoped>
-  .scroll-container {
-    height: calc(100vh - 190px);
-    overflow-y: auto;
-    padding: 16px;
-    box-sizing: border-box;
-    scrollbar-width: none;
-  }
-
-  .scroll-container::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Edge */
-  }
-
-  /* Estilos para la lista de libros */
-  .book-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .book-card {
-    width: 200px;
-    border: 1px solid var(--color-border);
-    border-radius: 12px;
-    overflow: hidden;
-    background-color: var(--background-color-primary);
-    box-shadow: var(--box-shadow);
-    transition: transform 0.3s;
-  }
-
-  .book-card:hover {
-    transform: scale(1.05);
-    cursor: pointer;
-  }
-
-  .image-container {
-    overflow: hidden;
-  }
-
-  .book-image {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-  }
-
-  .book-info {
-    padding: 10px;
-    color: var(--color-text-primary);
-  }
-
-  .book-title {
-    font-size: 16px;
-    font-weight: bold;
-    margin: 0 0 5px;
-  }
-
-  .book-author,
-  .book-publ-date,
-  .book-categories {
-    font-size: 14px;
-    margin: 0 0 5px;
-  }
-
-  .favorite-container {
-    width: 100%;
-    display: flex;
-    justify-content: left;
-  }
-
-  .fa-regular {
-    font-size: 20px;
-    font-weight: 500;
-    padding: 5px;
-    cursor: pointer;
-  }
-
-  .fa-regular:hover {
-    font-weight: 600;
-  }
-
-  .navbar {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    height: 80px;
-    background-color: var(--background-color-primary);
-    z-index: 1000; /* Más alto que el contenido */
-  }
-
-  @media (max-width: 800px) {
+<style scoped>
     .scroll-container {
-      height: calc(100vh - 350px);
+        width: 100%;
+        height: calc(100vh - 190px);
+        overflow-y: auto;
+        box-sizing: border-box;
+        scrollbar-width: none;
     }
-  }
+
+    .scroll-container::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Edge */
+    }
+
+    /* Estilos para la lista de libros */
+    .book-list {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        list-style: none;
+        padding: 10px;
+        margin: 0;
+    }
+
+    .book-card {
+        width: 100%;
+        max-width: 300px;
+        height: 450px;
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        overflow: hidden;
+        background-color: var(--background-color-primary);
+        box-shadow: var(--box-shadow);
+        transition: transform 0.3s;
+    }
+
+    .book-card:hover {
+        transform: scale(1.05);
+        cursor: pointer;
+    }
+
+    .image-container {
+        overflow: hidden;
+    }
+
+    .book-image {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+    }
+
+    .book-info {
+        padding: 10px;
+        color: var(--color-text-primary);
+    }
+
+    .book-title {
+        font-size: 16px;
+        font-weight: bold;
+        margin: 0 0 5px;
+    }
+
+    .book-author,
+    .book-publ-date,
+    .book-categories {
+        font-size: 14px;
+        margin: 0 0 5px;
+    }
+
+    .favorite-container {
+        width: 100%;
+        display: flex;
+        justify-content: left;
+    }
+
+    .fa-regular {
+        font-size: 20px;
+        font-weight: 500;
+        padding: 5px;
+        cursor: pointer;
+    }
+
+    .fa-regular:hover {
+        font-weight: 600;
+    }
+
+    .navbar {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        height: 80px;
+        background-color: var(--background-color-primary);
+        z-index: 1000; /* Más alto que el contenido */
+    }
+
+    @media (max-width: 800px) {
+        .scroll-container {
+            height: calc(100vh - 355px);
+        }
+    }
+
+    @media (max-width: 1030px) {
+        .book-card {
+            width: 100%;
+            max-width: 250px;
+        }
+    }
 </style>

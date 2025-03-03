@@ -28,7 +28,7 @@
         height: 40px;
     }
 
-    @media (max-width: 770px) {
+    @media (max-width: 800px) {
         .logo-container {
             display: none;
         }

@@ -1,17 +1,23 @@
 <template>
-    <div class="scroll-container">
-        <h1 style="color: var(--color-text-primary);">Películas Populares</h1>
+    <div class="scroll-container" @scroll="handleScroll">
+        <h1 style="color: var(--color-text-primary); margin-bottom: 15px;">Películas Populares</h1>
+
         <ul v-if="peliculas" class="movie-list">
             <li v-for="pelicula in peliculas" :key="pelicula.id" class="movie-card">
                 <div class="image-container">
                     <img :src="'https://image.tmdb.org/t/p/w500' + pelicula.poster_path" alt="Poster" class="movie-image"/>
                 </div>
+
                 <div class="movie-info">
                     <h2 class="movie-title">{{ pelicula.title }}</h2>
-                    <i class="fa-regular fa-heart"></i>
+                    <div class="favorite-container">
+                        <i class="fa-regular fa-heart" title="Añadir a favoritos"></i>
+                    </div>
                 </div>
             </li>
         </ul>
+
+        <p v-if="!peliculas.length && hasSearched" class="no-results">No se encontraron resultados.</p>
     </div>
 </template>
 
@@ -39,100 +45,117 @@
     };
 
     const handleScroll = () => {
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+        const container = document.querySelector('.scroll-container');
+        const inferiorContainer = container.scrollHeight - container.scrollTop <= container.clientHeight + 200;
+
+        if (inferiorContainer) {
             getPeliculas();
         }
     };
 
-    // Función de debounce
-    const debounce = (fn, delay) => {
-        let timeout;
-        return (...args) => {
-            if (timeout) clearTimeout(timeout);
-            timeout = setTimeout(() => fn(...args), delay);
-        };
-    };
-
-    const debouncedScroll = debounce(handleScroll, 200);
-
     onMounted(() => {
         getPeliculas();
-        window.addEventListener('scroll', debouncedScroll);
-    });
-
-    onBeforeUnmount(() => {
-        window.removeEventListener('scroll', debouncedScroll);
     });
 </script>
 
 <style scoped>
+    .scroll-container {
+        width: 100%;
+        height: calc(100vh - 190px);
+        overflow-y: auto;
+        box-sizing: border-box;
+        scrollbar-width: none;
+    }
+
+    .scroll-container::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Edge */
+    }
+
     .movie-list {
         display: flex;
+        align-items: center;
+        justify-content: center;
         flex-wrap: wrap;
         gap: 16px;
         list-style: none;
-        padding: 0;
+        padding: 10px;
+        margin: 0;
     }
 
     .movie-card {
-        position: relative;
-        width: 200px;
+        width: 100%;
+        max-width: 300px;
+        height: 450px;
+        border: 1px solid var(--color-border);
         border-radius: 12px;
         overflow: hidden;
-        box-shadow: var(--box-shadow);
-        display: flex;
-        flex-direction: column;
         background-color: var(--background-color-primary);
+        box-shadow: var(--box-shadow);
+        transition: transform 0.3s;
+    }
+
+    .movie-card:hover {
+        transform: scale(1.05);
+        cursor: pointer;
     }
 
     .image-container {
-        flex-grow: 1;
         overflow: hidden;
     }
 
     .movie-image {
         width: 100%;
-        height: auto;
+        height: 350px;
+        object-fit: cover;
     }
 
     .movie-info {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 8px;
-        background-color: var(--background-color-primary);
+        padding: 10px;
         color: var(--color-text-primary);
-    }
-
-    .fa-regular {
-        font-size: 20px;
-        font-weight: 500;
-        border: 1px solid var(--color-text-primary);
-        border-radius: 50%;
-        padding: 5px;
-    }
-    .fa-regular:hover{
-        cursor: pointer;
-        font-weight: 600;
     }
 
     .movie-title {
         font-size: 16px;
         font-weight: bold;
-        margin: 0;
+        margin: 0 0 5px;
     }
-    .load-more-btn {
-        display: block;
-        margin: 20px auto;
-        padding: 10px 20px;
-        font-size: 16px;
+
+    .favorite-container {
+        width: 100%;
+        display: flex;
+        justify-content: left;
+    }
+
+    .fa-regular {
+        font-size: 20px;
+        font-weight: 500;
+        padding: 5px;
         cursor: pointer;
-        background-color: var(--background-color-primary);
-        color: var(--color-text-primary);
-        border: none;
-        border-radius: 8px;
     }
-    .scroll-container {
-        overflow-y: auto;
+
+    .fa-regular:hover {
+        font-weight: 600;
+    }
+
+    .navbar {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        height: 80px;
+        background-color: var(--background-color-primary);
+        z-index: 1000; /* Más alto que el contenido */
+    }
+
+    @media (max-width: 800px) {
+        .scroll-container {
+            height: calc(100vh - 355px);
+        }
+    }
+
+    @media (max-width: 1030px) {
+        .movie-card {
+            width: 100%;
+            max-width: 250px;
+        }
     }
 </style>

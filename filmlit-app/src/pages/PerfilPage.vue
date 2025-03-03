@@ -24,7 +24,7 @@
 <style scoped>
     .perfil-main-container {
         width: 50%;
-        height: 100vh;
+        height: 100%;
         background-color: var(--background-color-primary);
         color: var(--color-text-primary);
         padding-top: 30px;

@@ -140,7 +140,7 @@
         color: red; 
     }
 
-    @media (max-width: 770px) {
+    @media (max-width: 800px) {
         .el-dropdown-link {
             padding: 0;
             height: 65%;

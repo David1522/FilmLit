@@ -1,5 +1,5 @@
 <template>
-    <div class="noticias-container">
+    <div class="noticias-container" @scroll="handleScroll">
 		<h1 style="color: var(--color-text-primary);">Últimas Noticias</h1>
 		
 		<div v-if="noticias && noticias.length" class="noticias-grid">
@@ -23,14 +23,6 @@
 		<div v-else>
 			<p>Cargando noticias...</p>
 		</div>
-		
-		<button 
-			:disabled="!canLoadMore" 
-			@click="cargarMasNoticias" 
-			class="load-more-btn"
-		>
-			{{ canLoadMore ? 'Cargar más' : 'No hay más noticias' }}
-		</button>
     </div>
 </template>
   
@@ -70,11 +62,16 @@
 		console.error("Error al obtener las noticias:", error);
 		});
 	};
-	
-	const cargarMasNoticias = () => {
-		page.value++;
-		getNoticias();
-	};
+
+	function handleScroll() {
+		const container = document.querySelector('.noticias-container');
+        const inferiorContainer = container.scrollHeight - container.scrollTop <= container.clientHeight + 200;
+
+        if (inferiorContainer) {
+			page.value++;
+			getNoticias();
+        }
+	}
 	
 	onMounted(() => {
 		getNoticias();

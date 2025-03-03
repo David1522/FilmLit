@@ -12,6 +12,7 @@
     import AccountBar from '@/components/UI/AccountBar.vue';
     import Explorar from '@/components/biblioteca/Explorar.vue';
 </script>
+
 <style scoped>
     .main-container {
         width: 100%;

@@ -62,7 +62,7 @@
         transition: font-size ease 300ms;
     }
 
-    @media (max-width: 770px) {
+    @media (max-width: 800px) {
         .theme-switcher-btn {
             padding: 0;
             height: 65%;

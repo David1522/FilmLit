@@ -1,5 +1,5 @@
 <template>
-    <div class="salas-container">
+    <div class="salas-container" @scroll="handleScroll">
         <ul v-if="salas.length" class="salas-list">
 			<SalaItem
 				v-for="sala in salas"
@@ -8,7 +8,7 @@
 				:user-id="userId"
 				:registros-acceso="registrosAcceso"
 				@salaEditada="actualizarDatos"
-				@salaEliminada="fetchSalas"
+				@salaEliminada="actualizarDatos"
 			/>
         </ul>
 
@@ -20,77 +20,136 @@
 	import { ref, onMounted, defineProps } from 'vue';
 	import SalaItem from './SalaItem.vue';
 	import axios from 'axios';
+	import router from '@/router';
 
-	const props = defineProps({
-	userId: Number
-	});
+	const token = ref('');
 
 	const salas = ref([]);
 	const registrosAcceso = ref([]);
 
-	const fetchSalas = async () => {
-	try {
-		const token = localStorage.getItem('token');
-		const response = await axios.get('http://localhost:8000/salas', {
-		headers: { Authorization: `Bearer ${token}` }
-		});
-		salas.value = response.data;
-	} catch (error) {
-		console.error(error);
-		alert('Error al cargar las salas.');
-	}
-	};
+	const page = ref(1);
+	const size = ref(10);
+	const total = ref(0);
+	const hasNext = ref(false);
+	const cargandoSalas = ref(false);
 
-	const fetchRegistrosAcceso = async () => {
-	try {
-		const token = localStorage.getItem('token');
-		const response = await axios.get('http://localhost:8000/mi_registros_acceso', {
-		headers: { Authorization: `Bearer ${token}` }
-		});
-		registrosAcceso.value = response.data;
-	} catch (error) {
-		console.error(error);
-		alert('Error al cargar los registros de acceso.');
-	}
-	};
+	const props = defineProps({
+		userId: Number
+	});
 
-	const actualizarDatos = async () => {
-	await fetchSalas();
-	await fetchRegistrosAcceso();
-	};
+	async function fetchSalas (page = 1) {
+		try {
+			validarToken();
+
+			const response = await axios.get('http://localhost:8000/salas', {
+				headers: { 
+					Authorization: `Bearer ${token.value}`
+				},
+				params: {
+					page,
+					size: size.value,
+				}
+			});
+
+			const { data, total: totalSalas, has_next } = response.data;
+
+			salas.value = [...salas.value, ...data];
+			total.value = totalSalas;
+			hasNext.value = has_next;
+		} catch (error) {
+			console.error(error);
+			localStorage.removeItem('token');
+            router.push('/');
+		}
+	}
+
+	async function cargarSalas() {
+		if (!hasNext.value || cargandoSalas.value) return;
+
+		cargandoSalas.value = true;
+		page.value += 1;
+
+		await fetchSalas(page.value);
+		cargandoSalas.value = false;
+	}
+
+	function handleScroll() {
+        const container = document.querySelector('.salas-container');
+        const inferiorContainer = container.scrollHeight - container.scrollTop <= container.clientHeight + 200;
+
+        if (inferiorContainer && hasNext.value) {
+			console.log("Adding page")
+            cargarSalas();
+        }
+    }
+
+	async function fetchRegistrosAcceso () {
+		try {
+			validarToken();
+
+			const response = await axios.get('http://localhost:8000/mi_registros_acceso', {
+				headers: { Authorization: `Bearer ${token.value}` }
+			});
+			registrosAcceso.value = response.data;
+		} catch (error) {
+			console.error(error);
+			localStorage.removeItem('token');
+            router.push('/');
+		}
+	}
+
+	async function actualizarDatos() {
+		page.value = 1;
+		salas.value = []
+		registrosAcceso.value = [];
+		fetchSalas(page.value);
+		fetchRegistrosAcceso();
+	}
+
+	async function validarToken() {
+        token.value = localStorage.getItem('token');
+        if (!token.value) {
+            router.push('login');
+            return;
+        }
+    }
+
+	defineExpose({
+		actualizarDatos,
+	});
 
 	onMounted(() => {
-	fetchSalas();
-	fetchRegistrosAcceso();
+		fetchSalas();
+		fetchRegistrosAcceso();
 	});
 </script>
 
-
 <style scoped>
 	.salas-container {
-	color: var(--color-text-primary);
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	overflow-y: auto;
-	scrollbar-width: none;
-	-ms-overflow-style: none;
+		color: var(--color-text-primary);
+		overflow-y: auto;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
 	}
 
 	.salas-container::-webkit-scrollbar {
-	display: none;
+		display: none;
 	}
 
 	.salas-list {
-	width: 100%;
-	list-style-type: none;
-	padding: 0;
+		width: 100%;
+		list-style-type: none;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.no-salas {
-	color: var(--color-text-secundary);
-	font-size: 16px;
-	padding-top: 15px;
-	text-align: center;
+		color: var(--color-text-secundary);
+		font-size: 16px;
+		padding-top: 15px;
+		text-align: center;
 	}
 </style>

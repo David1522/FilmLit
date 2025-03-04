@@ -461,9 +461,23 @@ async def get_sala_endpoint(id_sala: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Sala not found")
     return sala
 
-@app.get("/salas", response_model=List[schemas.Sala])
-async def get_salas_endpoint(db: Session = Depends(get_db), skip: int = 0, limit: int = 10):
-    return crud.get_salas(db, skip=skip, limit=limit)
+
+@app.get("/salas", response_model=schemas.PaginatedSalas)
+async def get_salas(perfil_usuario: Annotated[schemas.Perfil, Depends(get_current_active_user)], db: Annotated[Session, Depends(get_db)], page: int = 1, size: int = 10):
+    if page < 1 or size < 1:
+        raise HTTPException(status_code=400, detail="Invalid page or size parameters")
+    
+    salas_totales = crud.get_total_num_salas(db)
+    offset = (page - 1) * size
+    
+    return schemas.PaginatedSalas(
+        data = crud.get_salas_paginadas(db, offset, size),
+        total = salas_totales,
+        page = page,
+        size = size,
+        has_next = salas_totales > offset + size 
+    )
+    
 
 @app.post("/salas", response_model=schemas.Sala)
 async def crear_sala_endpoint(

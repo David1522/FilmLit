@@ -281,8 +281,13 @@ def eliminar_comentario(db: Session, id_comentario: int):
 def get_sala(db: Session, id_sala: int):
     return db.query(models.Sala).filter(models.Sala.id_sala == id_sala).first()
 
-def get_salas(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(models.Sala).offset(skip).limit(limit).all()
+
+def get_total_num_salas(db: Session):
+    return db.query(models.Sala).count()
+
+
+def get_salas_paginadas(db: Session, offset: int, size: int):
+    return db.query(models.Sala).order_by(models.Sala.id_sala).offset(offset).limit(size).all()
 
 
 def crear_sala(db: Session, id_perfil: int, nombre: str, privado: Optional[bool], contrasena: Optional[str], descripcion_corta: str, multimedia: Optional[str] = None):
@@ -309,7 +314,6 @@ def crear_sala(db: Session, id_perfil: int, nombre: str, privado: Optional[bool]
     db.commit()
     db.refresh(db_sala)
     return db_sala
-
 
 
 def actualizar_sala(

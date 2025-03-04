@@ -135,6 +135,14 @@ class Sala(SalaBase):
     class Config:
         from_attributes = True
         
+        
+class PaginatedSalas(BaseModel):
+    data: List[Sala]
+    total: int
+    page: int
+    size: int
+    has_next: bool
+        
 
 # Schemas Libro
 class Libro(BaseModel):
